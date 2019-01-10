@@ -1,0 +1,6 @@
+#control .fa-pause,#control.playing  .fa-play{
+	display: none;
+}
+#control.playing  .fa-pause,#control .fa-play{
+	display: inline;
+}
