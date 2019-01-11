@@ -1,7 +1,7 @@
 var allPoints = [];
 var speeds = [];
 var ctx = document.getElementById("myChart").getContext('2d');
-var myChart, refresher, desiredSpeed;
+var myChart, refresher, desiredSpeed, start;
 var updateFreq = 500;
 var mphForm = '0.00';
 var good = "#28a745";
@@ -9,10 +9,24 @@ var goodBG = "#53F377";
 var bad = "#dc3545";
 var badBG = "#E27A84";
 var timer = new easytimer.Timer();
+var athlete = "";
 $(document).ready(function(){
 	myChart = initChart();
 	initTimers();
 	dragula([document.getElementById('main')]);
+	$.getJSON("/api/athlete",function(data){
+		athlete = data;
+		$("#profile").html('<img class="img-fluid rounded" style="max-width:50px" src="' + athlete.profile +'" />');
+	});
+	$("#strava").on("click",function(e){
+		let avg = getAvg(speeds);
+		let elapsed = timer.getTotalTimeValues().seconds;
+		let distance = avg * (elapsed / 60 / 60);
+		
+		$.post(`/api/publish?elapsed=${elapsed}&distance=${distance}&start=${start}`,function(data){
+			console.log(data);
+		});
+	});
 	$(".resizable").on("click",function(e){
 		var el = $(e.target).closest(".resizable");
 		var isMax = el.hasClass("full");
@@ -32,6 +46,7 @@ $(document).ready(function(){
 			clearInterval(refresher);
 		}else{
 			btn.addClass("playing")
+			start = new Date().toISOString();
 			timer.start();
 			refresher = startUpdating();
 		}
@@ -65,6 +80,7 @@ var startUpdating = function(){
 			$("#currSpeed").html(numeral(speed).format(mphForm) + "mph");
 			myChart.data.datasets.forEach((dataset) => {
 				dataset.data.push({t:Date.now(),y:speed});
+				allPoints.push({t:Date.now(),y:speed});
 				if(speed>=desiredSpeed){
 					dataset.pointBackgroundColor.push(good);
 					dataset.backgroundColor = goodBG;
@@ -73,7 +89,7 @@ var startUpdating = function(){
 					dataset.backgroundColor = badBG;
 				}
 				if(dataset.data.length > (5*120)){
-					allPoints.push(dataset.data.shift());
+					dataset.data.shift();
 					dataset.pointBackgroundColor.shift();
 				}
 			});

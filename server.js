@@ -32,7 +32,6 @@ const axios = require('axios')
 const port = 3000;
 const client_id = "31578";
 const client_secret = "8ed2b2f6bc292bbb2b1a322b10e9242c48fd3b49";
-let access_token = "d6afc302ec0b64ab89378b368d5ecaa85e5bc306";
 
 function startUp(){
 	//serve from public folder
@@ -104,16 +103,15 @@ function startUp(){
 				res.json(data);
 				break;
 			case 'athlete' : 
-				let user = "";
 				User.findOne({ where: { refresh_token: req.session.user } }).then(function (user) {
 					let strava = new require("strava")({
 						client_id: client_id,	
 						client_secret: client_secret,
 						access_token: user.access_token
 					});
-				strava.athlete.get(function(err,rs){
-					res.send(rs);
-				});
+					strava.athlete.get(function(err,rs){
+						res.json(rs);
+					});
 				})
 				break;
 			default:
@@ -121,9 +119,28 @@ function startUp(){
 				break;
 		}
 	});
-	app.post('/api/:action',function(req,resp,next){
+	app.post('/api/:action',function(req,res,next){
 		switch (req.params.action) {
 			case 'publish' :
+				User.findOne({ where: { refresh_token: req.session.user } }).then(function (user) {
+					let strava = new require("strava")({
+						client_id: client_id,	
+						client_secret: client_secret,
+						access_token: user.access_token
+					});
+					console.log(req.query.distance);
+					let distance = req.query.distance * 1609.34;
+					strava.activities.create({
+							name: "Veload Session",
+							type: "ride",
+							start_date_local: req.query.start,
+							trainer: true,
+							elapsed_time: req.query.elapsed,
+							distance: distance
+						},function(err,rs){
+							res.json(rs);
+					});
+				})	
 				break;
 			default:
 				data = "Sorry, operation unsupported";
