@@ -1,4 +1,4 @@
-#control .fa-pause,#control.playing  .fa-play{
+#control .fa-pause,#control.playing  .fa-play,.resizable.min .fa-compress-arrows-alt,.resizable.full .fa-expand-arrows-alt{
 	display: none;
 }
 #control.playing  .fa-pause,#control .fa-play{

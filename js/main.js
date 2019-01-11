@@ -12,6 +12,17 @@ var timer = new easytimer.Timer();
 $(document).ready(function(){
 	myChart = initChart();
 	initTimers();
+	dragula([document.getElementById('main')]);
+	$(".resizable").on("click",function(e){
+		var el = $(e.target).closest(".resizable");
+		var isMax = el.hasClass("full");
+		if(isMax){
+			el.removeClass("full col-lg-12").addClass("min col-lg-3")
+		}else{
+			el.removeClass("min col-lg-3").addClass("full col-lg-12")
+		}
+		
+	});
 	$("#control").on("click",function(e){
 		var btn = $("#control");
 		var playing = btn.hasClass("playing");
