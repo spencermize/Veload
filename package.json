@@ -12,6 +12,7 @@
     "mysql2": "*",
     "axios": "*",
     "yargs": "*",
-    "moment": "*"
+    "moment": "*",
+    "express-handlebars": "*"
   }
 }

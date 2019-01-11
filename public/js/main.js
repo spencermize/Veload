@@ -1,7 +1,7 @@
 var allPoints = [];
 var speeds = [];
 var ctx = document.getElementById("myChart").getContext('2d');
-var myChart, refresher, desiredSpeed, start;
+var myChart, refresher, desiredSpeed, start, elapsed;
 var updateFreq = 500;
 var mphForm = '0.00';
 var good = "#28a745";
@@ -19,9 +19,8 @@ $(document).ready(function(){
 		$("#profile").html('<img class="img-fluid rounded" style="max-width:50px" src="' + athlete.profile +'" />');
 	});
 	$("#strava").on("click",function(e){
-		let avg = getAvg(speeds);
-		let elapsed = timer.getTotalTimeValues().seconds;
-		let distance = avg * (elapsed / 60 / 60);
+		let avg = getAvg();
+		let distance = getDistance();
 		
 		$.post(`/api/publish?elapsed=${elapsed}&distance=${distance}&start=${start}`,function(data){
 			console.log(data);
@@ -63,6 +62,7 @@ $(document).ready(function(){
 var initTimers = function(){
 	timer.addEventListener('secondsUpdated', function (e) {
 		$('#elapsedTime').html(timer.getTimeValues().toString());
+		elapsed = timer.getTotalTimeValues().seconds;
 	});
 	timer.addEventListener('started', function (e) {
 		$('#elapsedTime').html(timer.getTimeValues().toString());
@@ -76,8 +76,8 @@ var startUpdating = function(){
 		$.getJSON("/api/speed",function(data){
 			let speed = new Number(data.speed);
 			desiredSpeed = $("#desiredSpeed").val();
-			console.log(`${desiredSpeed} ${speed}`);
 			$("#currSpeed").html(numeral(speed).format(mphForm) + "mph");
+			$("#distance").html(numeral(getDistance()).format(mphForm) + " miles");
 			myChart.data.datasets.forEach((dataset) => {
 				dataset.data.push({t:Date.now(),y:speed});
 				allPoints.push({t:Date.now(),y:speed});
@@ -95,14 +95,17 @@ var startUpdating = function(){
 			});
 			myChart.update();
 			speeds.push(speed);
-			$("#avgSpeed").html(numeral(getAvg(speeds)).format(mphForm) + "mph");			
+			$("#avgSpeed").html(numeral(getAvg()).format(mphForm) + "mph");			
 		})
 	},updateFreq);
 }
-var getAvg = function(sp){
-	return sp.reduce(function(a,b){
+var getAvg = function(){
+	return speeds.reduce(function(a,b){
 		return a + b
-	}, 0) / sp.length
+	}, 0) / speeds.length
+}
+var getDistance = function(){
+	return getAvg(speeds) * (elapsed / 60 / 60);
 }
 var initChart = function(){
 	return new Chart(ctx, {

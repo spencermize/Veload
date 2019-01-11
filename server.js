@@ -3,6 +3,7 @@ const args = require('yargs').argv;
 
 //various helpers
 let moment = require('moment');
+let hbs = require( 'express-handlebars');
 
 //hardware connections
 const SerialPort = require('serialport')
@@ -32,6 +33,16 @@ const axios = require('axios')
 const port = 3000;
 const client_id = "31578";
 const client_secret = "8ed2b2f6bc292bbb2b1a322b10e9242c48fd3b49";
+
+// view engine setup
+app.set('view engine', 'hbs');
+
+app.engine( 'hbs', hbs( {
+  extname: 'hbs',
+  defaultView: 'default',
+  layoutsDir: __dirname + '/views/layouts/',
+  partialsDir: __dirname + '/views/partials/'
+}));
 
 function startUp(){
 	//serve from public folder
@@ -65,7 +76,7 @@ function startUp(){
 		res.redirect('/dashboard');
 	});
 	app.get('/dashboard',sessionChecker, (req, res) => {
-		res.sendFile('index.html', {"root": __dirname+"/public"});
+		res.render('dashboard', {layout: 'default'});
 	});	
 	app.get('/strava',(req, resp) => {
 		let code = req.query.code;

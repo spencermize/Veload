@@ -1,0 +1,40 @@
+<!doctype html>
+<html class="no-js" lang="">
+{{> header}}
+
+
+<body>
+  <!--[if lte IE 9]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+  <!-- Add your site or application content here -->
+    <nav class="navbar navbar-light sticky-top bg-light flex-md-nowrap">
+		<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">
+			<img src="/img/logo.png" class="img-fluid" alt="">
+		</a>
+	  <div class="button-group">
+		<button id="control" class="btn btn-outline-primary"><i class="fas fa-pause"></i><i class="fas fa-play"></i></button>
+		<button id="clear" class="btn btn-outline-secondary"><i class="fas fa-broom"></i></button>
+		<button id="strava" class="btn btn-outline-secondary"><i class="fab fa-strava"></i></button>
+		<button id="profile" class="btn btn-link"></button>
+	  </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div id="main" role="main" class="pt-3 px-4 flex-wrap d-flex justify-content-between">
+			{{{body}}}
+		</div>
+    </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+  <script src="js/easytimer/dist/easytimer.min.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js'></script>
+  <script src="js/main.js"></script>
+</body>
+
+</html>
