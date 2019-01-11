@@ -59,11 +59,13 @@ var initTimers = function(){
 var startUpdating = function(){
 	return setInterval(function(){
 		$.getJSON("/api/speed",function(data){
+			let speed = new Number(data.speed);
 			desiredSpeed = $("#desiredSpeed").val();
-			$("#currSpeed").html(numeral(data).format(mphForm) + "mph");
+			console.log(`${desiredSpeed} ${speed}`);
+			$("#currSpeed").html(numeral(speed).format(mphForm) + "mph");
 			myChart.data.datasets.forEach((dataset) => {
-				dataset.data.push({t:Date.now(),y:data});
-				if(data>=desiredSpeed){
+				dataset.data.push({t:Date.now(),y:speed});
+				if(speed>=desiredSpeed){
 					dataset.pointBackgroundColor.push(good);
 					dataset.backgroundColor = goodBG;
 				}else{
@@ -76,7 +78,7 @@ var startUpdating = function(){
 				}
 			});
 			myChart.update();
-			speeds.push(data);
+			speeds.push(speed);
 			$("#avgSpeed").html(numeral(getAvg(speeds)).format(mphForm) + "mph");			
 		})
 	},updateFreq);

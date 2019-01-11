@@ -14,54 +14,27 @@ parser.on('data', function(data){
 	currSpeed = data;
 })
 
-const http = require('http');
+const express = require('express');
+const app = express();
+const port = 3000;
 
-const hostname = '127.0.0.1';
-const WebPort = 3000;
+app.use(express.static('public'))
 
-const server = http.createServer((request, response) => {
-  const { method, url } = request;
- // response.end('Current Speed: ' + currSpeed);
-  var data = "";
-  try {
-	if(url.includes("/api/")){
-		var req = path.basename(url);
-		switch (req) {
-			case 'speed' :
-				data = currSpeed;
-				break;
-			default:
-				data = "Sorry, operation unsupported";
-				break;
-		}
-		header = "application/json";
-	}else{
-		var file = url=="/" ? "index.html" : url.replace(/^\/|\/$/g, '');
-		data = fs.readFileSync(file, 'utf8');		
-
-		var header = "";
-		var ext = path.extname(file);
-		
-		switch (ext) {
-			case '.js': 
-				header = "application/javascript";
-				break;
-			case '.css':
-				header = "text/css";
-				break;
-			default:
-				header = "text/html";
-		}
-	}
-	response.setHeader('Content-Type', header);
-    response.statusCode = 200;
-    response.write(data);    
-  }catch(e) {	
-	response.statusCode = 404;
-  }
-  response.end();
+app.get('/',(req, res) => {
+	res.sendFile('index.html');
 });
-
-server.listen(WebPort, hostname, () => {
-  console.log(`Server running at http://${hostname}:${WebPort}/`);
+app.get('/api/:action',function(req,res,next){
+	let data = "";
+	switch (req.params.action) {
+		case 'speed' :
+			data = currSpeed;
+			break;
+		default:
+			data = "Sorry, operation unsupported";
+			break;
+	}
+	res.json({"speed":data});
+});
+app.listen(port, () => {
+  console.log(`Server listenening on ${port}`);
 });
