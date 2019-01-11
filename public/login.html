@@ -27,53 +27,16 @@
 		<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">
 			<img src="/img/logo.png" class="img-fluid" alt="">
 		</a>
-	  <div class="button-group">
-		<button id="control" class="btn btn-outline-primary"><i class="fas fa-pause"></i><i class="fas fa-play"></i></button>
-		<button id="clear" class="btn btn-outline-secondary"><i class="fas fa-broom"></i></button>
-	  </div>
     </nav>
 
     <div class="container-fluid">
-        <div id="main" role="main" class="pt-3 px-4 flex-wrap d-flex justify-content-between">
-			<div class="col-lg-4">
+        <div id="main" role="main" class="">
+			<div class="col-lg-4 mx-auto mt-3">
 				<div class="card">
-					<div class="card-header">Ride Goals</div>
-					<div class="card-body">
-						<div class="input-group mb-3">
-							<div class="input-group-prepend">
-								<span class="input-group-text" id="basic-addon3">Speed Goal:</span>
-							</div>
-							<input id="desiredSpeed" class="form-control" type="text" value="15"></input>
-							<div class="input-group-append">
-								<span class="input-group-text">mph</span>
-							</div>
-						</div>
+					<div class="card-header">Login</div>
+					<div class="card-body text-center">
+						<a class="col-lg-8" href="https://www.strava.com/oauth/authorize?client_id=31578&redirect_uri=http://home.spencerm.pro:3000/strava&response_type=code&scope=activity:write"><img class="img-fluid" src="img/strava_connect.png" /></a>
 					</div>
-				</div>
-			</div>	
-			<div class="col-lg-4">
-				<div class="card">
-					<div class="card-header">Speed Stats</div>
-					<div class="card-body">
-						<ul class="list-group list-group-flush">
-							<li class="list-group-item"><h3>Current Speed: <span class="small" id="currSpeed">Sorry, no data!</span></h3></li>
-							<li class="list-group-item"><h3>Average Speed: <span class="small" id="avgSpeed">Sorry, no data!</span></h3></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-			<div class="col-lg-4">
-				<div class="card">
-					<div class="card-header">Time Stats</div>
-					<div class="card-body">
-						<h3>Elapsed: <span class="small" id="elapsedTime"></span></h3>
-					</div>
-				</div>
-			</div>		
-			<div class="col-lg-4 resizable min">
-				<div class="card">
-					<div class="card-header">Speed Graph <button class="float-right btn btn-light btn-sm"><i class="fas fa-expand-arrows-alt"></i><i class="fas fa-compress-arrows-alt"></i></button></div>
-					<div class="card-body"><canvas class="my-4" id="myChart"></canvas></div>
 				</div>
 			</div>	
 		</div>
