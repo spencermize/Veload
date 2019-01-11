@@ -1,0 +1,10 @@
+{
+  "name": "Veload",
+  "description": "Bike at Home",
+  "repository": "https://github.com/spencermize/Veload.git",
+  "version": "0.1.0",
+  "devDependencies": {
+    "express": "4.16.4",
+    "serialport": "7.1.2"
+  }
+}
