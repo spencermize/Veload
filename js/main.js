@@ -72,6 +72,7 @@ var startUpdating = function(){
 				}
 				if(dataset.data.length > (5*120)){
 					allPoints.push(dataset.data.shift());
+					dataset.pointBackgroundColor.shift();
 				}
 			});
 			myChart.update();
