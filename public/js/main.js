@@ -44,10 +44,15 @@ $(document).ready(function(){
 			timer.pause();
 			clearInterval(refresher);
 		}else{
-			btn.addClass("playing")
-			start = new Date().toISOString();
-			timer.start();
-			refresher = startUpdating();
+			$.getJSON("http://localhost:3001/status",function(data){
+				if(data.status){
+					btn.addClass("playing")
+					start = new Date().toISOString();
+					timer.start();
+					refresher = startUpdating();
+				}
+			});
+
 		}
 	});
 	$("#clear").on("click",function(e){
@@ -73,29 +78,34 @@ var initTimers = function(){
 }
 var startUpdating = function(){
 	return setInterval(function(){
-		$.getJSON("/api/speed",function(data){
-			let speed = new Number(data.speed);
-			desiredSpeed = $("#desiredSpeed").val();
-			$("#currSpeed").html(numeral(speed).format(mphForm) + "mph");
-			$("#distance").html(numeral(getDistance()).format(mphForm) + " miles");
-			myChart.data.datasets.forEach((dataset) => {
-				dataset.data.push({t:Date.now(),y:speed});
-				allPoints.push({t:Date.now(),y:speed});
-				if(speed>=desiredSpeed){
-					dataset.pointBackgroundColor.push(good);
-					dataset.backgroundColor = goodBG;
-				}else{
-					dataset.pointBackgroundColor.push(bad);
-					dataset.backgroundColor = badBG;
-				}
-				if(dataset.data.length > (5*120)){
-					dataset.data.shift();
-					dataset.pointBackgroundColor.shift();
-				}
-			});
-			myChart.update();
-			speeds.push(speed);
-			$("#avgSpeed").html(numeral(getAvg()).format(mphForm) + "mph");			
+		$.getJSON("http://localhost:3001/speed",function(data){
+			if(data.connected){
+				$(".footer .status").text(`Veload connected on port ${data.connected}`);
+				let speed = new Number(data.speed);
+				desiredSpeed = $("#desiredSpeed").val();
+				$("#currSpeed").html(numeral(speed).format(mphForm) + "mph");
+				$("#distance").html(numeral(getDistance()).format(mphForm) + " miles");
+				myChart.data.datasets.forEach((dataset) => {
+					dataset.data.push({t:Date.now(),y:speed});
+					allPoints.push({t:Date.now(),y:speed});
+					if(speed>=desiredSpeed){
+						dataset.pointBackgroundColor.push(good);
+						dataset.backgroundColor = goodBG;
+					}else{
+						dataset.pointBackgroundColor.push(bad);
+						dataset.backgroundColor = badBG;
+					}
+					if(dataset.data.length > (5*120)){
+						dataset.data.shift();
+						dataset.pointBackgroundColor.shift();
+					}
+				});
+				myChart.update();
+				speeds.push(speed);
+				$("#avgSpeed").html(numeral(getAvg()).format(mphForm) + "mph");					
+			}else{
+				$(".footer .status").text("Not connected to bicycle!");
+			}		
 		})
 	},updateFreq);
 }

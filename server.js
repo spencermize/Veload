@@ -5,25 +5,12 @@ const args = require('yargs').argv;
 let moment = require('moment');
 let hbs = require( 'express-handlebars');
 
-//hardware connections
-const SerialPort = require('serialport')
-const Readline = require('@serialport/parser-readline')
-const SerPort = new SerialPort("COM4", { baudRate: 9600 })
-const parser = new Readline()
-SerPort.pipe(parser)
-
 //db connections
 const Sequelize = require('sequelize');
 const sequelize = dbConnect();
 const User = userModel(sequelize);
 init(sequelize,args.reset);
 
-
-// Open the hardware
-var currSpeed = 0;
-parser.on('data', function(data){
-	currSpeed = data;
-})
 
 //webapp
 const express = require('express');
@@ -109,10 +96,6 @@ function startUp(){
 	app.get('/api/:action',sessionChecker, function(req,res,next){
 		let data = "";
 		switch (req.params.action) {
-			case 'speed' :
-				data = {"speed":currSpeed};
-				res.json(data);
-				break;
 			case 'athlete' : 
 				User.findOne({ where: { refresh_token: req.session.user } }).then(function (user) {
 					let strava = new require("strava")({
@@ -127,6 +110,7 @@ function startUp(){
 				break;
 			default:
 				data = {"error":"Sorry, operation unsupported"};
+				res.json(data);
 				break;
 		}
 	});
