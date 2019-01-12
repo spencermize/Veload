@@ -68,7 +68,7 @@ function startUp(){
 	};
 	// route for user Login
 	app.route('/login').get((req, res) => {
-        res.sendFile('login.html', {"root": __dirname+"/public"});
+		res.render('login', {layout: 'default'});
     })
 
 	// route for Home-Page
