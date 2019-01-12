@@ -11,12 +11,14 @@ var badBG = "#E27A84";
 var timer = new easytimer.Timer();
 var athlete = "";
 $(document).ready(function(){
+	initVoice();
 	myChart = initChart();
 	initTimers();
 	dragula([document.getElementById('main')]);
+	$('#modal').modal({show: false});
 	$.getJSON("/api/athlete",function(data){
 		athlete = data;
-		$("#profile").html('<img class="img-fluid rounded" style="max-width:50px" src="' + athlete.profile +'" />');
+		$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
 	});
 	$("#strava").on("click",function(e){
 		let avg = getAvg();
@@ -45,11 +47,19 @@ $(document).ready(function(){
 			clearInterval(refresher);
 		}else{
 			$.getJSON("http://localhost:3001/status",function(data){
-				if(data.status){
+				if(data.status && data.status.length){
 					btn.addClass("playing")
 					start = new Date().toISOString();
 					timer.start();
 					refresher = startUpdating();
+				}else{
+					$('#modal').on('show.bs.modal', function (event) {
+						var modal = $(this);
+						console.log(modal);
+						modal.find(".modal-body p").text("Please check that your sensor is connected in the Veload Monitor!");
+						modal.find(".modal-header").text("Error!");
+						modal.find(".modal-footer .btn-primary").hide();
+					}).modal('show');
 				}
 			});
 
@@ -149,4 +159,19 @@ var initChart = function(){
 			}
 		}
 	});
+}
+
+var initVoice = function(){
+	if (annyang) {
+	// Let's define a command.
+		var commands = {
+		'	hello': function() { alert('Hello world!'); }
+		};
+
+		// Add our commands to annyang
+		annyang.addCommands(commands);
+
+		// Start listening.
+		annyang.start();
+	}
 }

@@ -41,15 +41,20 @@ function startUp(){
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
-			expires: 600000
+
 		}
 	}));
 
 	// middleware function to check for logged-in users
 	var sessionChecker = (req, res, next) => {
 		if (req.session.user && moment(req.session.expires).isAfter(moment())) {
+			console.log("Found user with valid credential");
 			next();
-		} else {
+		} else if(req.session.user && moment(req.session.expires).isBefore(moment())){
+			console.log("Found user with expired credential");
+			reAuthStrava(req, res, req.session.user);
+		}else {
+			console.log("Could not find user or session");
 			res.redirect('/login');
 		}    
 	};
@@ -77,14 +82,12 @@ function startUp(){
 					refresh_token: res.data.refresh_token,
 					expires_at: res.data.expires_at*1000
 				}).then(function(user) {
-					req.session.user = user.refresh_token;
+					req.session.user = user.username;
 					req.session.expires = user.expires_at;
 					resp.redirect('/dashboard');
 				})
 			} else {
-				req.session.user = user.refresh_token;
-				req.session.expires = user.expires_at;
-                resp.redirect('/dashboard');
+				reAuthStrava(req,resp,user.username);
             }
 			}).catch((error) => {
 				console.error(error)
@@ -97,7 +100,7 @@ function startUp(){
 		let data = "";
 		switch (req.params.action) {
 			case 'athlete' : 
-				User.findOne({ where: { refresh_token: req.session.user } }).then(function (user) {
+				User.findOne({ where: { refresh_token: req.session.refresh_token, username: req.session.user } }).then(function (user) {
 					let strava = new require("strava")({
 						client_id: client_id,	
 						client_secret: client_secret,
@@ -117,7 +120,7 @@ function startUp(){
 	app.post('/api/:action',function(req,res,next){
 		switch (req.params.action) {
 			case 'publish' :
-				User.findOne({ where: { refresh_token: req.session.user } }).then(function (user) {
+				User.findOne({ where: { refresh_token: req.session.refresh_token, username: req.session.user } }).then(function (user) {
 					let strava = new require("strava")({
 						client_id: client_id,	
 						client_secret: client_secret,
@@ -147,7 +150,27 @@ function startUp(){
 	});
 	
 }
-
+function reAuthStrava(req,resp,user){
+	User.findOne({ where: { username: user } }).then(function (user) {
+		console.log("" + user.username + " found...");
+		axios.post(`https://www.strava.com/oauth/token?client_id=${client_id}&client_secret=${client_secret}&refresh_token=${user.refresh_token}&grant_type=refresh_token`,{}).then((res) =>
+		{
+			user.access_token = res.data.access_token;
+			user.refresh_token = res.data.refresh_token;
+			user.expires_at = res.data.expires_at*1000;
+			req.session.user = user.username;
+			req.session.refresh_token = user.refresh_token;
+			req.session.expires = user.expires_at;			
+			user.save().then(function(){
+				resp.redirect("/dashboard");
+			});
+		}).catch((error) => {
+			console.error(error)
+		});
+	}).catch((error) => {
+		console.error(error)
+	});
+}
 function dbConnect(){
 	return new Sequelize('veload', 'veload', 'y0OT1*jtd3G1VH$x', {
 		host: '35.224.151.186',

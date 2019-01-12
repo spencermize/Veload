@@ -9,17 +9,7 @@
   <![endif]-->
 
   <!-- Add your site or application content here -->
-    <nav class="navbar navbar-light sticky-top bg-light flex-md-nowrap">
-		<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">
-			<img src="/img/logo.png" class="img-fluid" alt="">
-		</a>
-	  <div class="button-group">
-		<button id="control" class="btn btn-outline-primary"><i class="fas fa-pause"></i><i class="fas fa-play"></i></button>
-		<button id="clear" class="btn btn-outline-secondary"><i class="fas fa-broom"></i></button>
-		<button id="strava" class="btn btn-outline-secondary"><i class="fab fa-strava"></i></button>
-		<button id="profile" class="btn btn-link"></button>
-	  </div>
-    </nav>
+	{{> nav }}
 
     <div class="container-fluid">
         <div id="main" role="main" class="pt-3 px-4 flex-wrap d-flex justify-content-between">
@@ -27,6 +17,7 @@
 		</div>
     </div>
 	{{> footer }}
+	{{> modal }}
 	{{> scripts }}
 </body>
 

@@ -6,7 +6,6 @@
   "devDependencies": {
     "express": "4.16.4",
     "express-session": "*",
-    "serialport": "7.1.2",
     "strava": "0.0.2",
     "sequelize": "*",
     "mysql2": "*",
