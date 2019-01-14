@@ -17,12 +17,15 @@ var allPoints = [];
 var speeds = [];
 var ctx = document.getElementById("myChart").getContext('2d');
 var myChart, refresher, desiredSpeed, startTime, elapsed;
-var updateFreq = 500;
-var mphForm = '0.00';
-var good = "#28a745";
-var goodBG = "#53F377";
-var bad = "#dc3545";
-var badBG = "#E27A84";
+const Veload = {
+	updateFreq: 500,
+	mphForm: '0.00',
+	good: "#28a745",
+	goodBG: "#53F377",
+	bad: "#dc3545",
+	badBG: "#E27A84"
+};
+
 var timer = new easytimer.Timer();
 var athlete = "";
 const cTemps = [];
@@ -34,58 +37,31 @@ $(document).ready(function(){
 	initTimers();
 	poll();
 	initPolling();
-
+	dragula([document.getElementById('main')]);
+	
 	var templates = ['modal','footer'];
 	templates.forEach(function(templ){
 		var src = document.getElementById(`${templ}-temp`).innerHTML;
 		cTemps[templ] = Handlebars.compile(src);	
 	});
 	
-	dragula([document.getElementById('main')]);
-	$('#modal').modal({show: false});
 	$.getJSON(remote.athlete,function(data){
 		athlete = data;
 		$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
-	});
-	$("#strava").on("click",function(e){
-		let avg = getAvg();
-		let distance = getDistance();
-		
-		$.post(`${remote.api}?elapsed=${elapsed}&distance=${distance}&start=${startTime}`,function(data){
-			console.log(data);
-		});
 	});
 	$(".resizable").on("click",function(e){
 		var el = $(e.target).closest(".resizable");
 		var isMax = el.hasClass("full");
 		if(isMax){
-			el.removeClass("full col-lg-12").addClass("min col-lg-3")
+			el.removeClass("full col-lg-6").addClass("min col-lg-3")
 		}else{
-			el.removeClass("min col-lg-3").addClass("full col-lg-12")
+			el.removeClass("min col-lg-3").addClass("full col-lg-6")
 		}
 		
 	});
-	$("#control").on("click",function(e){
-		var btn = $("#control");
-		var playing = btn.hasClass("playing");
-		if(playing){
-			pause();
-		}else{
-			if(currentConnection){
-				start();
-			}else{
-				notConnected();
-			}
-
-		}
-	});
-	$("#clear").on("click",function(e){
-		allPoints = [];
-		speeds = [];
-		timer.reset();
-		timer.stop();
-		myChart.data.datasets[0].data = []
-		myChart.update();
+	$('body').on('click','button[data-cmd]', function(e){
+		let fnc = $(e.target).closest('button[data-cmd]').data('cmd');
+		window[fnc]();
 	});
 });
 var initPolling = function(){
@@ -121,17 +97,17 @@ var startUpdating = function(){
 
 				let speed = new Number(data.speed);
 				desiredSpeed = $("#desiredSpeed").val();
-				$("#currSpeed").html(numeral(speed).format(mphForm) + "mph");
-				$("#distance").html(numeral(getDistance()).format(mphForm) + " miles");
+				$("#currSpeed").html(numeral(speed).format(Veload.mphForm) + "mph");
+				$("#distance").html(numeral(getDistance()).format(Veload.mphForm) + " miles");
 				myChart.data.datasets.forEach((dataset) => {
 					dataset.data.push({t:Date.now(),y:speed});
 					allPoints.push({t:Date.now(),y:speed});
 					if(speed>=desiredSpeed){
-						dataset.pointBackgroundColor.push(good);
-						dataset.backgroundColor = goodBG;
+						dataset.pointBackgroundColor.push(Veload.good);
+						dataset.backgroundColor = Veload.goodBG;
 					}else{
-						dataset.pointBackgroundColor.push(bad);
-						dataset.backgroundColor = badBG;
+						dataset.pointBackgroundColor.push(Veload.bad);
+						dataset.backgroundColor = Veload.badBG;
 					}
 					if(dataset.data.length > (5*120)){
 						dataset.data.shift();
@@ -140,10 +116,10 @@ var startUpdating = function(){
 				});
 				myChart.update();
 				speeds.push(speed);
-				$("#avgSpeed").html(numeral(getAvg()).format(mphForm) + "mph");					
+				$("#avgSpeed").html(numeral(getAvg()).format(Veload.mphForm) + "mph");					
 			})
 		}
-	},updateFreq);
+	},Veload.updateFreq);
 }
 var getAvg = function(){
 	return speeds.reduce(function(a,b){
@@ -192,33 +168,31 @@ var initVoice = function(){
 	// Let's define a command.
 		var commands = {
 		'start': function() { start(); },
-		'pause': function() { pause(); }
+		'pause': function() { pause(); },
+		'stop': function() { stop(); }
 		};
 
 		// Add our commands to annyang
 		annyang.addCommands(commands);
 
-		  // Tell KITT to use annyang
-		 // SpeechKITT.annyang();
+		annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
+			$('.speech').text(userSaid);
+		});
 
-		  // Define a stylesheet for KITT to use
-		 // SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
-
-		  // Render KITT's interface
-		  //SpeechKITT.vroom();
 		// Start listening.
-		annyang.start();
+		annyang.start({ autoRestart: true });
 	}
 }
 
 var notConnected = function(){
 	var config = {
-		title: "Error!",
-		body: "Please check that your sensor is connected in the Veload Monitor!",
+		title: 'Error!',
+		body: 'Please check that your sensor is connected in the veload monitor!',
 		accept: true,
 		close: false,
 		backdrop: 'static',
-		acceptText: "Retry"
+		acceptText: 'Retry',
+		modalClass: 'disco'
 	}
 	const events = {
 		acceptClick: function(){
@@ -228,7 +202,7 @@ var notConnected = function(){
 	pop(config,events);
 	config = {
 		status: `No sensor connection`,
-		statusClass: "text-warning"
+		statusClass: 'bg-warning'
 	}
 	$('footer').html(cTemps.footer(config));		
 
@@ -237,13 +211,28 @@ var notConnected = function(){
 var connected = function(data){
 	currentConnection = data.status;
 	const config = {
-		status: `Veload connected on port ${data.status}`,
-		statusClass: "text-success"
+		status: `veload connected on port ${data.status}`,
+		statusClass: 'bg-info'
 	}
-	$('#modal').modal('hide');
+	if($('#modal').hasClass('disco')){
+		$('#modal').modal('hide');
+	}
 	$('footer').html(cTemps.footer(config));
 }
-var pop = function(config,events){
+var pop = function(cnf = {}, evt = {}){
+	const config = Object.assign({
+		title: 'Alert',
+		body: '',
+		accept: true,
+		close: true,
+		backdrop: true,
+		acceptText: 'Okay',
+		modalClass: ''
+	},cnf);
+	const events = Object.assign({
+		cancelClick: function(){},
+		acceptClick: function(){}
+	},evt);
 	if(!($("#modal").data('bs.modal') || {})._isShown){
 		$('#modal-container').html(cTemps.modal(config));
 		$('#modal .btn-cancel').on('click',events.cancelClick);
@@ -253,18 +242,90 @@ var pop = function(config,events){
 }
 	
 var start = function(){
-	const btn = $("#control");
-	btn.addClass("playing")
+	$('body').toggleClass('play pause stoppable');
 	startTime = new Date().toISOString();
 	timer.start();
 	refresher = startUpdating();
 }
 
 var pause = function(){
-	const btn = $("#control");
-	btn.removeClass("playing");
+	$('body').toggleClass('play pause');
 	timer.pause();
 	clearInterval(refresher);
+}
+
+var stop = function(){
+	pause();
+	if(startTime){
+		var config = {
+			title: "End ride?",
+			body: "Are you sure you want to end this ride and upload to Strava?",
+			accept: true,
+			close: true,
+			acceptText: "Finish",
+			cancelText: "Go back"
+		}
+		const events = {
+			acceptClick: function(){
+				upload();
+			}
+		}
+		pop(config,events);	
+	}
+}
+
+var upload = function(){
+	let avg = getAvg();
+	let distance = getDistance();
+	$('.modal-footer').loader(36,36);
+	let query = `${remote.publish}?elapsed=${elapsed}&distance=${distance}&start=${startTime}`;
+	$.post(query,function(data){
+		if(data.id){
+			var config = {
+				title: "Congrats!",
+				body: "Congratulations, your ride has been uploaded!",
+				accept: false,
+				close: true,
+				cancelText: "Finish"
+			}
+			$('#modal').on('hidden.bs.modal',function(){
+				pop(config);
+			});
+			unpop();
+		}else{
+			error("Error uploading to Strava");
+		}
+	}).fail(function(err){
+		console.log(err);
+		error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${remote.publish}) responded (${err.status} ${err.statusText}) <br /> ${query}</p>`);
+	});
+}
+$.fn.loader = function(height=64,width=64){
+	$(this).empty().append(`<img src='/img/loading.gif' width='${width}' height='${height} class='img-flex'/>`);
+	return this;
+}
+var error = function(err){
+	var config = {
+		title: "Error",
+		body: `${err}`,
+		accept: false,
+		close: true,
+	}
+	console.log(err);
+	unpop();
+	pop(config);
+}
+var clear = function(){
+	allPoints = [];
+	speeds = [];
+	timer.reset();
+	timer.stop();
+	myChart.data.datasets[0].data = []
+	myChart.update();
+	$("body").removeClass('stoppable');
+}
+var unpop = function(){
+	$('#modal').modal('hide');
 }
 Handlebars.registerHelper("debug", function(optionalValue) {
   console.log("Current Context");
