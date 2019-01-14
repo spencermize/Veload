@@ -1,7 +1,22 @@
+
+const local = [];
+local["status"] = "status";
+local["speed"] = "speed";
+const localUrl ="http://localhost:3001/";
+for(var key in local){
+	local[key] = `${localUrl}${local[key]}`;
+};
+const remote = [];
+const remoteUrl ="/api/";
+remote["publish"] = "publish";
+remote["athlete"] = "athlete";
+for(var key in remote){
+	remote[key] = `${remoteUrl}${remote[key]}`;
+};
 var allPoints = [];
 var speeds = [];
 var ctx = document.getElementById("myChart").getContext('2d');
-var myChart, refresher, desiredSpeed, start, elapsed;
+var myChart, refresher, desiredSpeed, startTime, elapsed;
 var updateFreq = 500;
 var mphForm = '0.00';
 var good = "#28a745";
@@ -10,13 +25,25 @@ var bad = "#dc3545";
 var badBG = "#E27A84";
 var timer = new easytimer.Timer();
 var athlete = "";
+const cTemps = [];
+var currentConnection = "";
+let mod;
 $(document).ready(function(){
 	initVoice();
 	myChart = initChart();
 	initTimers();
+	poll();
+	initPolling();
+
+	var templates = ['modal','footer'];
+	templates.forEach(function(templ){
+		var src = document.getElementById(`${templ}-temp`).innerHTML;
+		cTemps[templ] = Handlebars.compile(src);	
+	});
+	
 	dragula([document.getElementById('main')]);
 	$('#modal').modal({show: false});
-	$.getJSON("/api/athlete",function(data){
+	$.getJSON(remote.athlete,function(data){
 		athlete = data;
 		$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
 	});
@@ -24,7 +51,7 @@ $(document).ready(function(){
 		let avg = getAvg();
 		let distance = getDistance();
 		
-		$.post(`/api/publish?elapsed=${elapsed}&distance=${distance}&start=${start}`,function(data){
+		$.post(`${remote.api}?elapsed=${elapsed}&distance=${distance}&start=${startTime}`,function(data){
 			console.log(data);
 		});
 	});
@@ -42,26 +69,13 @@ $(document).ready(function(){
 		var btn = $("#control");
 		var playing = btn.hasClass("playing");
 		if(playing){
-			btn.removeClass("playing");
-			timer.pause();
-			clearInterval(refresher);
+			pause();
 		}else{
-			$.getJSON("http://localhost:3001/status",function(data){
-				if(data.status && data.status.length){
-					btn.addClass("playing")
-					start = new Date().toISOString();
-					timer.start();
-					refresher = startUpdating();
-				}else{
-					$('#modal').on('show.bs.modal', function (event) {
-						var modal = $(this);
-						console.log(modal);
-						modal.find(".modal-body p").text("Please check that your sensor is connected in the Veload Monitor!");
-						modal.find(".modal-header").text("Error!");
-						modal.find(".modal-footer .btn-primary").hide();
-					}).modal('show');
-				}
-			});
+			if(currentConnection){
+				start();
+			}else{
+				notConnected();
+			}
 
 		}
 	});
@@ -74,6 +88,20 @@ $(document).ready(function(){
 		myChart.update();
 	});
 });
+var initPolling = function(){
+	setInterval(function(){
+		poll();
+	},3000);
+};
+var poll = function(){
+	$.getJSON(local.status,function(data){
+		if(data.status && data.status.length){
+			connected(data);
+		}else{
+			notConnected();
+		}
+	});
+}
 var initTimers = function(){
 	timer.addEventListener('secondsUpdated', function (e) {
 		$('#elapsedTime').html(timer.getTimeValues().toString());
@@ -88,9 +116,9 @@ var initTimers = function(){
 }
 var startUpdating = function(){
 	return setInterval(function(){
-		$.getJSON("http://localhost:3001/speed",function(data){
-			if(data.connected){
-				$(".footer .status").text(`Veload connected on port ${data.connected}`);
+		if(currentConnection){
+			$.getJSON(local.speed,function(data){
+
 				let speed = new Number(data.speed);
 				desiredSpeed = $("#desiredSpeed").val();
 				$("#currSpeed").html(numeral(speed).format(mphForm) + "mph");
@@ -113,10 +141,8 @@ var startUpdating = function(){
 				myChart.update();
 				speeds.push(speed);
 				$("#avgSpeed").html(numeral(getAvg()).format(mphForm) + "mph");					
-			}else{
-				$(".footer .status").text("Not connected to bicycle!");
-			}		
-		})
+			})
+		}
 	},updateFreq);
 }
 var getAvg = function(){
@@ -165,13 +191,89 @@ var initVoice = function(){
 	if (annyang) {
 	// Let's define a command.
 		var commands = {
-		'	hello': function() { alert('Hello world!'); }
+		'start': function() { start(); },
+		'pause': function() { pause(); }
 		};
 
 		// Add our commands to annyang
 		annyang.addCommands(commands);
 
+		  // Tell KITT to use annyang
+		 // SpeechKITT.annyang();
+
+		  // Define a stylesheet for KITT to use
+		 // SpeechKITT.setStylesheet('//cdnjs.cloudflare.com/ajax/libs/SpeechKITT/0.3.0/themes/flat.css');
+
+		  // Render KITT's interface
+		  //SpeechKITT.vroom();
 		// Start listening.
 		annyang.start();
 	}
 }
+
+var notConnected = function(){
+	var config = {
+		title: "Error!",
+		body: "Please check that your sensor is connected in the Veload Monitor!",
+		accept: true,
+		close: false,
+		backdrop: 'static',
+		acceptText: "Retry"
+	}
+	const events = {
+		acceptClick: function(){
+			poll()
+		}
+	}
+	pop(config,events);
+	config = {
+		status: `No sensor connection`,
+		statusClass: "text-warning"
+	}
+	$('footer').html(cTemps.footer(config));		
+
+}
+
+var connected = function(data){
+	currentConnection = data.status;
+	const config = {
+		status: `Veload connected on port ${data.status}`,
+		statusClass: "text-success"
+	}
+	$('#modal').modal('hide');
+	$('footer').html(cTemps.footer(config));
+}
+var pop = function(config,events){
+	if(!($("#modal").data('bs.modal') || {})._isShown){
+		$('#modal-container').html(cTemps.modal(config));
+		$('#modal .btn-cancel').on('click',events.cancelClick);
+		$('#modal .btn-accept').on('click',events.acceptClick);
+		$('#modal').modal('show');			
+	}
+}
+	
+var start = function(){
+	const btn = $("#control");
+	btn.addClass("playing")
+	startTime = new Date().toISOString();
+	timer.start();
+	refresher = startUpdating();
+}
+
+var pause = function(){
+	const btn = $("#control");
+	btn.removeClass("playing");
+	timer.pause();
+	clearInterval(refresher);
+}
+Handlebars.registerHelper("debug", function(optionalValue) {
+  console.log("Current Context");
+  console.log("====================");
+  console.log(this);
+
+  if (optionalValue) {
+    console.log("Value");
+    console.log("====================");
+    console.log(optionalValue);
+  }
+});

@@ -15,6 +15,9 @@ init(sequelize,args.reset);
 //webapp
 const express = require('express');
 let session = require('express-session');
+const https = require('https');
+const fs = require('fs');
+const homedir = require('os').homedir();
 const app = express();
 const axios = require('axios')
 const port = 3000;
@@ -145,7 +148,11 @@ function startUp(){
 				break;
 		}
 	});
-	app.listen(port, () => {
+	https.createServer({
+		key: fs.readFileSync(homedir + '/server.key'),
+		cert: fs.readFileSync(homedir + '/server.cert')
+	}, app)
+	.listen(port, () => {
 	  console.log(`Server listenening on ${port}`);
 	});
 	
