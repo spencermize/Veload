@@ -15,8 +15,7 @@ for(var key in remote){
 };
 var allPoints = [];
 var speeds = [];
-var ctx = document.getElementById("myChart").getContext('2d');
-var myChart, refresher, desiredSpeed, startTime, elapsed;
+var myChart, refresher, desiredSpeed, startTime, elapsed, ctx;
 const Veload = {
 	updateFreq: 500,
 	mphForm: '0.00',
@@ -32,22 +31,23 @@ const cTemps = [];
 var currentConnection = "";
 let mod;
 $(document).ready(function(){
-	initVoice();
-	myChart = initChart();
-	initTimers();
-	poll();
-	initPolling();
-	dragula([document.getElementById('main')]);
+	if(window.location.pathname=="/dashboard"){
+		initVoice();
+		myChart = initChart();
+		initTimers();
+		poll();
+		initPolling();
+		dragula([document.getElementById('main')]);
 	
+		$.getJSON(remote.athlete,function(data){
+			athlete = data;
+			$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
+		});		
+	}
 	var templates = ['modal','footer'];
 	templates.forEach(function(templ){
 		var src = document.getElementById(`${templ}-temp`).innerHTML;
 		cTemps[templ] = Handlebars.compile(src);	
-	});
-	
-	$.getJSON(remote.athlete,function(data){
-		athlete = data;
-		$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
 	});
 	$(".resizable").on("click",function(e){
 		var el = $(e.target).closest(".resizable");
@@ -130,37 +130,39 @@ var getDistance = function(){
 	return getAvg(speeds) * (elapsed / 60 / 60);
 }
 var initChart = function(){
-	return new Chart(ctx, {
-		type: 'line',
-		data: {
-			datasets:[{
-				data: [],
-				pointRadius: 3,
-				pointBackgroundColor: []
-			}]
-		},
-		options: {
-			tooltips: {
-				enabled: false
-			},
-			scales: {
-				xAxes: [{
-					type: 'time',
-					time: {
-						unit: 'minute'
-					}
-				}],
-				yAxes: [{
-					ticks: {
-						beginAtZero: true
-					}
+	if($('#myChart').length){
+		return new Chart(document.getElementById("myChart").getContext('2d'), {
+			type: 'line',
+			data: {
+				datasets:[{
+					data: [],
+					pointRadius: 3,
+					pointBackgroundColor: []
 				}]
 			},
-			legend: {
-				display: false
+			options: {
+				tooltips: {
+					enabled: false
+				},
+				scales: {
+					xAxes: [{
+						type: 'time',
+						time: {
+							unit: 'minute'
+						}
+					}],
+					yAxes: [{
+						ticks: {
+							beginAtZero: true
+						}
+					}]
+				},
+				legend: {
+					display: false
+				}
 			}
-		}
-	});
+		});
+	}
 }
 
 var initVoice = function(){

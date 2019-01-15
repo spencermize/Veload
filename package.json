@@ -12,6 +12,7 @@
     "axios": "*",
     "yargs": "*",
     "moment": "*",
-    "express-handlebars": "*"
+    "express-handlebars": "*",
+    "greenlock-express": "*"
   }
 }
