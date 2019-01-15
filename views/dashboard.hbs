@@ -1,36 +1,6 @@
-<div class="col-lg-4">
-	<div class="card">
-		<div class="card-header">Ride Goals</div>
-		<div class="card-body">
-			<div class="input-group mb-3">
-				<div class="input-group-prepend">
-					<span class="input-group-text" id="basic-addon3">Speed Goal:</span>
-				</div>
-				<input id="desiredSpeed" class="form-control" type="text" value="15"></input>
-				<div class="input-group-append">
-					<span class="input-group-text">mph</span>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>	
-<div class="col-lg-4">
-	<div class="card">
-		<div class="card-header">Current Ride</div>
-		<div class="card-body">
-			<ul class="list-group list-group-flush">
-				<li class="list-group-item"><h3>Current Speed: <span class="small" id="currSpeed"></span></h3></li>
-				<li class="list-group-item"><h3>Average Speed: <span class="small" id="avgSpeed"></span></h3></li>
-				<li class="list-group-item"><h3>Total Distance: <span class="small" id="distance"></span></h3></li>
-				<li class="list-group-item"><h3>Elapsed: <span class="small" id="elapsedTime"></span></h3></li>
-			</ul>
-		</div>
-	</div>
+<div class="grid row">
+	{{{mods "goals" "speed-graph" "ride-info"}}}
+	{{#each modules as |mod|}}
+		{{> (mod) }}
+	{{/each}}
 </div>
-
-<div class="col-lg-4 resizable min">
-	<div class="card">
-		<div class="card-header">Speed Graph <button class="float-right btn btn-light btn-sm"><i class="fas fa-expand-arrows-alt"></i><i class="fas fa-compress-arrows-alt"></i></button></div>
-		<div class="card-body"><canvas class="my-4" id="myChart"></canvas></div>
-	</div>
-</div>	

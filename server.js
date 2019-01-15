@@ -56,7 +56,7 @@ app.get('/', sessionChecker, (req, res) => {
 	res.redirect('/dashboard');
 });
 app.get('/dashboard',sessionChecker, (req, res) => {
-	res.render('dashboard', {layout: 'default'});
+	res.render('dashboard', {layout: 'default', modules: ['ride-info','speed-graph','goals']});
 });	
 app.get('/strava',(req, resp) => {
 	let code = req.query.code;

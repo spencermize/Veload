@@ -15,7 +15,7 @@ for(var key in remote){
 };
 var allPoints = [];
 var speeds = [];
-var myChart, refresher, desiredSpeed, startTime, elapsed, ctx;
+var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid;
 const Veload = {
 	updateFreq: 500,
 	mphForm: '0.00',
@@ -28,46 +28,69 @@ const Veload = {
 var timer = new easytimer.Timer();
 var athlete = "";
 const cTemps = [];
+const cMods = [];
 var currentConnection = "";
 let mod;
 $(document).ready(function(){
+	elements = ['modal','footer'];
+	elements.forEach(function(templ){
+		var src = document.getElementById(`${templ}-temp`).innerHTML;
+		cTemps[templ] = Handlebars.compile(src);	
+	});
+	
+	modules.forEach(function(mod){
+		var name = mod+"-module";
+		var src = document.getElementById(name).innerHTML;
+		cMods[mod] = Handlebars.compile(src);
+		var config = {
+
+		}
+		$('.grid').append(cMods[mod](config));			
+	});
+	$("[data-submodule]").each(function(index,sub){
+
+		var src = $("#"+$(sub).data("submodule")+"-sub").html();
+		var cmp = Handlebars.compile(src);
+		$(sub).closest(".grid-item").find(".card-body").html(cmp);
+	});
+	$('body').on('click','button[data-cmd]', function(e){
+		let fnc = $(e.target).closest('button[data-cmd]').data('cmd');
+		window[fnc]();
+	});	
 	if(window.location.pathname=="/dashboard"){
+		
 		initVoice();
 		myChart = initChart();
 		initTimers();
 		poll();
 		initPolling();
-		dragula([document.getElementById('main')]);
-	
-		$.getJSON(remote.athlete,function(data){
-			athlete = data;
-			$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
-		});		
+		initGrid();
 	}
-	var templates = ['modal','footer'];
-	templates.forEach(function(templ){
-		var src = document.getElementById(`${templ}-temp`).innerHTML;
-		cTemps[templ] = Handlebars.compile(src);	
-	});
-	$(".resizable").on("click",function(e){
-		var el = $(e.target).closest(".resizable");
-		var isMax = el.hasClass("full");
-		if(isMax){
-			el.removeClass("full col-lg-6").addClass("min col-lg-3")
-		}else{
-			el.removeClass("min col-lg-3").addClass("full col-lg-6")
-		}
-		
-	});
-	$('body').on('click','button[data-cmd]', function(e){
-		let fnc = $(e.target).closest('button[data-cmd]').data('cmd');
-		window[fnc]();
-	});
 });
+var initGrid = function(){
+	$grid = $('.grid').packery({
+		itemSelector: '.grid-item',
+		percentPosition: true,
+		columnWidth: '.col-lg-4',
+	})
+	$grid.find('.grid-item').each( function( i, gridItem ) {
+		var draggie = new Draggabilly( gridItem );
+		$grid.packery( 'bindDraggabillyEvents', draggie );
+	});
+	$grid.on( 'dblclick', '.grid-item .card-header', function( event ) {
+		var $item = $( event.currentTarget ).closest('.grid-item');
+		$item.toggleClass('col-lg-8 col-lg-4');
+		$grid.packery('layout');
+	});
+}
 var initPolling = function(){
-	setInterval(function(){
-		poll();
-	},3000);
+	$.getJSON(remote.athlete,function(data){
+		athlete = data;
+		$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
+		setInterval(function(){
+			poll();
+		},3000);
+	});	
 };
 var poll = function(){
 	$.getJSON(local.status,function(data){
@@ -171,7 +194,8 @@ var initVoice = function(){
 		var commands = {
 		'start': function() { start(); },
 		'pause': function() { pause(); },
-		'stop': function() { stop(); }
+		'stop': function() { stop(); },
+		'clear': function() { clear(); }
 		};
 
 		// Add our commands to annyang
