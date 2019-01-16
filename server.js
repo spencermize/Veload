@@ -95,7 +95,7 @@ app.get('/strava',(req, resp, next) => {
 	});			
 });
 
-app.get('/api/:action/:id([0-9]{0,})?',[sessionChecker,getStrava], function(req,res,next){
+app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava], function(req,res,next){
 	let data = "";
 	let strava = res.locals.strava;
 	let p = {'access_token':res.locals.token};
@@ -105,12 +105,18 @@ app.get('/api/:action/:id([0-9]{0,})?',[sessionChecker,getStrava], function(req,
 	switch (req.params.action) {
 		case 'athlete':
 		case 'activities':
-		case 'clubs':
 		case 'routes':
-		case 'segments': 
-			strava[req.params.action].get(p,function(err,rs,limits){
-				res.json(rs);
-			});
+		case 'segments':
+			if(req.params.sub){
+				var list = "list"+capitalizeFirstLetter(req.params.sub);
+				strava[req.params.action][list](p,function(err,rs,limits){
+					res.json(rs);
+				})
+			}else{
+				strava[req.params.action].get(p,function(err,rs,limits){
+					res.json(rs);
+				});				
+			}
 			break;
 		case 'routesGPX' :
 			p.id = p.id + "/export_gpx";
@@ -121,7 +127,7 @@ app.get('/api/:action/:id([0-9]{0,})?',[sessionChecker,getStrava], function(req,
 					res.json(geolib.getPathLength(results));	
 				});
 			});
-			break;			
+			break;
 		default:
 			data = {"error":"Sorry, operation unsupported"};
 			res.json(data);
@@ -150,6 +156,9 @@ app.post('/api/:action',[sessionChecker,getStrava],function(req,res,next){
 			break;
 	}
 });
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 function reAuthStrava(req,resp,user){
 	User.findOne({ where: { username: user } }).then(function (user) {
 		console.log("" + user.username + " found...");
