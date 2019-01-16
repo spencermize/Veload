@@ -13,6 +13,7 @@
     "yargs": "*",
     "moment": "*",
     "express-handlebars": "*",
-    "greenlock-express": "*"
+    "greenlock-express": "*",
+    "connect-session-sequelize": "*"
   }
 }

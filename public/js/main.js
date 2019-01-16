@@ -32,38 +32,38 @@ const cMods = [];
 var currentConnection = "";
 let mod;
 $(document).ready(function(){
+	loadProfile();
 	elements = ['modal','footer'];
 	elements.forEach(function(templ){
 		var src = document.getElementById(`${templ}-temp`).innerHTML;
 		cTemps[templ] = Handlebars.compile(src);	
 	});
-	
-	modules.forEach(function(mod){
-		var name = mod+"-module";
-		var src = document.getElementById(name).innerHTML;
-		cMods[mod] = Handlebars.compile(src);
-		var config = {
+	if(typeof modules !== 'undefined'){
+		modules.forEach(function(mod){
+			var name = mod+"-module";
+			var src = document.getElementById(name).innerHTML;
+			cMods[mod] = Handlebars.compile(src);
+			var config = {
 
-		}
-		$('.grid').append(cMods[mod](config));			
-	});
-	$("[data-submodule]").each(function(index,sub){
-
-		var src = $("#"+$(sub).data("submodule")+"-sub").html();
-		var cmp = Handlebars.compile(src);
-		$(sub).closest(".grid-item").find(".card-body").html(cmp);
-	});
+			}
+			$('.grid').append(cMods[mod](config));			
+		});
+		$("[data-submodule]").each(function(index,sub){
+			var src = $("#"+$(sub).data("submodule")+"-sub").html();
+			var cmp = Handlebars.compile(src);
+			$(sub).closest(".grid-item").find(".card-body").html(cmp);
+		});
+	}
 	$('body').on('click','button[data-cmd]', function(e){
 		let fnc = $(e.target).closest('button[data-cmd]').data('cmd');
 		window[fnc]();
 	});	
 	if(window.location.pathname=="/dashboard"){
-		
 		initVoice();
 		myChart = initChart();
 		initTimers();
 		poll();
-		initPolling();
+		setInterval(function(){poll();},3000);
 		initGrid();
 	}
 });
@@ -83,13 +83,11 @@ var initGrid = function(){
 		$grid.packery('layout');
 	});
 }
-var initPolling = function(){
+var loadProfile = function(){
 	$.getJSON(remote.athlete,function(data){
+		$("body").addClass("loggedin");
 		athlete = data;
-		$("#profile").html('<img class="img-fluid" style="max-width:50px" src="' + athlete.profile +'" />');
-		setInterval(function(){
-			poll();
-		},3000);
+		$("#profile").html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + athlete.profile +'" />');
 	});	
 };
 var poll = function(){
