@@ -13,9 +13,6 @@ const fs = require('fs');
 const homedir = require('os').homedir();
 const app = express();
 const axios = require('axios')
-const client_id = "31578";
-const client_secret = "8ed2b2f6bc292bbb2b1a322b10e9242c48fd3b49";
-
 
 //db connections
 const Sequelize = require('sequelize');
@@ -68,22 +65,23 @@ app.get('/', sessionChecker, (req, res) => {
 app.get('/dashboard',sessionChecker, (req, res) => {
 	res.render('dashboard', {layout: 'default', modules: ['ride-info','speed-graph','goals']});
 });	
-app.get('/strava',(req, resp) => {
+app.get('/strava',(req, resp, next) => {
 	let code = req.query.code;
-	axios.post(`https://www.strava.com/oauth/token?client_id=${client_id}&client_secret=${client_secret}&code=${code}&grant_type=authorization_code`,{}).then((res) =>{
-
-	User.findOne({ where: { username: res.data.athlete.username } }).then(function (user) {
+	let strava = require('strava-v3');
+	strava.oauth.getToken(code,function(err,res,limits){
+		User.findOne({ where: { username: res.athlete.username } }).then(function (user) {
 		if (!user) {
 			console.log("no user");
 			let user = User.create({
-				username: res.data.athlete.username,
-				access_token: res.data.access_token,
-				refresh_token: res.data.refresh_token,
-				expires_at: res.data.expires_at*1000
+				username: res.athlete.username,
+				access_token: res.access_token,
+				refresh_token: res.refresh_token,
+				expires_at: res.expires_at*1000
 			}).then(function(user) {
 				req.session.user = user.username;
 				req.session.refresh_token = user.refresh_token;
 				req.session.expires = user.expires_at;
+				let strava = getStrava(req,resp.next);
 				resp.redirect('/dashboard');
 			})
 		} else {
@@ -97,48 +95,55 @@ app.get('/strava',(req, resp) => {
 	});			
 });
 
-app.get('/api/:action/:id?',[sessionChecker,getStrava], function(req,res,next){
+app.get('/api/:action/:id([0-9]{0,})?',[sessionChecker,getStrava], function(req,res,next){
 	let data = "";
 	let strava = res.locals.strava;
+	let p = {'access_token':res.locals.token};
+	if(req.params.id){
+		p = Object.assign({id:req.params.id},p)
+	}
 	switch (req.params.action) {
-		case 'athlete' : 
-			strava.athlete.get(function(err,rs){
+		case 'athlete':
+		case 'activities':
+		case 'clubs':
+		case 'routes':
+		case 'segments': 
+			strava[req.params.action].get(p,function(err,rs,limits){
 				res.json(rs);
 			});
 			break;
-		case 'routes' :
-			strava.routes.get(req.params.id,function(err,rs){
-				res.json(rs);
+		case 'routesGPX' :
+			p.id = p.id + "/export_gpx";
+			strava.routes.get(p,function(err,rs){
+				const geolib = new require("geolib");
+				const gps = require('gps-util');
+				gps.gpxParse(rs,function(err,results){
+					res.json(geolib.getPathLength(results));	
+				});
 			});
-			break;
+			break;			
 		default:
 			data = {"error":"Sorry, operation unsupported"};
 			res.json(data);
 			break;
 	}
 });
-app.post('/api/:action',function(req,res,next){
+app.post('/api/:action',[sessionChecker,getStrava],function(req,res,next){
+	let strava = res.locals.strava;
 	switch (req.params.action) {
 		case 'publish' :
-			User.findOne({ where: { refresh_token: req.session.refresh_token, username: req.session.user } }).then(function (user) {
-				let strava = new require("strava")({
-					client_id: client_id,	
-					client_secret: client_secret,
-					access_token: user.access_token
-				});
-				console.log(req.query.distance);
-				let distance = req.query.distance * 1609.34;
-				strava.activities.create({
-						name: "Veload Session",
-						type: "ride",
-						start_date_local: req.query.start,
-						trainer: true,
-						elapsed_time: req.query.elapsed,
-						distance: distance
-					},function(err,rs){
-						res.json(rs);
-				});
-			})	
+			let distance = req.query.distance * 1609.34;
+			strava.activities.create({
+					access_token: res.locals.token,
+					name: "Veload Session",
+					type: "ride",
+					start_date_local: req.query.start,
+					trainer: true,
+					elapsed_time: req.query.elapsed,
+					distance: distance
+				},function(err,rs){
+					res.json(rs);
+			});
 			break;
 		default:
 			data = "Sorry, operation unsupported";
@@ -148,7 +153,11 @@ app.post('/api/:action',function(req,res,next){
 function reAuthStrava(req,resp,user){
 	User.findOne({ where: { username: user } }).then(function (user) {
 		console.log("" + user.username + " found...");
-		axios.post(`https://www.strava.com/oauth/token?client_id=${client_id}&client_secret=${client_secret}&refresh_token=${user.refresh_token}&grant_type=refresh_token`,{}).then((res) =>
+		let strava = require("strava-v3");
+		var configPath = 'config/strava_config';
+		var config = fs.readFileSync(configPath, {encoding: 'utf-8'});
+		config = JSON.parse(config);
+		axios.post(`https://www.strava.com/oauth/token?client_id=${config.client_id}&client_secret=${config.client_secret}&refresh_token=${user.refresh_token}&grant_type=refresh_token`,{}).then((res) =>
 		{
 			user.access_token = res.data.access_token;
 			user.refresh_token = res.data.refresh_token;
@@ -158,7 +167,6 @@ function reAuthStrava(req,resp,user){
 				req.session.user = user.username;
 				req.session.refresh_token = user.refresh_token;
 				req.session.expires = user.expires_at;
-				
 				console.log("heading to dash");
 				resp.redirect("/dashboard");
 			});
@@ -195,17 +203,16 @@ function userModel(sequelize){
 }
 function getStrava(req,res,next){
 	User.findOne({ where: { refresh_token: req.session.refresh_token, username: req.session.user } }).then(function (user) {
-		let strava = new require("./custom/strava")({
-			client_id: client_id,	
-			client_secret: client_secret,
-			access_token: user.access_token
-		});
+		let strava = require("strava-v3");
 		res.locals.strava = strava;
+		res.locals.token = user.access_token;
 		next()
 	});
 }
 function showLogin(req,res){
-	res.render('login', {layout: 'default', url: req.protocol + '://' + req.hostname});
+	let strava = require("strava-v3");
+	let url = strava.oauth.getRequestAccessURL({scope:"activity:write,read_all,activity:read_all"});
+	res.render('login', {layout: 'default', url: url});
 }
 function init(sequelize,reset){
 	sequelize.sync({ force: reset }).then(function(err) {
