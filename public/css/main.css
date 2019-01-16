@@ -17,6 +17,12 @@ nav .pause,.play  .play,.stop{
 .grid{
 	width: 100%;
 }
+.loggedout #profile .dropdown-menu{
+	display: none;
+}
+.loggedout #profile .dropdown-toggle::after {
+	display: none;
+}
 .grid-item.is-positioning-post-drag {
   z-index: 2; /* keep dragged item on top */
 }

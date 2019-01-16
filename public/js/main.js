@@ -85,9 +85,9 @@ var initGrid = function(){
 }
 var loadProfile = function(){
 	$.getJSON(remote.athlete,function(data){
-		$("body").addClass("loggedin");
+		$("body").removeClass("loggedout").addClass("loggedin");
 		athlete = data;
-		$("#profile").html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + athlete.profile +'" />');
+		$("#profile button").html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + athlete.profile +'" />');
 	});	
 };
 var poll = function(){
