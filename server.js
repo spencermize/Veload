@@ -63,7 +63,7 @@ app.get('/', sessionChecker, (req, res) => {
 	res.redirect('/dashboard');
 });
 app.get('/dashboard',sessionChecker, (req, res) => {
-	res.render('dashboard', {layout: 'default', modules: ['ride-info','speed-graph','goals']});
+	res.render('dashboard', {layout: 'default', modules: ['ride-info','speed-graph','goals','map']});
 });	
 app.get('/strava',(req, resp, next) => {
 	let code = req.query.code;
@@ -121,12 +121,16 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 		case 'routesGPX' :
 			p.id = p.id + "/export_gpx";
 			strava.routes.get(p,function(err,rs){
-				const geolib = new require("geolib");
-				const gps = require('gps-util');
-				gps.gpxParse(rs,function(err,results){
-					res.json(geolib.getPathLength(results));	
-				});
-			});
+				if(req.query.format=="json"){
+					const gps = require('gps-util');
+					req.query.format = null;
+					gps.gpxParse(rs,function(err,results){
+						res.json(results);	
+					});
+				}else{
+					res.send(rs);
+				}
+			});					
 			break;
 		default:
 			data = {"error":"Sorry, operation unsupported"};

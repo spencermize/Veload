@@ -5,7 +5,8 @@
   "version": "0.1.0",
   "main": "veload.js",
   "devDependencies": {
-    "browserify-shim": "^3.8.14"
+    "browserify-shim": "^3.8.14",
+    "nodemon": "*"
   },
   "dependencies": {
     "annyang": "^2.6.1",
@@ -24,6 +25,8 @@
     "jquery": "^3.3.1",
     "jquery-bridget": "^2.0.1",
     "leaflet": "*",
+    "leaflet-gpx": "^1.0.0",
+    "list.js": "^1.5.0",
     "moment": "*",
     "mysql2": "*",
     "numeral": "^2.0.6",
