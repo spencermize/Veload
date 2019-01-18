@@ -243,7 +243,6 @@ function sessionChecker(req, res, next){
 	} else if(req.session.user && moment(req.session.expires).isBefore(moment())){
 		console.log("Found user with expired credential");
 		reAuthStrava(req, res, req.session.user);
-		next();
 	}else {
 		console.log("Could not find user or session");
 		if(req.url != "/login"){

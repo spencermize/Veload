@@ -3,20 +3,40 @@
   "description": "Bike at Home",
   "repository": "https://github.com/spencermize/Veload.git",
   "version": "0.1.0",
+  "main": "veload.js",
   "devDependencies": {
-    "express": "4.16.4",
-    "express-session": "*",
-    "strava": "0.0.2",
-    "sequelize": "*",
-    "mysql2": "*",
+    "browserify-shim": "^3.8.14"
+  },
+  "dependencies": {
+    "annyang": "^2.6.1",
     "axios": "*",
-    "yargs": "*",
-    "moment": "*",
-    "express-handlebars": "*",
-    "greenlock-express": "*",
+    "bootstrap": "^4.2.1",
+    "browserify": "*",
     "connect-session-sequelize": "*",
+    "draggabilly": "^2.2.0",
+    "easytimer": "^1.1.1",
+    "express": "4.16.4",
+    "express-handlebars": "*",
+    "express-session": "*",
     "geolib": "*",
     "gps-util": "*",
-    "strava-v3": "*"
-  }
+    "greenlock-express": "*",
+    "jquery": "^3.3.1",
+    "jquery-bridget": "^2.0.1",
+    "leaflet": "*",
+    "moment": "*",
+    "mysql2": "*",
+    "numeral": "^2.0.6",
+    "packery": "^2.1.2",
+    "popper.js": "^1.14.6",
+    "sequelize": "*",
+    "strava-v3": "*",
+    "yargs": "*"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {}
 }

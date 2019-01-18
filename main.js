@@ -1,3 +1,15 @@
+const Handlebars = require('handlebars');
+const $ = require("jquery");
+const jQueryBridget = require('jquery-bridget');
+const Packery = require("packery");
+const Draggabilly = require("draggabilly");
+const Chart = require("./third_party/Chart.bundle.min.js");
+const bootstrap = require("bootstrap");
+const Timer = require("easytimer");
+const numeral = require("numeral");
+const annyang = require("annyang");
+
+jQueryBridget( 'packery', Packery, $ );
 
 const local = [];
 local["status"] = "status";
@@ -16,22 +28,77 @@ for(var key in remote){
 var allPoints = [];
 var speeds = [];
 var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid;
+var timer = new Timer;
 const Veload = {
 	updateFreq: 500,
 	mphForm: '0.00',
 	good: "#28a745",
 	goodBG: "#53F377",
 	bad: "#dc3545",
-	badBG: "#E27A84"
+	badBG: "#E27A84",
+	start: function(){
+		$('body').toggleClass('play pause stoppable');
+		startTime = new Date().toISOString();
+		timer.start();
+		refresher = startUpdating();
+	},
+	pause: function(){
+		$('body').toggleClass('play pause');
+		timer.pause();
+		clearInterval(refresher);
+	},
+	stop: function(){
+		this.pause();
+		if(startTime){
+			var config = {
+				title: "End ride?",
+				body: "Are you sure you want to end this ride and upload to Strava?",
+				accept: true,
+				close: true,
+				acceptText: "Finish",
+				cancelText: "Go back"
+			}
+			const events = {
+				acceptClick: function(){
+					upload();
+				}
+			}
+			pop(config,events);	
+		}
+	},
+	upload:function(){
+		let avg = getAvg();
+		let distance = getDistance();
+		$('.modal-footer').loader(36,36);
+		let query = `${remote.publish}?elapsed=${elapsed}&distance=${distance}&start=${startTime}`;
+		$.post(query,function(data){
+			if(data.id){
+				var config = {
+					title: "Congrats!",
+					body: "Congratulations, your ride has been uploaded!",
+					accept: false,
+					close: true,
+					cancelText: "Finish"
+				}
+				$('#modal').on('hidden.bs.modal',function(){
+					pop(config);
+				});
+				unpop();
+			}else{
+				error("Error uploading to Strava");
+			}
+		}).fail(function(err){
+			console.log(err);
+			error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${remote.publish}) responded (${err.status} ${err.statusText}) <br /> ${query}</p>`);
+		});
+	}	
 };
-
-var timer = new easytimer.Timer();
 var athlete = "";
 const cTemps = [];
 const cMods = [];
 var currentConnection = "";
 let mod;
-$(document).ready(function(){
+$(function(){
 	loadProfile();
 	elements = ['modal','footer'];
 	elements.forEach(function(templ){
@@ -56,7 +123,8 @@ $(document).ready(function(){
 	}
 	$('body').on('click','button[data-cmd]', function(e){
 		let fnc = $(e.target).closest('button[data-cmd]').data('cmd');
-		window[fnc]();
+		console.log(fnc);
+		Veload[fnc]();
 	});	
 	if(window.location.pathname=="/dashboard"){
 		initVoice();
@@ -190,10 +258,10 @@ var initVoice = function(){
 	if (annyang) {
 	// Let's define a command.
 		var commands = {
-		'start': function() { start(); },
-		'pause': function() { pause(); },
-		'stop': function() { stop(); },
-		'clear': function() { clear(); }
+		'start': function() { Veload.start(); },
+		'pause': function() { Veload.pause(); },
+		'stop': function() { Veload.stop(); },
+		'clear': function() { Veload.clear(); }
 		};
 
 		// Add our commands to annyang
@@ -264,66 +332,7 @@ var pop = function(cnf = {}, evt = {}){
 		$('#modal').modal('show');			
 	}
 }
-	
-var start = function(){
-	$('body').toggleClass('play pause stoppable');
-	startTime = new Date().toISOString();
-	timer.start();
-	refresher = startUpdating();
-}
 
-var pause = function(){
-	$('body').toggleClass('play pause');
-	timer.pause();
-	clearInterval(refresher);
-}
-
-var stop = function(){
-	pause();
-	if(startTime){
-		var config = {
-			title: "End ride?",
-			body: "Are you sure you want to end this ride and upload to Strava?",
-			accept: true,
-			close: true,
-			acceptText: "Finish",
-			cancelText: "Go back"
-		}
-		const events = {
-			acceptClick: function(){
-				upload();
-			}
-		}
-		pop(config,events);	
-	}
-}
-
-var upload = function(){
-	let avg = getAvg();
-	let distance = getDistance();
-	$('.modal-footer').loader(36,36);
-	let query = `${remote.publish}?elapsed=${elapsed}&distance=${distance}&start=${startTime}`;
-	$.post(query,function(data){
-		if(data.id){
-			var config = {
-				title: "Congrats!",
-				body: "Congratulations, your ride has been uploaded!",
-				accept: false,
-				close: true,
-				cancelText: "Finish"
-			}
-			$('#modal').on('hidden.bs.modal',function(){
-				pop(config);
-			});
-			unpop();
-		}else{
-			error("Error uploading to Strava");
-		}
-	}).fail(function(err){
-		console.log(err);
-		error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${remote.publish}) responded (${err.status} ${err.statusText}) <br /> ${query}</p>`);
-	});
-}
 $.fn.loader = function(height=64,width=64){
 	$(this).empty().append(`<img src='/img/loading.gif' width='${width}' height='${height} class='img-flex'/>`);
 	return this;
