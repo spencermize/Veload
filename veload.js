@@ -10,7 +10,6 @@ const moment = require("moment");
 const numeral = require("numeral");
 const annyang = require("annyang");
 const Leaflet = require("leaflet");
-const gpx = require("leaflet-gpx");
 const geolib = require('geolib');
 jQueryBridget( 'packery', Packery, $ );
 
@@ -31,7 +30,7 @@ for(var key in remote){
 
 var allPoints = [];
 var speeds = [];
-var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid, mod, maps;
+var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid, mod, maps,route,currLoc;
 var timer = new Timer;
 
 var athlete = "";
@@ -209,17 +208,21 @@ const Veload = {
 		}).addTo(map);
 	},
 	loadGPX: function(url){
-		new Leaflet.GPX(url, {
-			async: true,
-			marker_options: {
-				startIconUrl: "/icons/fa-map-marker.svg?color="+Veload.GOOD.replace("#",""),
-				endIconUrl: "/icons/fa-map-marker.svg?color="+Veload.BAD.replace("#",""),
-				shadowUrl: ''
-			}
-		}).on('loaded', function(e) {
-			var gpx = e.target
-			map.fitBounds(gpx.getBounds());
-		}).addTo(map);
+		$.get(url,function(data){
+			var omni = require("leaflet-omnivore");
+			omni.gpx(url)
+			.on('ready', function(e) {
+				var gpx = e.target
+				map.fitBounds(gpx.getBounds());
+			}).on('error',function(e){
+				Veload.error(e);
+			}).addTo(map);			
+			
+			//var gps = require("parse-gpx");
+			//route = gps.gpxParse(data);
+			console.log(route);
+			currLoc = data[0];
+		});
 	},
 	loadTrack: function(e){
 		self.loadGPX(e.closest("[data-ref]").data("ref"));
