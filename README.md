@@ -1,10 +1,10 @@
 # Veload
 
 ## Start Browserify:
-`watchify main.js -o public/js/bundle.js -v -d
+`watchify main.js -o public/js/bundle.js -v -d`
 
 ## Start Main App:
-`nodemon app.js
+`nodemon app.js`
 
 ## Start VeloadListener:
-`npm start
+`npm start`
