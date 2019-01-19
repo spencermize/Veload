@@ -11,6 +11,7 @@ const numeral = require("numeral");
 const annyang = require("annyang");
 const Leaflet = require("leaflet");
 const gpx = require("leaflet-gpx");
+const geolib = require('geolib');
 jQueryBridget( 'packery', Packery, $ );
 
 const local = [];
@@ -209,9 +210,13 @@ const Veload = {
 	},
 	loadGPX: function(url){
 		new Leaflet.GPX(url, {
-			async: true
+			async: true,
+			marker_options: {
+				startIconUrl: "/icons/fa-map-marker.svg?color="+Veload.GOOD.replace("#",""),
+				endIconUrl: "/icons/fa-map-marker.svg?color="+Veload.BAD.replace("#",""),
+				shadowUrl: ''
+			}
 		}).on('loaded', function(e) {
-			console.log(e);
 			var gpx = e.target
 			map.fitBounds(gpx.getBounds());
 		}).addTo(map);
@@ -223,40 +228,63 @@ const Veload = {
 	pickTrackGUI: function(){
 		var self = this;
 		var List = require("list.js");
-		var item = $('[data-module="map"] .search-wrap ul').cleanWhitespace().html();
+		var item = $('[data-module="map"] .search-wrap ul.list').cleanWhitespace().html();
 		var options = {
 			valueNames: [
 				'name',
 				'days',
 				'description',
-				'distance',
 				{ 'data':['ref','timestamp']}
 			],
-			item: item
+			item: item,
+			page: 5,
+			pagination: true
 		}
 		self.pop({title: "Loading...", accept: false});
 		$('#modal').find(".modal-body").loader();
-		$.getJSON("/api/athlete/routes",function(data){
-			self.unpop();
-			var config = {
-				title: 'Please choose a prior Strava Route or Activity',
-				accept: false,
-				body: $('[data-module="map"] .search-wrap').html()
-			}
-			self.pop(config);
-			var search = $('#modal .searcher')[0];
-			var list = new List(search,options);
-			list.clear();
-			data.forEach(function(el){
-				var days = moment(el.created_at).fromNow();
-				list.add({
-					name: el.name,
-					timestamp: el.created_at,
-					days: days, distance: `${numeral(el.distance).format(Veload.MPHFORM)} meters`, 
-					description:el.description, 
-					ref:`/api/routesGPX/${el.id}`
+		$.getJSON("/api/athlete/routes",function(routes){
+			$.getJSON("/api/athlete/activities",function(activities){
+				var data = routes.concat(activities);
+					var config = {
+					title: 'Please choose a prior Strava Route or Activity',
+					accept: false,
+					body: $('[data-module="map"] .search-wrap').html()
+				}
+				self.unpop();
+				self.pop(config);
+				$('#modal .searcher').attr("id","searchme");
+				var list = new List(searchme,options);
+				list.clear();
+	
+				data.forEach(function(el){
+					if(el.map.summary_polyline){
+						var type;
+						var dist = numeral(geolib.convertUnit('mi',el.distance)).format(Veload.MPHFORM);
+						if(el.type == "Run" || el.type == "Bike"){
+							var avg = numeral(el.average_speed).format(Veload.MPHFORM)
+							type = "activities";
+							created = el.start_date;
+							desc = `You averaged ${avg} mph and traveled ${dist} miles.`;
+						}else if(el.type==1){
+							type = "routes";
+							created = el.created_at;
+							desc = `You own this ${dist} mile route.`;
+						}else{
+							type = false;
+						}
+						if(type){
+							var days = moment(created).fromNow();
+							list.add({
+								name: el.name,
+								timestamp: created,
+								days: days, 
+								description:desc, 
+								ref:`/api/${type}GPX/${el.id}`
+							});
+						}
+					}
 				});
-			});			
+			})
 		});
 	},
 	loadDash: function(){
@@ -333,7 +361,6 @@ const Veload = {
 			body: 'Please check that your sensor is connected in the veload monitor!',
 			accept: true,
 			close: false,
-			backdrop: 'static',
 			acceptText: 'Retry',
 			modalClass: 'disco'
 		}
@@ -362,10 +389,8 @@ const Veload = {
 		$('footer').html(cTemps.footer(config));
 	},
 	unpop: function(){
-		$('#modal').modal('hide').on('hidden.bs.modal',function(){
-			$('#modal').modal('dispose');
-			$('.modal-backdrop').remove();
-		});
+		$('#modal').modal('hide');
+		$('.modal-backdrop').remove();
 	},	
 	pop: function(cnf = {}, evt = {}){
 		const config = Object.assign({
@@ -373,22 +398,24 @@ const Veload = {
 			body: '',
 			accept: true,
 			close: true,
-			backdrop: true,
 			acceptText: 'Okay',
-			modalClass: ''
+			modalClass: '',
+			backdrop: 'static'
 		},cnf);
 		const events = Object.assign({
 			cancelClick: function(){},
 			acceptClick: function(){}
 		},evt);
-		
-		
-		if(!($("#modal").data('bs.modal') || {})._isShown){
-			$('#modal-container').html(cTemps.modal(config));
-			$('#modal .btn-cancel').on('click',events.cancelClick);
-			$('#modal .btn-accept').on('click',events.acceptClick);
-			$('#modal').modal('show');			
-		}
+		$('#modal-container').html(cTemps.modal(config));
+		$('#modal .btn-cancel').on('click',events.cancelClick);
+		$('#modal .btn-accept').on('click',events.acceptClick);
+		$('#modal').on('hidden.bs.modal',function(){
+			console.log("removing stuff");
+			$('#modal').modal('dispose');
+			$('body').removeClass('modal-open');
+			$('.modal-backdrop').remove();
+		});		
+		$('#modal').modal('show');			
 	},
 	loadInterface: function(){
 		elements = ['modal','footer'];

@@ -94,7 +94,23 @@ app.get('/strava',(req, resp, next) => {
 		
 	});			
 });
-
+app.get('/icons/:img',function(req,res,next){
+	let img = req.params.img;
+	let fa_name = req.params.img.replace(".svg","");
+	let color = req.query.color || "";
+	img = img.replace(".","_" + color + ".");
+	let path = 'public/img/icons/';	
+	if (!fs.existsSync(path+img)) {
+		console.log("creating new icon...");
+		const fa = require('font-awesome-assets');
+		const out = fa.svg(fa_name, "#" + color);
+		fs.writeFileSync(path + img, out, 'utf8');
+	}
+	fs.readFile(path+img,function(err,r){
+		res.set('Content-Type', 'image/svg+xml');
+		res.send(r);
+	});
+});
 app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava], function(req,res,next){
 	let data = "";
 	let strava = res.locals.strava;
@@ -131,6 +147,34 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 					res.send(rs);
 				}
 			});					
+			break;
+		case 'activitiesGPX' : 
+			p.types = ["latlng","altitude","time"];
+			const createGpx = require('gps-to-gpx').default;
+			strava.streams.activity(p,function(err,rs){
+				var types = {};
+				var reso = [];
+				for( var dat in rs){
+					var type = rs[dat].type
+					types[type] = rs[dat].data;
+				};
+				for( var dat in types.latlng){
+					reso.push({
+						"latitude": types.latlng[dat][0],
+						"longitude": types.latlng[dat][1],
+						"elevation": types.altitude[dat],
+						"time": types.time[dat]
+					})
+				}
+				p.per_page = 999
+				strava.activities.get(p,function(err,rs){
+					const ops = {
+						"activityName" : rs.name
+					}
+					const gpx = createGpx(reso,ops);
+					res.send(gpx)
+				});
+			});
 			break;
 		default:
 			data = {"error":"Sorry, operation unsupported"};
@@ -224,7 +268,7 @@ function getStrava(req,res,next){
 }
 function showLogin(req,res){
 	let strava = require("strava-v3");
-	let url = strava.oauth.getRequestAccessURL({scope:"activity:write,read_all,activity:read_all"});
+	let url = strava.oauth.getRequestAccessURL({scope:"activity:write,read,read_all,activity:read_all"});
 	res.render('login', {layout: 'default', url: url});
 }
 function init(sequelize,reset){

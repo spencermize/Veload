@@ -41,3 +41,35 @@ nav .pause,.play  .play,.stop{
   height: 100%;
   transition: width 0.4s, height 0.4s;
 }
+.modal-open .container-fluid, .modal-open  .container,.modal-open .navbar{
+	filter: blur(15px);	
+}
+.pagination li{
+	
+}
+.pagination .page{
+	cursor: pointer;
+    position: relative;
+    display: block;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;	
+}
+.pagination li:first-child .page{
+    margin-left: 0;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;	
+}
+.pagination li:last-child .page{
+	border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;	
+}
+.pagination .active .page{
+    z-index: 1;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;	
+}

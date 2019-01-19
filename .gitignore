@@ -63,3 +63,5 @@ typings/
 
 #strava
 strava_config
+
+public/img/icons/*

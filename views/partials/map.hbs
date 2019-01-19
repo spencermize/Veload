@@ -13,19 +13,23 @@
 				<div class='row mb-3'>
 					<div class='col-lg-6'><input class='search form-control' placeholder='Filter...'/></div>
 					<div class='col-lg-3'><button class='btn btn-outline-secondary sort' data-sort='name'>Name <i class='fas fa-sort'></i></button></div>
-					<div class='col-lg-3s'><button class='btn btn-outline-secondary sort' data-sort='date'>Date <i class='fas fa-sort'></i></button></div>
+					<div class='col-lg-3s'><button class='btn btn-outline-secondary sort' data-sort='timestamp'>Date <i class='fas fa-sort'></i></button></div>
 				</div>
 				<ul class='list list-group'>
 					<li class='list-group-item list-group-item-action flex-column align-items-start'>
 						<div class="d-flex w-100 justify-content-between">
-							<h5 class='name'></h5>
-							<small class='days'></small>
+							<div>
+								<h5 class='name'></h5>
+								<p class="mb-1 description"></p>
+							</div>
+							<div>
+								<small class='days'></small>						
+								<button class="btn btn-outline-primary d-block mr-0 ml-auto" data-cmd="loadTrack"><i class="fas fa-cloud-download-alt"></i></button>
+							</div>
 						</div>
-						<p class="mb-1 description"></p>
-						<p class="mb-1 distance"></p>
-						<button class="btn btn-outline-primary float-right" data-cmd="loadTrack"><i class="fas fa-cloud-download-alt"></i></button>
 					</li>
 				</ul>
+				<ul class="pagination mt-3 justify-content-center"></ul>
 			</div>		
 		</div>
 	</div>
