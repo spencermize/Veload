@@ -144,6 +144,7 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 						res.json(results);	
 					});
 				}else{
+					console.log(rs);
 					res.send(rs);
 				}
 			});					

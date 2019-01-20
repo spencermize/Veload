@@ -30,7 +30,9 @@ for(var key in remote){
 
 var allPoints = [];
 var speeds = [];
-var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid, mod, maps,route,currLoc;
+var rTrail = [];
+var tTrail = [];
+var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid, mod, maps,route,currLoc,lastUpdate,myIcon;
 var timer = new Timer;
 
 var athlete = "";
@@ -49,7 +51,11 @@ const Veload = {
 		startTime = new Date().toISOString();
 		timer.start();
 		refresher = this.startUpdating();
-	},
+			$.getJSON(`https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=f01b5e40d794a63ebd9b51fd4eb985ab&lat=${currLoc.lat}&lon=${currLoc.lng}&format=json&radius=.5&per_page=5&sort=interestingness-asc&content_type=1&nojsoncallback=1,has_geo=true`,function(data){
+				var p = data.photos.photo[0];
+				$('html').css('background-image',`url(https://farm${p.farm}.staticflickr.com/${p.server}/${p.id}_${p.secret}_h.jpg)`);
+			});
+},
 	pause: function(){
 		$('body').toggleClass('play pause');
 		timer.pause();
@@ -170,11 +176,37 @@ const Veload = {
 	},
 	startUpdating: function(){
 		self = this;
+		lastUpdate = moment();
 		return setInterval(function(){
 			if(currentConnection){
 				$.getJSON(local.speed,function(data){
 
 					var speed = new Number(data.speed);
+					var metSpeed = speed * 1609.344;
+					
+					// speed point * (time since last update -> seconds -> minutes -> hours)
+					var distance = metSpeed * (moment().diff(lastUpdate) / 1000 / 60 / 60);
+					console.log("traveled " + distance);
+					lastUpdate = moment();
+					if(distance){
+						while(distance>rTrail[0].distance){
+							console.log("Change up!");
+							//change direction
+							//first, just bump us to the next waypoint
+							currLoc = rTrail[1].latlng;
+							//then, set the distance remaining after we get to the new waypoint
+							distance = distance - rTrail[0].distance;
+							//then, ditch the old waypoint
+							rTrail.shift();
+						}
+						
+						rTrail[0].distance = rTrail[0].distance - distance;
+						console.log(rTrail[0].distance + " remaining until waypoint");
+						var newLoc = geolib.computeDestinationPoint(currLoc,distance,rTrail[0].bearing);
+						currLoc.lat = newLoc.latitude;
+						currLoc.lng = newLoc.longitude;
+						myIcon.setLatLng(currLoc);
+					}
 					desiredSpeed = $("#desiredSpeed").val();
 					$("#currSpeed").html(numeral(speed).format(Veload.MPHFORM) + "mph");
 					$("#distance").html(numeral(getDistance(speeds,elapsed)).format(Veload.MPHFORM) + " miles");
@@ -194,36 +226,56 @@ const Veload = {
 						}
 					});
 					myChart.update();
+					map.flyTo(currLoc,18);
 					speeds.push(speed);
-					$("#avgSpeed").html(numeral(getAvg(speeds)).format(Veload.MPHFORM) + "mph");					
+					$("#avgSpeed").html(numeral(getAvg(speeds)).format(Veload.MPHFORM) + "mph");
 				})
 			}
 		},Veload.UPDATEFREQ);
 	},
+	loadGPX: function(url){
+		var omni = require("@mapbox/leaflet-omnivore");
+		var om = omni.gpx(url);
+		om.on('ready', function(e) {
+			var geolib = require("geolib");
+			route = om.toGeoJSON().features[0].geometry.coordinates;
+			var gpx = e.target
+			map.fitBounds(gpx.getBounds());
+			for(coord = 0; coord<route.length-1;coord++){
+				var s = route[coord];
+				var f = route[coord+1];
+				var sl = {lat: s[1], lng: s[0]};
+				var fl = {lat: f[1], lng: f[0]};
+				var d = geolib.getDistance(sl,fl);
+				var b = geolib.getBearing(sl,fl);
+				rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
+			}
+			currLoc = rTrail[0].latlng;
+			var ico = require("@ansur/leaflet-pulse-icon");
+			var pulsingIcon = Leaflet.icon.pulse({
+				iconSize:[20,20],
+				color: Veload.GOOD,
+				fillColor: Veload.GOOD
+			});
+			myIcon = Leaflet.marker([currLoc.lat,currLoc.lng],{icon: pulsingIcon,opacity:.8}).addTo(map);
+		}).on('error',function(e){
+			Veload.error(e);
+		}).addTo(map);		
+	},
 	map: function(){
 		var el = $('.map')[0];
-		map = Leaflet.map(el);
-		Leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: 'Map data &copy; <a href="http://www.osm.org">OpenStreetMap</a>'
-		}).addTo(map);
-	},
-	loadGPX: function(url){
-		$.get(url,function(data){
-			var omni = require("leaflet-omnivore");
-			omni.gpx(url)
-			.on('ready', function(e) {
-				var gpx = e.target
-				map.fitBounds(gpx.getBounds());
-			}).on('error',function(e){
-				Veload.error(e);
-			}).addTo(map);			
-			
-			//var gps = require("parse-gpx");
-			//route = gps.gpxParse(data);
-			console.log(route);
-			currLoc = data[0];
+		map = Leaflet.map(el,{
+			zoom: 9,
+			center: [51.505, -0.09]
 		});
-	},
+		navigator.geolocation.getCurrentPosition(function(position) {
+			map.panTo([position.coords.latitude,position.coords.longitude]);
+			currLoc = {lat:position.coords.latitude,lng:position.coords.longitude};
+		});		
+		Leaflet.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
+
+		}).addTo(map);
+	},	
 	loadTrack: function(e){
 		self.loadGPX(e.closest("[data-ref]").data("ref"));
 		self.unpop();

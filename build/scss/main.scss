@@ -1,0 +1,119 @@
+@import "variables";
+* {
+	box-sizing: border-box;
+}
+html{
+  background: url(images/bg.jpg) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;	
+}
+body{
+	background: 0;
+}
+nav .pause,.play  .play,.stop{
+	display: none;
+}
+.play  .pause,nav .play,.stoppable .stop{
+	display: inline;
+}
+.footer{
+    background-color: #f5f5f5;
+}
+#profile .fas{
+	font-size:2.5rem;
+	vertical-align: top;
+}
+.grid{
+	width: 100%;
+}
+.loggedout #profile .dropdown-menu{
+	display: none;
+}
+.loggedout #profile .dropdown-toggle::after {
+	display: none;
+}
+.grid-item.is-positioning-post-drag {
+  z-index: 2; /* keep dragged item on top */
+}
+.packery-drop-placeholder {
+  outline: 3px dashed #444;
+  outline-offset: -6px;
+  /* transition position changing */
+  -webkit-transition: -webkit-transform 0.2s;
+          transition: transform 0.2s;
+}
+.map{
+	min-height:400px;
+}
+.grid-item-content {
+  width: 100%;
+  height: 100%;
+  transition: width 0.4s, height 0.4s;
+}
+.modal-open .container-fluid, .modal-open  .container,.modal-open .navbar{
+	filter: blur(15px);	
+}
+.pagination li{
+	
+}
+.pagination .page{
+	cursor: pointer;
+    position: relative;
+    display: block;
+    padding: .5rem .75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #007bff;
+    background-color: #fff;
+    border: 1px solid #dee2e6;	
+}
+.pagination li:first-child .page{
+    margin-left: 0;
+    border-top-left-radius: .25rem;
+    border-bottom-left-radius: .25rem;	
+}
+.pagination li:last-child .page{
+	border-top-right-radius: .25rem;
+    border-bottom-right-radius: .25rem;	
+}
+.pagination .active .page{
+    z-index: 1;
+    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;	
+}
+.leaflet-pulsing-icon {
+    border-radius: 100%;
+}
+
+.leaflet-pulsing-icon:after {
+    content: "";
+    border-radius: 100%;
+    height: 300%;
+    width: 300%;
+    position: absolute;
+    margin: -100% 0 0 -100%;
+
+}
+
+@keyframes pulsate {
+    0% {
+        transform: scale(0.1, 0.1);
+        opacity: 0;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+        filter: alpha(opacity=0);
+    }
+    50% {
+        opacity: .75;
+        -ms-filter: none;
+        filter: none;
+    }
+    100% {
+        transform: scale(.8, .8);
+        opacity: 0;
+        -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+        filter: alpha(opacity=0);
+    }
+}
