@@ -54,26 +54,41 @@ const Veload = {
 		photos = this.photoRefresher();
 	},
 	photoRefresher: function(){
+		var radius = .5;
 		return setInterval(function(){
 			const maxResults = 50;
-			$.getJSON(`https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=f01b5e40d794a63ebd9b51fd4eb985ab&lat=${currLoc.lat}&lon=${currLoc.lng}&format=json&extras=url_o,url_k,url_h&radius=1&per_page=${maxResults}&tags=beautiful,pretty,sunset,sunrise,architecture&sort=interestingness-desc&content_type=1&nojsoncallback=1,has_geo=true`,function(data){
+			$.getJSON(`https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=f01b5e40d794a63ebd9b51fd4eb985ab&lat=${currLoc.lat}&lon=${currLoc.lng}&format=json&extras=url_o,url_k,url_h&radius=${radius}&per_page=${maxResults}&tags=beautiful,pretty,sunset,sunrise,architecture&sort=interestingness-desc&content_type=1&nojsoncallback=1,has_geo=true`,function(data){
 				var url = "";
-				while(!url){
-					const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length-1))];
-					url = p.url_o ? p.url_o : p.url_k;
+				if(data.photos.total>0){
+					var attempts = 0;
+					console.log(attempts < (data.photos.photo.length));
+					while(!url && attempts < (data.photos.photo.length)){
+						const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length-1))];
+						url = p.url_o ? p.url_o : p.url_k;
+						console.log('attempting...' + url);
+						attempts++;
+					}
+					if(!url){
+						url = data.photos.photo[0].url_h;
+						radius = radius * 2;
+					}					
+					if(url && `url("${url}")` != $('.bg.blurrer').css('background-image')){
+						$('<img/>').attr('src', url).on('load', function() {
+							$(this).remove(); // prevent memory leaks as @benweet suggested
+							var el1 = $('.bg.blurrer').addClass("curr");
+							el1.before("<span class='bg blurrer' />");
+							var el2 = $('.bg.blurrer:not(.curr)');
+							el2.css({'background-image':`url(${url})`});
+							el2.addClass('in');
+							$('.bg.blurrer.curr').removeClass('in');
+							setTimeout(function(){$('.bg.blurrer.curr').remove();},2000);
+						});
+					}
+				}else{
+					radius = radius * 2;
 				}
-				$('<img/>').attr('src', url).on('load', function() {
-					$(this).remove(); // prevent memory leaks as @benweet suggested
-					var el1 = $('.bg.blurrer').addClass("curr");
-					el1.before("<span class='bg blurrer' />");
-					var el2 = $('.bg.blurrer:not(.curr)');
-					el2.css({'background-image':`url(${url})`});
-					el2.addClass('in');
-					$('.bg.blurrer.curr').removeClass('in');
-					setTimeout(function(){$('.bg.blurrer.curr').remove();},2000);
-				});
 			});
-		},10000);
+		},15000);
 	},
 	pause: function(){
 		$('body').toggleClass('play pause');
@@ -543,7 +558,7 @@ function getDistance(speeds,elapsed){
 	return getAvg(speeds) * (elapsed / 60 / 60);
 }
 $.fn.loader = function(height=64,width=64){
-	$(this).empty().append(`<img src='/img/loading.gif' width='${width}' height='${height} class='img-flex'/>`);
+	$(this).empty().append(`<img class='mx-auto' src='/img/loading.gif' width='${width}' height='${height} class='img-flex'/>`);
 	return this;
 }
 $.fn.cleanWhitespace = function() {
