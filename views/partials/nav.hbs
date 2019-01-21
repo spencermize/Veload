@@ -1,17 +1,23 @@
-    <nav class="navbar navbar-light sticky-top bg-light flex-md-nowrap">
-		<a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">
+    <nav class="navbar navbar-expand-xl bg-none">
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<i class="fas fa-bars"></i>
+		</button>
+	  <div class="collapse navbar-collapse flex-md-nowrap" id="navbarSupportedContent">
+		<a class="navbar-brand col-sm-3 col-md-1 mr-0" href="#">
 			<img src="/img/logo.png" class="img-fluid" alt="">
-		</a>
-	  <div class="button-group">
-		<button class="btn btn-outline-primary play" data-cmd="start"><i class="fas fa-play"></i></button>
-		<button class="btn btn-outline-primary pause" data-cmd="pause"><i class="fas fa-pause"></i></button>
-		<button class="btn btn-outline-secondary stop" data-cmd="stop"><i class="fas fa-stop"></i></button>
-		<button id="clear" class="btn btn-outline-secondary" data-cmd="clear"><i class="fas fa-broom"></i></button>
-		<div id="profile" class="dropdown d-inline-block">
-			<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-user-circle"></i></button>
-			<div class="dropdown-menu dropdown-menu-right">
-				<a class="dropdown-item" href="/logout">Logout</a>
+		</a>	  
+		<div class="button-group ml-auto">
+			<button class="btn btn-outline-primary play" data-toggle="tooltip" title="Start workout" data-cmd="start"><i class="fas fa-play"></i></button>
+			<button class="btn btn-outline-primary pause" data-toggle="tooltip" title="Pause workout" data-cmd="pause"><i class="fas fa-pause"></i></button>
+			<button class="btn btn-outline-secondary stop" data-toggle="tooltip" title="Stop & upload workout" data-cmd="stop"><i class="fas fa-stop"></i></button>
+			<button class="btn btn-outline-secondary fullscreen" data-toggle="tooltip" title="Fullscreen mode" data-cmd="fullscreen"><i class="fas fa-expand"></i></button>
+			<button id="clear" class="btn btn-outline-secondary" data-toggle="tooltip" title="Clear all" data-cmd="clear"><i class="fas fa-broom"></i></button>
+			<div id="profile" class="dropdown d-inline-block">
+				<button class="btn btn-link dropdown-toggle" type="button" data-toggle="dropdown"><i class="fas fa-user-circle"></i></button>
+				<div class="dropdown-menu dropdown-menu-right">
+					<a class="dropdown-item" href="/logout">Logout</a>
+				</div>
 			</div>
+		  </div>
 		</div>
-	  </div>
     </nav>

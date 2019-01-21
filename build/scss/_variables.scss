@@ -6,9 +6,8 @@
 @import "../../node_modules/bootstrap/scss/variables";
 
 //Use variables...
-.bg-light{
-	background-color: $card-cap-bg;
-}
-
+$theme-colors: (
+  "primary": #1b7bbe
+);
 //Go BS...
 @import "../../node_modules/bootstrap/scss/bootstrap";

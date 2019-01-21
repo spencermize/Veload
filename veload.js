@@ -3,7 +3,7 @@ const $ = require("jquery");
 const jQueryBridget = require('jquery-bridget');
 const Packery = require("packery");
 const Draggabilly = require("draggabilly");
-const Chart = require("./third_party/Chart.bundle.min.js");
+const Chart = require("./build/third_party/Chart.bundle.min.js");
 const bootstrap = require("bootstrap");
 const Timer = require("easytimer");
 const moment = require("moment");
@@ -32,7 +32,7 @@ var allPoints = [];
 var speeds = [];
 var rTrail = [];
 var tTrail = [];
-var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid, mod, maps,route,currLoc,lastUpdate,myIcon;
+var myChart, refresher, desiredSpeed, startTime, elapsed, ctx, $grid, mod, maps,route,currLoc,lastUpdate,myIcon,photos;
 var timer = new Timer;
 
 var athlete = "";
@@ -51,15 +51,35 @@ const Veload = {
 		startTime = new Date().toISOString();
 		timer.start();
 		refresher = this.startUpdating();
-			$.getJSON(`https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=f01b5e40d794a63ebd9b51fd4eb985ab&lat=${currLoc.lat}&lon=${currLoc.lng}&format=json&radius=.5&per_page=5&sort=interestingness-asc&content_type=1&nojsoncallback=1,has_geo=true`,function(data){
-				var p = data.photos.photo[0];
-				$('html').css('background-image',`url(https://farm${p.farm}.staticflickr.com/${p.server}/${p.id}_${p.secret}_h.jpg)`);
+		photos = this.photoRefresher();
+	},
+	photoRefresher: function(){
+		return setInterval(function(){
+			const maxResults = 50;
+			$.getJSON(`https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=f01b5e40d794a63ebd9b51fd4eb985ab&lat=${currLoc.lat}&lon=${currLoc.lng}&format=json&extras=url_o,url_k,url_h&radius=1&per_page=${maxResults}&tags=beautiful,pretty,sunset,sunrise,architecture&sort=interestingness-desc&content_type=1&nojsoncallback=1,has_geo=true`,function(data){
+				var url = "";
+				while(!url){
+					const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length-1))];
+					url = p.url_o ? p.url_o : p.url_k;
+				}
+				$('<img/>').attr('src', url).on('load', function() {
+					$(this).remove(); // prevent memory leaks as @benweet suggested
+					var el1 = $('.bg.blurrer').addClass("curr");
+					el1.before("<span class='bg blurrer' />");
+					var el2 = $('.bg.blurrer:not(.curr)');
+					el2.css({'background-image':`url(${url})`});
+					el2.addClass('in');
+					$('.bg.blurrer.curr').removeClass('in');
+					setTimeout(function(){$('.bg.blurrer.curr').remove();},2000);
+				});
 			});
-},
+		},10000);
+	},
 	pause: function(){
 		$('body').toggleClass('play pause');
 		timer.pause();
 		clearInterval(refresher);
+		clearInterval(photos);
 	},
 	stop: function(){
 		this.pause();
@@ -132,7 +152,7 @@ const Veload = {
 		$grid = $('.grid').packery({
 			itemSelector: '.grid-item',
 			percentPosition: true,
-			columnWidth: '.col-lg-4',
+			columnWidth: '.col-lg-2',
 		})
 		$grid.find('.grid-item').each( function( i, gridItem ) {
 			var draggie = new Draggabilly( gridItem,{
@@ -142,7 +162,7 @@ const Veload = {
 		});
 		$grid.on( 'dblclick', '.grid-item .card-header', function( event ) {
 			var $item = $( event.currentTarget ).closest('.grid-item');
-			$item.toggleClass('col-lg-8 col-lg-4');
+			$item.toggleClass('col-lg-8');
 			$grid.packery('layout');
 		});
 	},
@@ -208,8 +228,6 @@ const Veload = {
 						myIcon.setLatLng(currLoc);
 					}
 					desiredSpeed = $("#desiredSpeed").val();
-					$("#currSpeed").html(numeral(speed).format(Veload.MPHFORM) + "mph");
-					$("#distance").html(numeral(getDistance(speeds,elapsed)).format(Veload.MPHFORM) + " miles");
 					myChart.data.datasets.forEach((dataset) => {
 						dataset.data.push({t:Date.now(),y:speed});
 						allPoints.push({t:Date.now(),y:speed});
@@ -228,7 +246,10 @@ const Veload = {
 					myChart.update();
 					map.flyTo(currLoc,18);
 					speeds.push(speed);
-					$("#avgSpeed").html(numeral(getAvg(speeds)).format(Veload.MPHFORM) + "mph");
+					
+					$("#currSpeed").html(numeral(speed).format(Veload.MPHFORM) + " mph");
+					$("#distance").html(numeral(getDistance(speeds,elapsed)).format(Veload.MPHFORM) + " miles");					
+					$("#avgSpeed").html(numeral(getAvg(speeds)).format(Veload.MPHFORM) + " mph");
 				})
 			}
 		},Veload.UPDATEFREQ);
@@ -350,7 +371,18 @@ const Veload = {
 		self.initTimers();
 		self.poll();
 		setInterval(function(){self.poll();},3000);
-		self.initGrid();	
+		self.initGrid();
+		$('[data-toggle="tooltip"]').tooltip();
+		$('.grid-item').on('mouseover',function(e){
+			var card = $(e.target).closest('.grid-item');
+			card.find('.card-header').addClass('show');
+			card.on('mouseout',function(e){
+				setTimeout(function(){
+					$(e.target).closest('.grid-item').find('.card-header').removeClass('show');
+				},2000);
+			});
+			
+		});
 	},
 	initChart: function(){
 		if($('#myChart').length){
@@ -387,22 +419,29 @@ const Veload = {
 			});
 		}
 	},
+	fullscreen: function(config){
+		if(config.caller!="voice"){
+			$('body')[0].requestFullscreen();
+		}
+	},
 	initVoice: function(){
 		self = this;
 		if (annyang) {
-		// Let's define a command.
-			var commands = {
-			'start': function() { self.start(); },
-			'pause': function() { self.pause(); },
-			'stop': function() { self.stop(); },
-			'clear': function() { self.clear(); }
-			};
+		// add all commands from buttons that have [data-cmd] (not all functions will be valid)
+			var commands = {}
+			$('button[data-cmd]').each(function(ind,el){
+				var cmd = $(el).data('cmd');
+				commands[cmd] = function(){ self[cmd]({caller: "voice"}) }
+			});
 
 			// Add our commands to annyang
 			annyang.addCommands(commands);
 
 			annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
-				$('.speech').text(userSaid);
+				$('.speech').addClass('show').text(userSaid);
+				setTimeout(function(){
+					$('.speech').removeClass('show');
+				},3000);
 			});
 
 			// Start listening.
@@ -410,38 +449,33 @@ const Veload = {
 		}
 	},
 	notConnected: function(){
-		var self = this;
-		var config = {
-			title: 'Error!',
-			body: 'Please check that your sensor is connected in the veload monitor!',
-			accept: true,
-			close: false,
-			acceptText: 'Retry',
-			modalClass: 'disco'
-		}
-		const events = {
-			acceptClick: function(){
-				self.poll()
+		if(!$('.disco').length){
+			var self = this;
+			var config = {
+				title: 'Error!',
+				body: 'Please check that your sensor is connected in the veload monitor!',
+				accept: true,
+				close: false,
+				acceptText: 'Retry',
+				modalClass: 'disco'
 			}
+			const events = {
+				acceptClick: function(){
+					self.poll()
+				}
+			}
+			this.pop(config,events);
 		}
-		this.pop(config,events);
-		config = {
-			status: `No sensor connection`,
-			statusClass: 'bg-warning'
-		}
-		$('footer').html(cTemps.footer(config));		
-
 	},
 	connected: function(data){
 		currentConnection = data.status;
 		const config = {
 			status: `veload connected on port ${data.status}`,
-			statusClass: 'bg-info'
+			statusClass: ''
 		}
 		if($('#modal').hasClass('disco')){
-			unpop();
+			self.unpop();
 		}
-		$('footer').html(cTemps.footer(config));
 	},
 	unpop: function(){
 		$('#modal').modal('hide');
