@@ -170,12 +170,15 @@ nav .pause,.play .play,.stop{
 		.card-header{
 			cursor: move;
 			background: rgba(255,255,255,0.25);
+			transition: all .5s;
+			height: 0;
+			padding: 0;
 		}
-
 		.card-body{
 			&.bg-light{
 				background-color: rgba(255,255,255,0.75) !important;
 			}
+			transition: all .5s;
 		}
 	}
 	.list-group-item{
@@ -183,11 +186,23 @@ nav .pause,.play .play,.stop{
 	}
 	.grid-item{
 		@extend .mt-2;
+		overflow: hidden;
 		.grid-item-content {
 			width: 100%;
 			height: 100%;
 			transition: width 0.4s, height 0.4s;
 		}
+		&.full{
+			.card-header{
+				height: 25px;
+			}
+			&.col-lg-4 .card-body{
+				height: 375px;
+			}
+			&.col-lg-2 .card-body{
+				height: 175px;
+			}
+		}		
 	}
 	.rotator{
 		.list-group-item{

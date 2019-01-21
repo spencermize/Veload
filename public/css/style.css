@@ -9735,6 +9735,12 @@ nav .pause, .play .play, .stop {
 .grid .card .card-header {
   cursor: move;
   background: rgba(255, 255, 255, 0.25);
+  transition: all 0.5s;
+  height: 0;
+  padding: 0;
+}
+.grid .card .card-body {
+  transition: all 0.5s;
 }
 .grid .card .card-body.bg-light {
   background-color: rgba(255, 255, 255, 0.75) !important;
@@ -9742,10 +9748,22 @@ nav .pause, .play .play, .stop {
 .grid .list-group-item {
   background: 0;
 }
+.grid .grid-item {
+  overflow: hidden;
+}
 .grid .grid-item .grid-item-content {
   width: 100%;
   height: 100%;
   transition: width 0.4s, height 0.4s;
+}
+.grid .grid-item.full .card-header {
+  height: 25px;
+}
+.grid .grid-item.full.col-lg-4 .card-body {
+  height: 375px;
+}
+.grid .grid-item.full.col-lg-2 .card-body {
+  height: 175px;
 }
 
 /*# sourceMappingURL=style.css.map */

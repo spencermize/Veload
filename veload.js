@@ -373,16 +373,18 @@ const Veload = {
 		setInterval(function(){self.poll();},3000);
 		self.initGrid();
 		$('[data-toggle="tooltip"]').tooltip();
-		$('.grid-item').on('mouseover',function(e){
+		$('.grid-item').on('mouseover',(function(e){
 			var card = $(e.target).closest('.grid-item');
-			card.find('.card-header').addClass('show');
-			card.on('mouseout',function(e){
-				setTimeout(function(){
-					$(e.target).closest('.grid-item').find('.card-header').removeClass('show');
+			var time;
+			card.addClass('full');
+			clearTimeout(time);
+			card.on('mouseout',(function(){ 
+				clearTimeout(time);
+				time = setTimeout(function(){
+					$(e.target).closest('.grid-item').removeClass('full');
 				},2000);
-			});
-			
-		});
+			}));
+		}));
 	},
 	initChart: function(){
 		if($('#myChart').length){
