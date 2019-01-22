@@ -273,10 +273,15 @@ Veload.prototype.startUpdating = function(){
 	return setInterval(function(){
 		if(self.currentConnection){
 			$.getJSON(local.stats,function(data){
-
-				var speed = new Number(data.speed);
-				var metSpeed = speed * 1609.344;
+				//expect meters/second
+				var metSpeed = new Number(data.speed);
 				
+				// m/s -> mph
+				var speed = metSpeed * 2.23694;
+				
+				// m/s -> km/s
+				metSpeed = metSpeed*1000;
+								
 				// speed point * (time since last update -> seconds -> minutes -> hours)
 				var distance = metSpeed * (moment().diff(self.lastUpdate) / 1000 / 60 / 60);
 								console.log(distance);
