@@ -26,12 +26,12 @@ init(sequelize,args.reset);
 
 // view engine setup
 app.set('view engine', 'hbs');
-
+app.set('views',  __dirname + '/public/views/');
 app.engine( 'hbs', hbs( {
   extname: 'hbs',
   defaultView: 'default',
-  layoutsDir: __dirname + '/views/layouts/',
-  partialsDir: __dirname + '/views/partials/',
+  layoutsDir: __dirname + '/public/views/layouts/',
+  partialsDir: __dirname + '/public/views/partials/',
   helpers: require('./config/hbs-helpers.js')
 }));
 console.log("startUp");
@@ -63,7 +63,7 @@ app.get('/', sessionChecker, (req, res) => {
 	res.redirect('/dashboard');
 });
 app.get('/dashboard',sessionChecker, (req, res) => {
-	res.render('dashboard', {layout: 'default', modules: ['ride-info','speed-graph','goals','map']});
+	res.render('dashboard', {layout: 'default', modules: ['ride-info','speed-graph','goals','maps']});
 });	
 app.get('/strava',(req, resp, next) => {
 	let code = req.query.code;

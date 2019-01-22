@@ -1,0 +1,22 @@
+<script id="modal-temp" type="text/x-handlebars-template">
+	<div class="modal fade \{{modalClass}}" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true" data-backdrop="\{{#if backdrop}}\{{backdrop}}\{{else}}true\{{/if}}">
+	  <div class="modal-dialog" role="document">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h5 class="modal-title" id="modalLabel">\{{title}}</h5>
+			\{{#if close}}<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			  <span aria-hidden="true">&times;</span>
+			</button>\{{/if}}
+		  </div>
+		  <div class="modal-body">
+				\{{{body}}}
+		  </div>
+		  <div class="modal-footer">
+			\{{#if close}}<button type="button" class="btn btn-secondary btn-cancel" data-dismiss="modal">\{{#if cancelText}}\{{cancelText}}\{{else}}Close\{{/if}}</button>\{{/if}}
+			\{{#if accept}}<button type="button" class="btn btn-primary btn-accept">\{{#if acceptText}}\{{acceptText}}\{{else}}Okay\{{/if}}</button>\{{/if}}
+		  </div>
+		</div>
+	  </div>
+	</div>
+</script>
+<div id="modal-container"></div>

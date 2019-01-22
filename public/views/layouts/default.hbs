@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="">
+{{> header}}
+
+
+<body class="pause loggedout">
+<span class="bg blurrer in"></span>
+  <!-- Add your site or application content here -->
+	{{> nav }}
+
+    <div class="container-fluid">
+        <div id="main" role="main" class="pt-3 flex-wrap d-flex justify-content-between">
+			{{{body}}}
+		</div>
+    </div>
+	<footer class="footer fixed-bottom collapse show">
+		{{> footer }}
+	</footer>
+	{{> modal }}
+	{{> scripts }}
+</body>
+
+</html>
