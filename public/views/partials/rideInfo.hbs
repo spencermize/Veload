@@ -1,0 +1,20 @@
+<script id="{{this}}-module" type="text/x-handlebars-template">	
+	<script async src="/js/_{{this}}.js"></script>
+	<div class="grid-item col-lg-2">
+		<div class="grid-item-content">
+			<div class="card">
+				<div class="card-header"></div>
+				<div class="card-body bg-light text-center">
+					<div class="carousel slide" data-ride="carousel" data-interval="2500">
+						<ul class="carousel-inner m-0 p-0">
+							<li class="carousel-item active"><h5>Current Speed: </h5><h3 class="display-4" id="currSpeed"></h3></li>
+							<li class="carousel-item"><h5>Average Speed:</h5> <h3 class="display-4" id="avgSpeed"></h3></li>
+							<li class="carousel-item"><h5>Total Distance:</h5> <h3 class="display-4" id="distance"></h3></li>
+							<li class="carousel-item"><h5>Elapsed:</h5> <h3 class="display-4" id="elapsedTime"></h3></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</script>

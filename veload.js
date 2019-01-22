@@ -1,18 +1,21 @@
-const Handlebars = require('handlebars');
-const $ = require("jquery");
 const jQueryBridget = require('jquery-bridget');
 const Packery = require("packery");
 const Draggabilly = require("draggabilly");
 const Chart = require("./build/third_party/Chart.bundle.min.js");
 const bootstrap = require("bootstrap");
 const Timer = require("easytimer.js").Timer;
-const moment = require("moment");
-const numeral = require("numeral");
+
 const annyang = require("annyang");
 
-//Expose for Maps Module
+//Expose for modules
 const Leaflet = require("leaflet");
 window.Leaflet = Leaflet;
+
+const moment = require("moment");
+window.moment = moment;
+
+const numeral = require("numeral");
+window.numeral = numeral;
 
 const geolib = require('geolib');
 jQueryBridget( 'packery', Packery, $ );
@@ -32,27 +35,57 @@ for(var key in remote){
 	remote[key] = `${remoteUrl}${remote[key]}`;
 };
 
-
-
-function Veload(opts){
-	if (!(this instanceof Veload)) return new Veload(opts);
-}
-
+//set some defaults
 Veload.prototype.UPDATEFREQ = 500;
 Veload.prototype.MPHFORM = '0,000.00';
 Veload.prototype.GOOD = "#28a745";
 Veload.prototype.GOODBG = "#53F377";
 Veload.prototype.BAD = "#dc3545";
 Veload.prototype.BADBG = "#E27A84";
-Veload.prototype.allPoints = [];
-Veload.prototype.speeds = [];
-Veload.prototype.rTrail = [];
-Veload.prototype.tTrail = [];
-Veload.prototype.cTemps = [];
-Veload.prototype.cMods = [];
-["currentConnection", "athlete", "myChart", "refresher", "desiredSpeed", "startTime", "elapsed", "$grid","route","currLoc","lastUpdate","myIcon","photos"].forEach(function(e){
+Veload.prototype.chartOps = {
+	type: 'line',
+	data: {
+		datasets:[{
+			data: [],
+			pointRadius: 3,
+			pointBackgroundColor: []
+		}]
+	},
+	options: {
+		tooltips: {
+			enabled: false
+		},
+		scales: {
+			xAxes: [{
+				type: 'time',
+				time: {
+					unit: 'minute'
+				}
+			}],
+			yAxes: [{
+				ticks: {
+					beginAtZero: true
+				}
+			}]
+		},
+		legend: {
+			display: false
+		}
+	}
+};
+
+["allPoints","speeds","rTrail","cTemps","cMods"].forEach(function(e){
+	Veload.prototype[e] = [];
+});
+
+["currentConnection", "athlete", "refresher", "desiredSpeed", "startTime", "elapsed", "$grid","route","currLoc","lastUpdate","myIcon","photos"].forEach(function(e){
 	Veload.prototype[e] = "";
 });
+
+
+function Veload(opts){
+	if (!(this instanceof Veload)) return new Veload(opts);
+}
 
 Veload.prototype.start = function(){
 	var self = this;
@@ -97,11 +130,8 @@ Veload.prototype.clear = function(){
 	self = this;
 	allPoints = [];
 	speeds = [];
-	console.log(self.timer);
 	self.timer.reset();
 	self.timer.stop();
-	self.myChart.data.datasets[0].data = []
-	self.myChart.update();
 	$("body").removeClass('stoppable');
 	$(document).trigger("vClear");
 }
@@ -146,8 +176,8 @@ Veload.prototype.photoRefresher = function(){
 }
 Veload.prototype.upload = function(){
 		var self = this;
-		var avg = getAvg(self.speeds);
-		var distance = getDistance(self.speeds,self.elapsed);
+		var avg = self.getAvg();
+		var distance = self.getDistance();
 		$('.modal-footer').loader(36,36);
 		var query = `${remote.publish}?elapsed=${self.elapsed}&distance=${distance}&start=${self.startTime}`;
 		$.post(query,function(data){
@@ -234,83 +264,58 @@ Veload.prototype.initTimers = function(){
 	var self = this;
 	self.timer = new Timer();
 	self.timer.addEventListener('secondsUpdated', function (e) {
-		$('#elapsedTime').html(self.timer.getTimeValues().toString());
 		self.elapsed = self.timer.getTotalTimeValues().seconds;
 	});
-	self.timer.addEventListener('started', function (e) {
-		$('#elapsedTime').html(self.timer.getTimeValues().toString());
-	});
-	self.timer.addEventListener('reset', function (e) {
-		$('#elapsedTime').html(self.timer.getTimeValues().toString());
-	});	
 }
 Veload.prototype.startUpdating = function(){
-		self = this;
-		self.lastUpdate = moment();
-		return setInterval(function(){
-			if(self.currentConnection){
-				$.getJSON(local.speed,function(data){
+	self = this;
+	self.lastUpdate = moment();
+	return setInterval(function(){
+		if(self.currentConnection){
+			$.getJSON(local.speed,function(data){
 
-					var speed = new Number(data.speed);
-					var metSpeed = speed * 1609.344;
-					
-					// speed point * (time since last update -> seconds -> minutes -> hours)
-					var distance = metSpeed * (moment().diff(self.lastUpdate) / 1000 / 60 / 60);
-					console.log("traveled " + distance);
-					self.lastUpdate = moment();
-					if(distance){
-						while(distance>self.rTrail[0].distance){
-							console.log("Change up!");
-							//change direction
-							//first, just bump us to the next waypoint
-							self.currLoc = self.rTrail[1].latlng;
-							//then, set the distance remaining after we get to the new waypoint
-							distance = distance - self.rTrail[0].distance;
-							//then, ditch the old waypoint
-							self.rTrail.shift();
-						}
-						
-						self.rTrail[0].distance = rTrail[0].distance - distance;
-						console.log(self.rTrail[0].distance + " remaining until waypoint");
-						var newLoc = geolib.computeDestinationPoint(self.currLoc,distance,self.rTrail[0].bearing);
-						self.currLoc.lat = newLoc.latitude;
-						self.currLoc.lng = newLoc.longitude;
-						self.myIcon.setLatLng(self.currLoc);
+				var speed = new Number(data.speed);
+				var metSpeed = speed * 1609.344;
+				
+				// speed point * (time since last update -> seconds -> minutes -> hours)
+				var distance = metSpeed * (moment().diff(self.lastUpdate) / 1000 / 60 / 60);
+								console.log(distance);
+				console.log("traveled " + distance);
+				self.lastUpdate = moment();
+				if(distance && self.rTrail.length){
+					while(distance>self.rTrail[0].distance){
+						console.log("Change up!");
+						//change direction
+						//first, just bump us to the next waypoint
+						self.currLoc = self.rTrail[1].latlng;
+						//then, set the distance remaining after we get to the new waypoint
+						distance = distance - self.rTrail[0].distance;
+						//then, ditch the old waypoint
+						self.rTrail.shift();
 					}
-					self.desiredSpeed = $("#desiredSpeed").val();
-					self.myChart.data.datasets.forEach((dataset) => {
-						dataset.data.push({t:Date.now(),y:speed});
-						self.allPoints.push({t:Date.now(),y:speed});
-						if(speed>=desiredSpeed){
-							dataset.pointBackgroundColor.push(self.GOOD);
-							dataset.backgroundColor = self.GOODBG;
-						}else{
-							dataset.pointBackgroundColor.push(self.BAD);
-							dataset.backgroundColor = self.BADBG;
-						}
-						if(dataset.data.length > (5*120)){
-							dataset.data.shift();
-							dataset.pointBackgroundColor.shift();
-						}
-					});
-					self.myChart.update();
-
-					self.speeds.push(speed);
-					$(document).trigger('vUpdated');
-					$("#currSpeed").html(numeral(speed).format(self.MPHFORM) + " mph");
-					$("#distance").html(numeral(getDistance(self.speeds,self.elapsed)).format(self.MPHFORM) + " miles");					
-					$("#avgSpeed").html(numeral(getAvg(self.speeds)).format(self.MPHFORM) + " mph");
-				})
-			}
-		},self.UPDATEFREQ);
-	}
+					
+					self.rTrail[0].distance = self.rTrail[0].distance - distance;
+					console.log(self.rTrail[0].distance + " remaining until waypoint");
+					var newLoc = geolib.computeDestinationPoint(self.currLoc,distance,self.rTrail[0].bearing);
+					self.currLoc.lat = newLoc.latitude;
+					self.currLoc.lng = newLoc.longitude;
+					self.myIcon.setLatLng(self.currLoc);
+				}
+				self.desiredSpeed = $("#desiredSpeed").val();
+				self.allPoints.push({t:Date.now(),y:speed});
+				self.speeds.push(speed);
+				$(document).trigger('vUpdated');
+			})
+		}
+	},self.UPDATEFREQ);
+}
 Veload.prototype.loadGPX = function(url){
 		var omni = require("@mapbox/leaflet-omnivore");
 		var om = omni.gpx(url);
 		var self = this;
 		om.on('ready', function(e) {
 			var geolib = require("geolib");
-			self. route = om.toGeoJSON().features[0].geometry.coordinates;
+			self.route = om.toGeoJSON().features[0].geometry.coordinates;
 			var gpx = e.target
 			self.map.fitBounds(gpx.getBounds());
 			for(coord = 0; coord<self.route.length-1;coord++){
@@ -320,19 +325,19 @@ Veload.prototype.loadGPX = function(url){
 				var fl = {lat: f[1], lng: f[0]};
 				var d = geolib.getDistance(sl,fl);
 				var b = geolib.getBearing(sl,fl);
-				rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
+				self.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
 			}
-			self.currLoc = rTrail[0].latlng;
+			self.currLoc = self.rTrail[0].latlng;
 			var ico = require("@ansur/leaflet-pulse-icon");
 			var pulsingIcon = Leaflet.icon.pulse({
 				iconSize:[20,20],
 				color: self.GOOD,
 				fillColor: self.GOOD
 			});
-			self.myIcon = Leaflet.marker([self.currLoc.lat,self.currLoc.lng],{icon: pulsingIcon,opacity:.8}).addTo(map);
+			self.myIcon = Leaflet.marker([self.currLoc.lat,self.currLoc.lng],{icon: pulsingIcon,opacity:.8}).addTo(self.map);
 		}).on('error',function(e){
 			self.error(e);
-		}).addTo(map);		
+		}).addTo(self.map);		
 	}
 Veload.prototype.loadTrack = function(e){
 		self.loadGPX(e.closest("[data-ref]").data("ref"));
@@ -366,7 +371,7 @@ Veload.prototype.pickTrackGUI = function(){
 				self.unpop();
 				self.pop(config);
 				$('#modal .searcher').attr("id","searchme");
-				var list = new List(searchme,options);
+				var list = new List("searchme",options);
 				list.clear();
 	
 				data.forEach(function(el){
@@ -403,47 +408,10 @@ Veload.prototype.pickTrackGUI = function(){
 Veload.prototype.loadDash = function(){
 		var self = this;
 		self.initVoice();
-		self.myChart = self.initChart();
-		self.initTimers();
 		self.poll();
 		setInterval(function(){self.poll();},3000);
 		self.initGrid();
 		$('[data-toggle="tooltip"]').tooltip();
-	}
-Veload.prototype.initChart = function(){
-		if($('#myChart').length){
-			return new Chart(document.getElementById("myChart").getContext('2d'), {
-				type: 'line',
-				data: {
-					datasets:[{
-						data: [],
-						pointRadius: 3,
-						pointBackgroundColor: []
-					}]
-				},
-				options: {
-					tooltips: {
-						enabled: false
-					},
-					scales: {
-						xAxes: [{
-							type: 'time',
-							time: {
-								unit: 'minute'
-							}
-						}],
-						yAxes: [{
-							ticks: {
-								beginAtZero: true
-							}
-						}]
-					},
-					legend: {
-						display: false
-					}
-				}
-			});
-		}
 	}
 Veload.prototype.fullscreen = function(config){
 		if(config.caller!="voice"){
@@ -522,6 +490,7 @@ Veload.prototype.pop = function(cnf = {}, evt = {}){
 		cancelClick: function(){},
 		acceptClick: function(){}
 	},evt);
+	console.log("loading modal");
 	$('#modal-container').html(self.cTemps.modal(config));
 	$('#modal .btn-cancel').on('click',events.cancelClick);
 	$('#modal .btn-accept').on('click',events.acceptClick);
@@ -533,12 +502,26 @@ Veload.prototype.pop = function(cnf = {}, evt = {}){
 	});		
 	$('#modal').modal('show');			
 }
+Veload.prototype.getAvg = function(){
+	var self = this;
+	return self.speeds.reduce(function(a,b){
+		return a + b
+	}, 0) / self.speeds.length
+}
+Veload.prototype.getDistance = function(){
+	var self = this;
+	return self.getAvg(self.speeds) * (self.elapsed / 60 / 60);
+}
 Veload.prototype.loadInterface = function(){
 	var self = this;
 	// load required elements
 	elements = ['modal','footer'];
+	
+	//ensure timers are ready to go so we can attach listeners;
+	self.initTimers();
+	
 	elements.forEach(function(templ){
-		var src = document.getElementById(`${templ}-temp`).src;
+		var src = document.getElementById(`${templ}-temp`).innerHTML;
 		self.cTemps[templ] = Handlebars.compile(src);	
 	});
 	
@@ -567,14 +550,6 @@ Veload.prototype.loadInterface = function(){
 }
 
 //===============HELPERS===================
-function getAvg(speeds){
-	return speeds.reduce(function(a,b){
-		return a + b
-	}, 0) / speeds.length
-}
-function getDistance(speeds,elapsed){
-	return getAvg(speeds) * (elapsed / 60 / 60);
-}
 $.fn.loader = function(height=64,width=64){
 	$(this).empty().append(`<img class='mx-auto' src='/img/loading.gif' width='${width}' height='${height} class='img-flex'/>`);
 	return this;

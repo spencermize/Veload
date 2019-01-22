@@ -1,11 +1,13 @@
 const Handlebars = require('handlebars');
 const $ = require("jquery");
-var Veload = require("./Veload.js");
-var V = Veload();
 
 //expose a common language
 window.$ = $;
 window.Handlebars = Handlebars;
+
+var Veload = require("./Veload.js");
+var V = Veload();
+
 window.Veload = Veload;
 
 $(function(){
@@ -21,3 +23,4 @@ $(function(){
 	}
 	window.V = V;
 });
+

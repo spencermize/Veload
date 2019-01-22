@@ -11,13 +11,13 @@ document.addEventListener('veloaded',function(){
 		});
 		navigator.geolocation.getCurrentPosition(function(position) {
 			self.map.panTo([position.coords.latitude,position.coords.longitude]);
-			currLoc = {lat:position.coords.latitude,lng:position.coords.longitude};
+			self.currLoc = {lat:position.coords.latitude,lng:position.coords.longitude};
 		});		
 		Leaflet.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
 
 		}).addTo(self.map);
 		$(document).on('vUpdated',function(){
-			self.map.flyTo(currLoc,18);
+			self.map.flyTo(self.currLoc,18);
 		});
 	}
 	Veload.prototype.getMap = function(){
