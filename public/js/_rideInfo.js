@@ -6,6 +6,7 @@ document.addEventListener('veloaded',function(){
 			$("#currSpeed").html(numeral(self.speeds[self.speeds.length-1]).format(self.MPHFORM) + " mph");
 			$("#distance").html(numeral(self.getDistance()).format(self.MPHFORM) + " miles");					
 			$("#avgSpeed").html(numeral(self.getAvg()).format(self.MPHFORM) + " mph");
+			$("#hr").text(self.hr[self.hr.length-1]);
 		});
 		
 		self.timer.addEventListener('secondsUpdated', function (e) {

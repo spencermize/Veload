@@ -22,7 +22,7 @@ jQueryBridget( 'packery', Packery, $ );
 
 const local = [];
 local["status"] = "status";
-local["speed"] = "speed";
+local["stats"] = "stats";
 const localUrl ="http://localhost:3001/";
 for(var key in local){
 	local[key] = `${localUrl}${local[key]}`;
@@ -74,7 +74,7 @@ Veload.prototype.chartOps = {
 	}
 };
 
-["allPoints","speeds","rTrail","cTemps","cMods"].forEach(function(e){
+["allPoints","speeds","cadences","hr","rTrail","cTemps","cMods"].forEach(function(e){
 	Veload.prototype[e] = [];
 });
 
@@ -158,7 +158,7 @@ Veload.prototype.photoRefresher = function(){
 				}					
 				if(url && `url("${url}")` != $('.bg.blurrer').css('background-image')){
 					$('<img/>').attr('src', url).on('load', function() {
-						$(this).remove(); // prevent memory leaks as @benweet suggested
+						$(this).remove();
 						var el1 = $('.bg.blurrer').addClass("curr");
 						el1.before("<span class='bg blurrer' />");
 						var el2 = $('.bg.blurrer:not(.curr)');
@@ -272,7 +272,7 @@ Veload.prototype.startUpdating = function(){
 	self.lastUpdate = moment();
 	return setInterval(function(){
 		if(self.currentConnection){
-			$.getJSON(local.speed,function(data){
+			$.getJSON(local.stats,function(data){
 
 				var speed = new Number(data.speed);
 				var metSpeed = speed * 1609.344;
@@ -304,6 +304,8 @@ Veload.prototype.startUpdating = function(){
 				self.desiredSpeed = $("#desiredSpeed").val();
 				self.allPoints.push({t:Date.now(),y:speed});
 				self.speeds.push(speed);
+				self.hr.push(data.hr);
+				self.cadences.push(data.cadence);
 				$(document).trigger('vUpdated');
 			})
 		}
