@@ -89,7 +89,8 @@ function Veload(opts){
 
 Veload.prototype.start = function(){
 	var self = this;
-	$('body').toggleClass('play pause stoppable');
+	$('body').addClass('playing stoppable');
+	$('body').removeClass('paused');
 	self.startTime = new Date().toISOString();
 	self.timer.start();
 	self.refresher = self.startUpdating();
@@ -99,7 +100,8 @@ Veload.prototype.start = function(){
 
 Veload.prototype.pause = function(){
 	var self = this;
-	$('body').toggleClass('play pause');
+	$('body').removeClass('playing');
+	$('body').addClass('paused');
 	self.timer.pause();
 	clearInterval(self.refresher);
 	clearInterval(self.photos);
@@ -132,6 +134,7 @@ Veload.prototype.clear = function(){
 	speeds = [];
 	self.timer.reset();
 	self.timer.stop();
+	self.pause();
 	$("body").removeClass('stoppable');
 	$(document).trigger("vClear");
 }

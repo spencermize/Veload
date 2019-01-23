@@ -81,10 +81,10 @@ footer,.grid-item,.navbar{
 		opacity: 0;
 	}
 }
-nav .pause,.play .play,.stop{
+nav .pause,.playing .play,.stop{
 	display: none;
 }
-.play .pause,nav .play,.stoppable .stop{
+.playing .pause,.play,.stoppable .stop{
 	display: inline;
 }
 .footer{
