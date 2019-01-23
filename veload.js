@@ -130,13 +130,27 @@ Veload.prototype.stop = function(){
 }
 Veload.prototype.clear = function(){
 	self = this;
-	allPoints = [];
-	speeds = [];
-	self.timer.reset();
-	self.timer.stop();
 	self.pause();
-	$("body").removeClass('stoppable');
-	$(document).trigger("vClear");
+	var config = {
+			title: "Clear this ride?",
+			body: "Are you sure you want to clear your ride? You will lose all data in this window.",
+			accept: true,
+			close: true,
+			acceptText: "Clear",
+			acceptClass: "btn-danger",
+			cancelText: "Go back"
+		}
+		const events = {
+			acceptClick: function(){
+				self.allPoints = [];
+				self.speeds = [];
+				self.timer.reset();
+				$("body").removeClass('stoppable');
+				self.unpop();
+				$(document).trigger("vClear");
+			}
+		}
+		self.pop(config,events);	
 }
 Veload.prototype.photoRefresher = function(){
 	var radius = .5;
@@ -498,6 +512,7 @@ Veload.prototype.pop = function(cnf = {}, evt = {}){
 		accept: true,
 		close: true,
 		acceptText: 'Okay',
+		acceptClass: 'btn-primary',
 		modalClass: '',
 		backdrop: 'static'
 	},cnf);
