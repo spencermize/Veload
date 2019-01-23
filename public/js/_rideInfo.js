@@ -17,7 +17,8 @@ document.addEventListener('veloaded',function(){
 		});
 		self.timer.addEventListener('reset', function (e) {
 			$('#elapsedTime').html(self.timer.getTimeValues().toString());
-		});		
+		});
+		$(document).trigger('rideInfoLoaded');
 	}
-	$(document).trigger('rideInfoLoaded');
+	$(document).trigger('rideInfoModuleLoaded');
 });

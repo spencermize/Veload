@@ -3,7 +3,13 @@
 {{> header}}
 
 
-<body class="paused loggedout">
+<body class="paused loggedout loading">
+<div class="modal fade show d-block" id="modal">
+	<div class="modal-dialog centered" role="document">
+		<img class='mx-auto' src='/img/loading.gif' width='64' height='64' class='img-flex'/>
+	</div>
+</div>
+<div class="modal-backdrop show"></div>
 <span class="bg blurrer in"></span>
   <!-- Add your site or application content here -->
 	{{> nav }}

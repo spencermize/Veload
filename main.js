@@ -5,12 +5,16 @@ const $ = require("jquery");
 window.$ = $;
 window.Handlebars = Handlebars;
 
-var Veload = require("./Veload.js");
-var V = Veload();
-
+//init Veload Core, expose globally
+var Veload = require("./build/js/Veload.js");
 window.Veload = Veload;
 
+//add to the prototype;
+var initialize = require('./build/js/Veload.initialize.js');
+
+//create an instance;
 $(function(){
+	var V = Veload();	
 	V.loadInterface();
 	V.loadProfile();
 	$(document).on('click','button[data-cmd]', function(e){

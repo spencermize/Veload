@@ -3,7 +3,6 @@ document.addEventListener('veloaded',function(){
 	Veload.prototype.map;
 	Veload.prototype.maps = function(){
 		var self = this;
-		console.log("called...");
 		var el = $('.map')[0];
 		self.map = Leaflet.map(el,{
 			zoom: 9,
@@ -19,9 +18,10 @@ document.addEventListener('veloaded',function(){
 		$(document).on('vUpdated',function(){
 			self.map.flyTo(self.currLoc,18);
 		});
+		$(document).trigger("mapsLoaded");
 	}
 	Veload.prototype.getMap = function(){
 		return self.maps;
 	}
-	$(document).trigger("mapsLoaded");
+	$(document).trigger("mapsModuleLoaded");
 });

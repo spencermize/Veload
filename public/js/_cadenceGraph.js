@@ -21,6 +21,7 @@ document.addEventListener('veloaded',function(){
 			});
 			chart.update();				
 		});
+	$(document).trigger('cadenceGraphLoaded');		
 	}
-	$(document).trigger('cadenceGraphLoaded');
+	$(document).trigger('cadenceGraphModuleLoaded');
 });

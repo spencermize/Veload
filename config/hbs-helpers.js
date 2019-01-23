@@ -15,4 +15,5 @@ module.exports = {
 		return `<script>var modules=[${v}]</script>`;
 		
 	}
+
 }

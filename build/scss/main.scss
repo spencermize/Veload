@@ -17,20 +17,21 @@ body:fullscreen nav{
 	@extend .d-none;
 }
 .speech{
-	@extend h2;
-	@extend .text-white;	
-	@extend .position-fixed;
-	opacity: 0;
-	min-height: 50px;
-	bottom: 5px;
-	right: 25px;
-	z-index: 1050;
-	transition: all .25s;
+	@extend .display-1;
 }
-.speech.show{
-	opacity: 1;	
+.loading{
+	.centered {
+	  position: fixed;
+	  top: 25%;
+	  left: 50%;
+	  transform: translate(-50%, -50%) !important;
+	}
+	.modal-backdrop{
+		opacity: .95;
+		background-color: #fff;
+	}
 }
-.speech.show:after {
+.speech:after {
   overflow: hidden;
   display: inline-block;
   vertical-align: bottom;

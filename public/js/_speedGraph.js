@@ -28,6 +28,7 @@ document.addEventListener('veloaded',function(){
 			});
 			chart.update();				
 		});
+		$(document).trigger('speedGraphLoaded');		
 	}
-	$(document).trigger('speedGraphLoaded');
+	$(document).trigger('speedGraphModuleLoaded');
 });
