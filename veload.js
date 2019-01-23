@@ -430,6 +430,14 @@ Veload.prototype.initVoice = function(){
 			$('button[data-cmd]').each(function(ind,el){
 				var cmd = $(el).data('cmd');
 				commands[cmd] = function(){ self[cmd]({caller: "voice"}) }
+				
+				var alt = $(el).data('voice-alt');
+				if(alt){
+					alt = alt.split(',');
+					alt.forEach(function(el){
+						commands[el] = function(){ self[cmd]({caller: "voice"}) }
+					});
+				}
 			});
 
 			// Add our commands to annyang
