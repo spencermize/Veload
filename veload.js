@@ -278,12 +278,9 @@ Veload.prototype.startUpdating = function(){
 				
 				// m/s -> mph
 				var speed = metSpeed * 2.23694;
-				
-				// m/s -> km/s
-				metSpeed = metSpeed*1000;
-								
-				// speed point * (time since last update -> seconds -> minutes -> hours)
-				var distance = metSpeed * (moment().diff(self.lastUpdate) / 1000 / 60 / 60);
+											
+				// speed point * (time since last update -> seconds)
+				var distance = metSpeed * (moment().diff(self.lastUpdate) / 1000 );
 								console.log(distance);
 				console.log("traveled " + distance);
 				self.lastUpdate = moment();
@@ -330,7 +327,7 @@ Veload.prototype.loadGPX = function(url){
 				var f = self.route[coord+1];
 				var sl = {lat: s[1], lng: s[0]};
 				var fl = {lat: f[1], lng: f[0]};
-				var d = geolib.getDistance(sl,fl);
+				var d = geolib.getDistance(sl,fl,1,1);
 				var b = geolib.getBearing(sl,fl);
 				self.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
 			}
