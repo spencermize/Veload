@@ -356,7 +356,7 @@ Veload.prototype.pickTrackGUI = function(){
 					var config = {
 					title: 'Please choose a prior Strava Route or Activity',
 					accept: false,
-					body: $('[data-module="map"] .search-wrap').html()
+					body: $('[data-name="maps"] .search-wrap').html()
 				}
 				self.unpop();
 				self.pop(config);
