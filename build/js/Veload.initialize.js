@@ -19,58 +19,58 @@ Veload.prototype.loadInterface = function(){
 		$('body').removeClass('modal-open');
 		$('.modal-backdrop').remove();
 	});	
-	// load modules
-	if(typeof modules !== 'undefined'){
-		var self = this;
-		var modulesLoad = [];		
-		
-		//wait until modules loaded before showing loaded
-		$(document).on('vAllModulesLoaded',function(){
-			$("body").removeClass("loading");				
-		});		
-		$(document).trigger('vModulesLoading');
 
-		modules.forEach(function(mod){
-			var name = mod+"-module";
-			var el = document.getElementById(name);
-			var src = el.innerHTML;
-			var initEvent = `${mod}ModuleLoaded`;
-			var finishedEvent = `${mod}Loaded`;
-			modulesLoad.push(finishedEvent);
-			self.cMods[mod] = Handlebars.compile(src);
-			$('.grid').append(self.cMods[mod]());	
-			$(document).on(initEvent,function(){
-				console.log(initEvent);
-				self[mod]();
-			});
-			$(document).on(finishedEvent,function(){
-				console.log(finishedEvent);
-				_.remove(modulesLoad,function(e){
-					return e == finishedEvent;
-				});
-				console.log(modulesLoad);
-				if(modulesLoad.length==0){
-					$(document).trigger('vAllModulesLoaded');
-					console.log('vAllModulesLoaded');
-				}
-			});			
+	//wait until modules loaded before showing loaded
+	$(document).on('vAllModulesLoaded',function(){
+		$("body").removeClass("loading");				
+	});		
+	$(document).trigger('vModulesLoading');
+	$.getJSON(self.remote.userLayout,function(modules){
+		var modules = _.keyBy(modules, 'name');
+		_.forEach(modules,function(obj,mod){
+			if(obj.status=="true"){
+				self.enableModule(mod);
+			}
 			
 		});
-		$("[data-submodule]").each(function(index,sub){
-			var src = $("#"+$(sub).data("submodule")+"-sub").html();
-			var cmp = Handlebars.compile(src);
-			$(sub).closest(".grid-item").find(".card-body").html(cmp);
-		});
-	}else{
-		//just stop loading now;
-		self.unpop();	
-	}
-	
-	//native type here so modules don't have to depend upon jQuery custom events in the future
-	var veloaded = new CustomEvent('veloaded', {bubbles: true, cancelable: true});
-	document.dispatchEvent(veloaded);
+		//native type here so modules don't have to depend upon jQuery custom events in the future
+	self.loaded();
+	})
 }
-
+Veload.prototype.loaded = function(){
+	var veloaded = new CustomEvent('veloaded', {bubbles: true, cancelable: true});
+	document.dispatchEvent(veloaded);		
+}
+Veload.prototype.enableModule = function(mod){
+	// load modules
+	var modulesLoad = [];
+	
+	self.enabledMods.push(mod);
+	var name = mod+"-module";
+	var el = document.getElementById(name);
+	var src = el.innerHTML;
+	var initEvent = `${mod}ModuleLoaded`;
+	var finishedEvent = `${mod}Loaded`;
+	
+	modulesLoad.push(finishedEvent);
+	self.cMods[mod] = Handlebars.compile(src);
+	$('.grid').append(self.cMods[mod]());	
+	$(document).on(initEvent,function(){
+		//console.log(initEvent);
+		self[mod]();
+	});
+	$(document).on(finishedEvent,function(){
+		//console.log(finishedEvent);
+		_.remove(modulesLoad,function(e){
+			return e == finishedEvent;
+		});
+		//console.log(modulesLoad);
+		if(modulesLoad.length==0){
+			$(document).trigger('vAllModulesLoaded');
+			console.log('vAllModulesLoaded');
+		}
+	});
+}
 //second thing loaded
 Veload.prototype.loadProfile = function(){
 	var self = this;
@@ -93,48 +93,54 @@ Veload.prototype.loadDash = function(){
 
 Veload.prototype.initGrid = function(){
 	var self = this;
-	self.$grid = $('.grid').packery({
-		itemSelector: '.grid-item',
-		percentPosition: true,
-		columnWidth: '.col-lg-2',
-	})
-	self.$grid.find('.grid-item').each( function( i, gridItem ) {
-		var draggie = new Draggabilly( gridItem,{
-			handle: ".card-header"
-		});
-		self.$grid.packery( 'bindDraggabillyEvents', draggie );
-		draggie.on("dragEnd",function(){
-			var data = [];
-			$(self.$grid.packery('getItemElements')).each(function(index,el){
-				var el = $(el);
-				data.push({
-					module: el.data('name'),
-					top: el.css('top'),
-					left: el.css('left')
+	$(document).on('vAllModulesLoaded',function(){
+		self.$grid = $('.grid').packery({
+			itemSelector: '.grid-item',
+			percentPosition: true,
+			columnWidth: '.col-lg-2',
+		})
+		self.$grid.find('.grid-item').each( function( i, gridItem ) {
+			var draggie = new Draggabilly( gridItem,{
+				handle: ".card-header"
+			});
+			self.$grid.packery( 'bindDraggabillyEvents', draggie );
+			draggie.on("dragEnd",function(){
+				var data = [];
+				$(self.$grid.packery('getItemElements')).each(function(index,el){
+					var el = $(el);
+					var n = el.data('name');
+					var conf = {
+							name : n,
+							status: el.find('.btn-toggle').hasClass('active'),
+							top: el.css('top'),
+							left: el.css('left')
+						}
+					data.push(conf)
+					console.log(data);
 				})
-			})
-			$.post(self.remote.userLayout,{layout:data},function(data){
-				console.log(data);
+				$.post(self.remote.userLayout,{layout:data},function(data){
+					console.log(data);
+				});
 			});
 		});
-	});
-	self.$grid.on( 'dblclick', '.grid-item .card-header', function( event ) {
-		var $item = $( event.currentTarget ).closest('.grid-item');
-		$item.toggleClass('col-lg-8');
-		self.$grid.packery('layout');
-	});
-	self.$grid.on('mouseover', '.grid-item', (function(e){
-		var card = $(e.target).closest('.grid-item');
-		var time;
-		card.addClass('full');
-		clearTimeout(time);
-		card.on('mouseout',(function(){ 
+		self.$grid.on( 'dblclick', '.grid-item .card-header', function( event ) {
+			var $item = $( event.currentTarget ).closest('.grid-item');
+			$item.toggleClass('col-lg-8');
+			self.$grid.packery('layout');
+		});
+		self.$grid.on('mouseover', '.grid-item', (function(e){
+			var card = $(e.target).closest('.grid-item');
+			var time;
+			card.addClass('full');
 			clearTimeout(time);
-			time = setTimeout(function(){
-				$(e.target).closest('.grid-item').removeClass('full');
-			},2000);
+			card.on('mouseout',(function(){ 
+				clearTimeout(time);
+				time = setTimeout(function(){
+					$(e.target).closest('.grid-item').removeClass('full');
+				},2000);
+			}));
 		}));
-	}));		
+	});
 }
 
 Veload.prototype.initTimers = function(){

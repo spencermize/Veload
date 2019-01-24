@@ -1,19 +1,40 @@
-module.exports = {
-	debug : function(optionalValue) {
-		console.log("====================");
-		console.log("Current Context");
-		console.log(this);
+hbs.registerHelper("debug",function(optionalValue) {
+	console.log("====================");
+	console.log("Current Context");
+	console.log(this);
 
-		if (optionalValue) {
-			console.log("Value");
-			console.log("====================");
-			console.log(optionalValue);
-		}
-	},
-	mods : function(list){
-		var v =  "'" + list.join("','") + "'";
-		return `<script>var modules=[${v}]</script>`;
-		
+	if (optionalValue) {
+		console.log("Value");
+		console.log("====================");
+		console.log(optionalValue);
+	}
+});
+/*
+hbs.registerHelper('partial', function(partialName, context, hash) {
+	console.log();
+	var rtn = hbs.handlebars.partials[partialName](context, hash); //changes
+	return rtn;
+});*/
+hbs.registerHelper("partial",function (name, options) {
+    hbs.handlebars.registerPartial(name, options.fn);
+});
+function loadPartial(name) {
+	var partial = hbs.handlebars.partials[name];
+	if (typeof partial === "string") {
+		console.log("compiling");
+		partial = hbs.compile(partial);
+	}	  
+	return partial;
 	}
 
-}
+hbs.registerHelper('blk',function (name, options) {
+	/* Look for partial by name. */
+		var partial = loadPartial(name) || options.fn;
+	//console.log("blk partial " + partial(this, {data:options.hash}));
+	console.log(partial);
+	
+	//make sure to clear out partial for next call in loop!!
+	hbs.handlebars.partials[name] = null;
+	
+	return partial(this, { data : options.hash });
+})

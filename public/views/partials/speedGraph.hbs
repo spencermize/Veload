@@ -1,11 +1,9 @@
-<script id="{{this}}-module" type="text/x-handlebars-template">
-	<script async src="/js/_{{this}}.js"></script>
-	<div class="grid-item col-lg-4" data-name="{{this}}">
-		<div class="grid-item-content">
-			<div class="card ">
-				<div class="card-header"></div>
-				<div class="card-body bg-light"><canvas class="my-4 {{this}}"></canvas></div>
-			</div>
-		</div>
-	</div>	
-</script>
+{{#partial "cardClass"}}
+col-lg-4
+{{/partial}}
+
+{{#partial "bodyContent" }}
+<canvas class="my-4 {{this}}"></canvas>
+{{/partial}}
+
+{{> module}}

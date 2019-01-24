@@ -1,4 +1,8 @@
-<script id="goals-drop-sub" type="text/x-handlebars-template">
+{{#partial "cardClass"}}
+col-lg-4
+{{/partial}}
+
+{{#partial "bodyContent" }}
 	<div class="input-group mb-3">
 		<div class="input-group-prepend">
 			<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">Speed</span>
@@ -22,17 +26,6 @@
 		</div>						
 		<button class="btn btn-outline-secondary create mx-3" data-cmd="createRoute"><i class="fas fa-plus"></i></button>
 	</div>
-</script>
+{{/partial}}
 
-<script id="{{this}}-module" type="text/x-handlebars-template">
-	<script async src="/js/_{{this}}.js"></script>	
-	<div class="grid-item col-lg-4 mt-2" data-name="{{this}}" data-submodule="goals-drop">
-		<div class="grid-item-content">
-			<div class="card">
-				<div class="card-header"></div>
-				<div class="card-body bg-light">
-				</div>
-			</div>
-		</div>
-	</div>
-</script>
+{{> module}}

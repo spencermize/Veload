@@ -1,0 +1,11 @@
+<script id="settings-temp" type="text/x-handlebars-template">
+	<div class="settings">
+		<div class="form-group visibility">
+			\{{#each allMods as |value|}}
+				<div class="row" data-name='\{{value.[0]}}' data-cmd='moduleToggle'>
+					<div class="col-lg-5">\{{value.[1]}}</div><div class="col-lg-3">{{> toggle }}</div>
+				</div>
+			\{{/each}}
+		</div>
+	</div>
+</script>

@@ -19,7 +19,7 @@ body:fullscreen nav{
 .speech{
 	@extend .display-1;
 }
-.loader{
+.loader,.settings{
 	@extend .d-none;
 }
 .loading{
@@ -105,6 +105,11 @@ footer,.grid-item,.navbar{
 		background:0;
 		border:0;
 	}
+	.modal{
+		.settings{
+			@extend .d-block;
+		}
+	}
 }
 nav .pause,.playing .play,.stop{
 	display: none;
@@ -125,9 +130,6 @@ nav .pause,.playing .play,.stop{
 .loggedout #profile .dropdown-toggle::after {
 	display: none;
 }
-.grid-item.is-positioning-post-drag {
-  z-index: 2; /* keep dragged item on top */
-}
 .packery-drop-placeholder {
   outline: 3px dashed #444;
   outline-offset: -6px;
@@ -142,13 +144,7 @@ nav .pause,.playing .play,.stop{
 		z-index: 5;
 	}
 }
-.grid-item.col-lg-4 .card-body,.map{
-	height:400px;
-	opacity: .85;
-}
-.grid-item.col-lg-2 .card-body{
-	height: 200px
-}
+
 .pagination{
 	.page{
 		cursor: pointer;
@@ -225,13 +221,23 @@ nav .pause,.playing .play,.stop{
 			.card-header{
 				height: 25px;
 			}
-			&.col-lg-4 .card-body{
-				height: 375px;
-			}
 			&.col-lg-2 .card-body{
 				height: 175px;
 			}
+			&.col-lg-4 .card-body{
+				height: 375px;
+			}			
+		}
+		&.col-lg-2 .card-body{
+			height: 200px
+		}
+		&.col-lg-4 .card-body,.map{
+			height:400px;
+			opacity: .85;	
 		}		
+		&.is-positioning-post-drag {
+		  z-index: 2; /* keep dragged item on top */
+		}
 	}
 	.rotator{
 		.list-group-item{

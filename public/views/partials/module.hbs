@@ -1,0 +1,19 @@
+<script async src="/js/_{{this}}.js"></script>
+<script id="{{this}}-module" type="text/x-handlebars-template">	
+	<div class="grid-item {{#blk "cardClass"}}{{/blk}}" data-name="{{this}}">
+		<div class="grid-item-content">
+			<div class="card">
+				<div class="card-header">
+					<div class="float-right mr-2">
+						{{> toggle }}
+					</div>				
+					{{#blk "cardHeader"}}{{/blk}}
+				</div>
+				<div class="card-body bg-light {{#blk "bodyClass"}}{{/blk}}">
+					{{#blk "bodyContent"}}{{/blk}}
+				</div>
+			</div>
+		</div>
+		{{#blk "extraContent"}}{{/blk}}
+	</div>
+</script>

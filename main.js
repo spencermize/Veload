@@ -17,8 +17,8 @@ $(function(){
 	var V = Veload();	
 	V.loadInterface();
 	V.loadProfile();
-	$(document).on('click','button[data-cmd]', function(e){
-		let fnc = $(e.target).closest('button[data-cmd]').data('cmd');
+	$(document).on('click','[data-cmd]', function(e){
+		let fnc = $(e.target).closest('[data-cmd]').data('cmd');
 		console.log(fnc);
 		V[fnc]($(e.target));
 	});	

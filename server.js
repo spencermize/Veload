@@ -3,7 +3,9 @@ const args = require('yargs').argv;
 
 //various helpers
 let moment = require('moment');
-let hbs = require( 'express-handlebars');
+let hbs = require('express-hbs');
+global.hbs = hbs;
+let helpers = require('./config/hbs-helpers.js');
 
 //webapp
 const express = require('express');
@@ -12,8 +14,11 @@ const https = require('https');
 const fs = require('fs');
 const homedir = require('os').homedir();
 const app = express();
+
+//communicate with Strave & other APIs
 const axios = require('axios')
 
+//get post variables
 var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -28,15 +33,14 @@ const myStore = new SequelizeStore({
 })
 init(sequelize,args.reset);
 
+const modules = ['rideInfo','speedGraph','goals','maps'];
 // view engine setup
 app.set('view engine', 'hbs');
 app.set('views',  __dirname + '/public/views/');
-app.engine( 'hbs', hbs( {
-  extname: 'hbs',
-  defaultView: 'default',
+app.engine( 'hbs', hbs.express4( {
+  defaultLayout: __dirname + '/public/views/layouts/default.hbs',
   layoutsDir: __dirname + '/public/views/layouts/',
   partialsDir: __dirname + '/public/views/partials/',
-  helpers: require('./config/hbs-helpers.js')
 }));
 console.log("startUp");
 //serve from public folder
@@ -67,7 +71,7 @@ app.get('/', sessionChecker, (req, res) => {
 	res.redirect('/dashboard');
 });
 app.get('/dashboard',sessionChecker, (req, res) => {
-	res.render('dashboard', {layout: 'default', modules: ['rideInfo','speedGraph','goals','maps']});
+	res.render('dashboard', {layout: 'default', modules: modules});
 });	
 app.get('/strava',(req, resp, next) => {
 	let code = req.query.code;
@@ -124,10 +128,15 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 	}
 	switch (req.params.action) {
 		case 'user':
-			if(req.params.sub=="layout"){
-				User.findOne({ where: { username: req.session.user } }).then(function (user) {
-					res.json(user.layout);
-				});
+			switch(req.params.sub){
+				case 'layout':
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {
+						res.json(user.layout);
+					});
+					break;
+				case 'modules':
+					res.json(modules);
+					break;
 			}
 			break;
 		case 'athlete':

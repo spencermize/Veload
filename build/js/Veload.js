@@ -35,7 +35,7 @@ const localUrl ="http://localhost:3001";
 for(var key in local){
 	local[key] = `${localUrl}/${local[key]}`;
 };
-var r = ["publish","athlete","user_layout"];
+var r = ["publish","athlete","user_layout","user_modules"];
 var remote = [];
 const remoteUrl ="/api";
 
@@ -86,7 +86,7 @@ Veload.prototype.chartOps = {
 Veload.prototype.remote = remote;
 Veload.prototype.local = local;
 
-["allPoints","speeds","cadences","hr","rTrail","cTemps","cMods"].forEach(function(e){
+["allPoints","speeds","cadences","hr","rTrail","cTemps","cMods","enabledMods"].forEach(function(e){
 	Veload.prototype[e] = [];
 });
 
@@ -98,7 +98,34 @@ Veload.prototype.local = local;
 function Veload(opts){
 	if (!(this instanceof Veload)) return new Veload(opts);
 }
-
+Veload.prototype.settings = function(){
+	var src = $('#settings-temp').html();
+	self.loading();
+	$.getJSON(remote.userModules,function(data){
+		var opts = {
+			enabledMods : _.map(self.enabledMods,function(e){return [e,_.startCase(e)]}),
+			allMods : _.map(data,function(e){return [e,_.startCase(e)]}), 
+		}
+		//console.log(opts);
+		var comp = Handlebars.compile(src);
+		comp = comp(opts);
+		var popts = {
+			title: "Veload Settings",
+			body: comp
+		}
+		self.unpop();
+		self.pop(popts);
+		_.forEach(_.difference(data,self.enabledMods),function(el){
+			$(`[data-name=${el}] .btn-toggle`).removeClass('active');
+		});
+	})
+}
+Veload.prototype.moduleToggle = function(e){
+	var e = $(e)
+	console.log(e);
+	self.enableModule(e.closest('[data-name]').data("name"));
+	self.loaded();
+}
 Veload.prototype.start = function(){
 	var self = this;
 	$('body').addClass('playing stoppable');
@@ -521,6 +548,18 @@ Handlebars.registerHelper({
 		console.log("====================");
 		console.log(optionalValue);
 	  }
+	},
+	ifIn: function(elem, list, options) {
+		if(list){
+			console.log(list);
+			console.log(elem);
+			if(list.indexOf(elem) > -1) {
+				return options.fn(this);
+			}
+			return options.inverse(this);
+		}else{
+			return false;
+		}
 	}	
 });
 

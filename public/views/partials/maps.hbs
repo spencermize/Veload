@@ -1,38 +1,41 @@
-<script id="{{this}}-module" type="text/x-handlebars-template">
-	<script async src="/js/_{{this}}.js"></script>
-	<div class="grid-item col-lg-4 mt-2" data-name="{{this}}">
-		<div class="grid-item-content">
-			<div class="card">
-				<div class="card-header"></div>
-				<div class="card-body p-0">
-					<button class="btn btn-primary position-absolute" data-cmd="pickTrackGUI" data-toggle="tooltip" title="Load a saved route or activity"><i class="fas fa-map-marked-alt"></i></button>
-					<div class="map"></div>
-				</div>
+{{#partial "cardClass"}}
+col-lg-4
+{{/partial}}
+
+{{#partial "bodyClass"}}
+p-0
+{{/partial}}
+
+{{#partial "bodyContent" }}
+	<button class="btn btn-primary position-absolute" data-cmd="pickTrackGUI" data-toggle="tooltip" title="Load a saved route or activity"><i class="fas fa-map-marked-alt"></i></button>
+	<div class="map"></div>
+{{/partial}}
+
+{{#partial "extraContent" }}
+	<div class='search-wrap d-none'>
+		<div class='searcher'>
+			<div class='row mb-3'>
+				<div class='col-lg-6'><input class='search form-control' placeholder='Filter...'/></div>
+				<div class='col-lg-3'><button class='btn btn-outline-secondary sort' data-sort='name'>Name <i class='fas fa-sort'></i></button></div>
+				<div class='col-lg-3s'><button class='btn btn-outline-secondary sort' data-sort='timestamp'>Date <i class='fas fa-sort'></i></button></div>
 			</div>
-		</div>
-		<div class='search-wrap d-none'>
-			<div class='searcher'>
-				<div class='row mb-3'>
-					<div class='col-lg-6'><input class='search form-control' placeholder='Filter...'/></div>
-					<div class='col-lg-3'><button class='btn btn-outline-secondary sort' data-sort='name'>Name <i class='fas fa-sort'></i></button></div>
-					<div class='col-lg-3s'><button class='btn btn-outline-secondary sort' data-sort='timestamp'>Date <i class='fas fa-sort'></i></button></div>
-				</div>
-				<ul class='list list-group'>
-					<li class='list-group-item list-group-item-action flex-column align-items-start'>
-						<div class="d-flex w-100 justify-content-between">
-							<div>
-								<h5 class='name'></h5>
-								<p class="mb-1 description"></p>
-							</div>
-							<div>
-								<small class='days'></small>						
-								<button class="btn btn-outline-primary d-block mr-0 ml-auto" data-cmd="loadTrack"><i class="fas fa-cloud-download-alt"></i></button>
-							</div>
+			<ul class='list list-group'>
+				<li class='list-group-item list-group-item-action flex-column align-items-start'>
+					<div class="d-flex w-100 justify-content-between">
+						<div>
+							<h5 class='name'></h5>
+							<p class="mb-1 description"></p>
 						</div>
-					</li>
-				</ul>
-				<ul class="pagination mt-3 justify-content-center"></ul>
-			</div>		
-		</div>
+						<div>
+							<small class='days'></small>						
+							<button class="btn btn-outline-primary d-block mr-0 ml-auto" data-cmd="loadTrack"><i class="fas fa-cloud-download-alt"></i></button>
+						</div>
+					</div>
+				</li>
+			</ul>
+			<ul class="pagination mt-3 justify-content-center"></ul>
+		</div>		
 	</div>
-</script>
+{{/partial}}
+
+{{> module}}

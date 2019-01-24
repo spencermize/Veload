@@ -32,7 +32,7 @@
     "draggabilly": "^2.2.0",
     "easytimer.js": "^3.0.1",
     "express": "4.16.4",
-    "express-handlebars": "*",
+    "express-hbs": "^2.0.1",
     "express-session": "*",
     "font-awesome-assets": "0.0.8",
     "geolib": "*",
