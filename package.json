@@ -24,6 +24,7 @@
     "annyang": "^2.6.1",
     "ant-plus": "0.0.22",
     "axios": "*",
+    "body-parser": "^1.18.3",
     "bootstrap": "^4.2.1",
     "browserify": "*",
     "connect-session-sequelize": "*",

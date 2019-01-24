@@ -31,17 +31,19 @@ jQueryBridget( 'packery', Packery, $ );
 const local = [];
 local["status"] = "status";
 local["stats"] = "stats";
-const localUrl ="http://localhost:3001/";
+const localUrl ="http://localhost:3001";
 for(var key in local){
-	local[key] = `${localUrl}${local[key]}`;
+	local[key] = `${localUrl}/${local[key]}`;
 };
-const remote = [];
-const remoteUrl ="/api/";
-remote["publish"] = "publish";
-remote["athlete"] = "athlete";
-for(var key in remote){
-	remote[key] = `${remoteUrl}${remote[key]}`;
-};
+var r = ["publish","athlete","user_layout"];
+var remote = [];
+const remoteUrl ="/api";
+
+_.forEach(r,function(n){
+	var k = n.replace("_","/");
+	var l = _.camelCase(n);
+	remote[l] = `${remoteUrl}/${k}`;
+});
 
 //set some defaults
 Veload.prototype.UPDATEFREQ = 500;
@@ -431,8 +433,8 @@ Veload.prototype.connected = function(data){
 	},
 Veload.prototype.unpop = function(){
 		$('#modal').modal('hide');
-		$('.modal-backdrop').remove();
-	}
+		$('body').removeClass('loading');
+}
 Veload.prototype.pop = function(cnf = {}, evt = {}){
 	var self = this;
 	const config = Object.assign({
@@ -466,12 +468,7 @@ Veload.prototype.getDistance = function(){
 	return self.getAvg(self.speeds) * (self.elapsed / 60 / 60);
 }
 Veload.prototype.loading = function(){
-	this.pop({
-		title: false,
-		accept: false,
-		close: false,
-		body: `<div class="text-center">${loadAni()}</div>`
-	});
+	$('body').addClass('loading');
 }
 
 //===============HELPERS===================
@@ -480,7 +477,7 @@ $.fn.loader = function(height=64,width=64){
 	return this;
 }
 function loadAni(height=64,width=64){
-	return `<img class='mx-auto' src='/img/loading.gif' width='${width}' height='${height}' class='img-flex'/>`
+	return `<span style='height:${height}px;width:${width}px' class='spin'/>`;
 }
 $.fn.cleanWhitespace = function() {
     this.contents().filter(

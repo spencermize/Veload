@@ -14,6 +14,10 @@ const homedir = require('os').homedir();
 const app = express();
 const axios = require('axios')
 
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 //db connections
 const Sequelize = require('sequelize');
 const sequelize = dbConnect();
@@ -119,6 +123,13 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 		p = Object.assign({id:req.params.id},p)
 	}
 	switch (req.params.action) {
+		case 'user':
+			if(req.params.sub=="layout"){
+				User.findOne({ where: { username: req.session.user } }).then(function (user) {
+					res.json(user.layout);
+				});
+			}
+			break;
 		case 'athlete':
 		case 'activities':
 		case 'routes':
@@ -178,12 +189,13 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 			});
 			break;
 		default:
-			data = {"error":"Sorry, operation unsupported"};
+			data = {"status" : "error", "msg":"User not found"};
+			data = {"status" : "error", "msg":"Sorry, operation unsupported"};
 			res.json(data);
 			break;
 	}
 });
-app.post('/api/:action',[sessionChecker,getStrava],function(req,res,next){
+app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(req,res,next){
 	let strava = res.locals.strava;
 	switch (req.params.action) {
 		case 'publish' :
@@ -200,8 +212,30 @@ app.post('/api/:action',[sessionChecker,getStrava],function(req,res,next){
 					res.json(rs);
 			});
 			break;
-		default:
-			data = "Sorry, operation unsupported";
+		case 'user':
+			switch(req.params.sub){
+				case 'layout' : 				
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {
+						console.log(req.body.layout);
+						user.layout = req.body.layout;
+						user.save().then(function(user){
+							data = {"status" : "success"}
+							res.json(data);
+						});
+					}).error(function(){
+						data = {"status" : "error", "msg":"User not found"};
+						res.json(data);
+					});
+					break;
+				default : 
+					data = {"error":"Sorry, operation unsupported"};
+					res.json(data);	
+					break;
+			}
+			break;
+		default : 
+			data = {"error":"Sorry, operation unsupported"};
+			res.json(data);	
 			break;
 	}
 });
@@ -255,7 +289,8 @@ function userModel(sequelize){
 		username: Sequelize.STRING,
 		access_token: Sequelize.STRING,
 		refresh_token: Sequelize.STRING,
-		expires_at: Sequelize.DATE
+		expires_at: Sequelize.DATE,
+		layout: Sequelize.JSON
 	});
 	return User;
 }
@@ -272,8 +307,8 @@ function showLogin(req,res){
 	let url = strava.oauth.getRequestAccessURL({scope:"activity:write,read,read_all,activity:read_all"});
 	res.render('login', {layout: 'default', url: url});
 }
-function init(sequelize,reset){
-	sequelize.sync({ force: reset }).then(function(err) {
+function init(sequelize,reset,alter=true){
+	sequelize.sync({ force: reset, alter: alter }).then(function(err) {
 	}, function (err) { 
 		console.log('An error occurred while starting:', err);
 	});

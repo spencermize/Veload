@@ -19,6 +19,9 @@ body:fullscreen nav{
 .speech{
 	@extend .display-1;
 }
+.loader{
+	@extend .d-none;
+}
 .loading{
 	.centered {
 	  position: fixed;
@@ -26,10 +29,27 @@ body:fullscreen nav{
 	  left: 50%;
 	  transform: translate(-50%, -50%) !important;
 	}
-	.modal-backdrop{
-		opacity: .95;
-		background-color: #fff;
+	.loader{
+		@extend .d-block;
+		&.modal-backdrop{
+			opacity: .95;
+			background-color: #fff;
+		}
 	}
+	.text-center{
+		height: 64px;
+	}
+}
+.spin {
+	animation-name: spin;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-timing-function: cubic-bezier(0, .67, 1, .33); 
+	background: url(/img/avatar.svg);
+	background-size: contain;
+	height: 64px;
+	width: 64px;
+	position: absolute;
 }
 .speech:after {
   overflow: hidden;
@@ -81,6 +101,10 @@ footer,.grid-item,.navbar{
 	footer,.grid-item,.navbar{
 		opacity: 0;
 	}
+	.modal-content.invis{
+		background:0;
+		border:0;
+	}
 }
 nav .pause,.playing .play,.stop{
 	display: none;
@@ -111,8 +135,8 @@ nav .pause,.playing .play,.stop{
   -webkit-transition: -webkit-transform 0.2s;
           transition: transform 0.2s;
 }
-[data-module=map]{
-	.btn{
+[data-name=maps]{
+	[data-cmd=pickTrackGUI]{
 		right: 5px;
 		margin-top: 5px;
 		z-index: 5;
@@ -177,6 +201,7 @@ nav .pause,.playing .play,.stop{
 			transition: all .5s;
 			height: 0;
 			padding: 0;
+			overflow: hidden;
 		}
 		.card-body{
 			&.bg-light{
@@ -216,4 +241,26 @@ nav .pause,.playing .play,.stop{
 			@extend .d-block;
 		}
 	}
+}
+// Apply Mixin to different sizes & colors
+.btn-toggle {
+  
+  @include toggle-mixin;
+  @include toggle-color;
+  
+  &.btn-lg {
+    @include toggle-mixin($size: 2.5rem, $font-size: 1rem, $margin: 5rem);
+  }
+  
+  &.btn-sm {
+    @include toggle-mixin($font-size: 55rem, $margin: 5rem);
+  }
+  
+  &.btn-xs {
+    @include toggle-mixin($size:1rem,$margin:0)
+  }
+  
+  &.btn-secondary {
+    @include toggle-color($active-bg:$secondary);
+  }
 }

@@ -26,11 +26,7 @@ Veload.prototype.loadInterface = function(){
 		
 		//wait until modules loaded before showing loaded
 		$(document).on('vAllModulesLoaded',function(){
-			var els = $("#modal,.modal-backdrop");
-			els.fadeOut(500,function(el){
-				els.remove();
-				$("body").removeClass("loading");				
-			})
+			$("body").removeClass("loading");				
 		});		
 		$(document).trigger('vModulesLoading');
 
@@ -107,6 +103,20 @@ Veload.prototype.initGrid = function(){
 			handle: ".card-header"
 		});
 		self.$grid.packery( 'bindDraggabillyEvents', draggie );
+		draggie.on("dragEnd",function(){
+			var data = [];
+			$(self.$grid.packery('getItemElements')).each(function(index,el){
+				var el = $(el);
+				data.push({
+					module: el.data('name'),
+					top: el.css('top'),
+					left: el.css('left')
+				})
+			})
+			$.post(self.remote.userLayout,{layout:data},function(data){
+				console.log(data);
+			});
+		});
 	});
 	self.$grid.on( 'dblclick', '.grid-item .card-header', function( event ) {
 		var $item = $( event.currentTarget ).closest('.grid-item');

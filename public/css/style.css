@@ -5861,7 +5861,7 @@ button.bg-dark:focus {
   content: "";
 }
 
-.d-none, .grid .rotator .list-group-item, body:fullscreen nav {
+.d-none, .grid .rotator .list-group-item, .loader, body:fullscreen nav {
   display: none !important;
 }
 
@@ -5873,7 +5873,7 @@ button.bg-dark:focus {
   display: inline-block !important;
 }
 
-.d-block, .grid .rotator .show.list-group-item {
+.d-block, .grid .rotator .show.list-group-item, .loading .loader {
   display: block !important;
 }
 
@@ -9551,6 +9551,14 @@ h3 {
     width: 1.75em;
   }
 }
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 h1, h2, h3, h4, h5, h6 {
   font-family: "Work Sans", sans-serif;
   font-weight: 900;
@@ -9574,9 +9582,24 @@ body {
   left: 50%;
   transform: translate(-50%, -50%) !important;
 }
-.loading .modal-backdrop {
+.loading .loader.modal-backdrop {
   opacity: 0.95;
   background-color: #fff;
+}
+.loading .text-center {
+  height: 64px;
+}
+
+.spin {
+  animation-name: spin;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0, 0.67, 1, 0.33);
+  background: url(/img/avatar.svg);
+  background-size: contain;
+  height: 64px;
+  width: 64px;
+  position: absolute;
 }
 
 .speech:after {
@@ -9633,6 +9656,10 @@ footer, .grid-item, .navbar {
 .modal-open footer, .modal-open .grid-item, .modal-open .navbar {
   opacity: 0;
 }
+.modal-open .modal-content.invis {
+  background: 0;
+  border: 0;
+}
 
 nav .pause, .playing .play, .stop {
   display: none;
@@ -9672,7 +9699,7 @@ nav .pause, .playing .play, .stop {
   transition: transform 0.2s;
 }
 
-[data-module=map] .btn {
+[data-name=maps] [data-cmd=pickTrackGUI] {
   right: 5px;
   margin-top: 5px;
   z-index: 5;
@@ -9739,6 +9766,7 @@ nav .pause, .playing .play, .stop {
   transition: all 0.5s;
   height: 0;
   padding: 0;
+  overflow: hidden;
 }
 .grid .card .card-body {
   transition: all 0.5s;
@@ -9765,6 +9793,340 @@ nav .pause, .playing .play, .stop {
 }
 .grid .grid-item.full.col-lg-2 .card-body {
   height: 175px;
+}
+.btn-toggle {
+  margin: 0 4rem;
+  padding: 0;
+  position: relative;
+  border: none;
+  height: 1.5rem;
+  width: 3rem;
+  border-radius: 1.5rem;
+  color: #adb5bd;
+  background: #212529;
+}
+.btn-toggle:focus, .btn-toggle:focus.active, .btn-toggle.focus, .btn-toggle.focus.active {
+  outline: none;
+}
+.btn-toggle:before, .btn-toggle:after {
+  line-height: 1.5rem;
+  width: 4rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: absolute;
+  bottom: 0;
+  transition: opacity 0.25s;
+}
+.btn-toggle:before {
+  content: "Off";
+  left: -4rem;
+}
+.btn-toggle:after {
+  content: "On";
+  right: -4rem;
+  opacity: 0.5;
+}
+.btn-toggle > .handle {
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 1.125rem;
+  background: #fff;
+  transition: left 0.25s;
+}
+.btn-toggle.active {
+  transition: background-color 0.25s;
+}
+.btn-toggle.active > .handle {
+  left: 1.6875rem;
+  transition: left 0.25s;
+}
+.btn-toggle.active:before {
+  opacity: 0.5;
+}
+.btn-toggle.active:after {
+  opacity: 1;
+}
+.btn-toggle.btn-sm:before, .btn-group-sm > .btn-toggle.btn:before, .btn-toggle.btn-sm:after, .btn-group-sm > .btn-toggle.btn:after {
+  line-height: 1.5rem;
+  color: #fff;
+  letter-spacing: 0.75px;
+  left: 0.4125rem;
+  width: 2.325rem;
+}
+.btn-toggle.btn-sm:before, .btn-group-sm > .btn-toggle.btn:before {
+  text-align: right;
+}
+.btn-toggle.btn-sm:after, .btn-group-sm > .btn-toggle.btn:after {
+  text-align: left;
+  opacity: 0;
+}
+.btn-toggle.btn-sm.active:before, .btn-group-sm > .btn-toggle.active.btn:before {
+  opacity: 0;
+}
+.btn-toggle.btn-sm.active:after, .btn-group-sm > .btn-toggle.active.btn:after {
+  opacity: 1;
+}
+.btn-toggle.btn-xs:before, .btn-toggle.btn-xs:after {
+  display: none;
+}
+.btn-toggle:before, .btn-toggle:after {
+  color: #adb5bd;
+}
+.btn-toggle.active {
+  background-color: #007bff;
+}
+.btn-toggle.btn-lg, .btn-group-lg > .btn-toggle.btn {
+  margin: 0 5rem;
+  padding: 0;
+  position: relative;
+  border: none;
+  height: 2.5rem;
+  width: 5rem;
+  border-radius: 2.5rem;
+}
+.btn-toggle.btn-lg:focus, .btn-group-lg > .btn-toggle.btn:focus, .btn-toggle.btn-lg:focus.active, .btn-toggle.btn-lg.focus, .btn-group-lg > .btn-toggle.focus.btn, .btn-toggle.btn-lg.focus.active {
+  outline: none;
+}
+.btn-toggle.btn-lg:before, .btn-group-lg > .btn-toggle.btn:before, .btn-toggle.btn-lg:after, .btn-group-lg > .btn-toggle.btn:after {
+  line-height: 2.5rem;
+  width: 5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: absolute;
+  bottom: 0;
+  transition: opacity 0.25s;
+}
+.btn-toggle.btn-lg:before, .btn-group-lg > .btn-toggle.btn:before {
+  content: "Off";
+  left: -5rem;
+}
+.btn-toggle.btn-lg:after, .btn-group-lg > .btn-toggle.btn:after {
+  content: "On";
+  right: -5rem;
+  opacity: 0.5;
+}
+.btn-toggle.btn-lg > .handle, .btn-group-lg > .btn-toggle.btn > .handle {
+  position: absolute;
+  top: 0.3125rem;
+  left: 0.3125rem;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 1.875rem;
+  background: #fff;
+  transition: left 0.25s;
+}
+.btn-toggle.btn-lg.active, .btn-group-lg > .btn-toggle.active.btn {
+  transition: background-color 0.25s;
+}
+.btn-toggle.btn-lg.active > .handle, .btn-group-lg > .btn-toggle.active.btn > .handle {
+  left: 2.8125rem;
+  transition: left 0.25s;
+}
+.btn-toggle.btn-lg.active:before, .btn-group-lg > .btn-toggle.active.btn:before {
+  opacity: 0.5;
+}
+.btn-toggle.btn-lg.active:after, .btn-group-lg > .btn-toggle.active.btn:after {
+  opacity: 1;
+}
+.btn-toggle.btn-lg.btn-sm:before, .btn-group-lg > .btn-toggle.btn-sm.btn:before, .btn-group-sm > .btn-toggle.btn-lg.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.btn:before, .btn-toggle.btn-lg.btn-sm:after, .btn-group-lg > .btn-toggle.btn-sm.btn:after, .btn-group-sm > .btn-toggle.btn-lg.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.btn:after {
+  line-height: 2.5rem;
+  color: #fff;
+  letter-spacing: 0.75px;
+  left: 0.6875rem;
+  width: 3.875rem;
+}
+.btn-toggle.btn-lg.btn-sm:before, .btn-group-lg > .btn-toggle.btn-sm.btn:before, .btn-group-sm > .btn-toggle.btn-lg.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.btn:before {
+  text-align: right;
+}
+.btn-toggle.btn-lg.btn-sm:after, .btn-group-lg > .btn-toggle.btn-sm.btn:after, .btn-group-sm > .btn-toggle.btn-lg.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.btn:after {
+  text-align: left;
+  opacity: 0;
+}
+.btn-toggle.btn-lg.btn-sm.active:before, .btn-group-lg > .btn-toggle.btn-sm.active.btn:before, .btn-group-sm > .btn-toggle.btn-lg.active.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.active.btn:before {
+  opacity: 0;
+}
+.btn-toggle.btn-lg.btn-sm.active:after, .btn-group-lg > .btn-toggle.btn-sm.active.btn:after, .btn-group-sm > .btn-toggle.btn-lg.active.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.active.btn:after {
+  opacity: 1;
+}
+.btn-toggle.btn-lg.btn-xs:before, .btn-group-lg > .btn-toggle.btn-xs.btn:before, .btn-toggle.btn-lg.btn-xs:after, .btn-group-lg > .btn-toggle.btn-xs.btn:after {
+  display: none;
+}
+.btn-toggle.btn-sm, .btn-group-sm > .btn-toggle.btn {
+  margin: 0 5rem;
+  padding: 0;
+  position: relative;
+  border: none;
+  height: 1.5rem;
+  width: 3rem;
+  border-radius: 1.5rem;
+}
+.btn-toggle.btn-sm:focus, .btn-group-sm > .btn-toggle.btn:focus, .btn-toggle.btn-sm:focus.active, .btn-toggle.btn-sm.focus, .btn-group-sm > .btn-toggle.focus.btn, .btn-toggle.btn-sm.focus.active {
+  outline: none;
+}
+.btn-toggle.btn-sm:before, .btn-group-sm > .btn-toggle.btn:before, .btn-toggle.btn-sm:after, .btn-group-sm > .btn-toggle.btn:after {
+  line-height: 1.5rem;
+  width: 5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 55rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: absolute;
+  bottom: 0;
+  transition: opacity 0.25s;
+}
+.btn-toggle.btn-sm:before, .btn-group-sm > .btn-toggle.btn:before {
+  content: "Off";
+  left: -5rem;
+}
+.btn-toggle.btn-sm:after, .btn-group-sm > .btn-toggle.btn:after {
+  content: "On";
+  right: -5rem;
+  opacity: 0.5;
+}
+.btn-toggle.btn-sm > .handle, .btn-group-sm > .btn-toggle.btn > .handle {
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 1.125rem;
+  background: #fff;
+  transition: left 0.25s;
+}
+.btn-toggle.btn-sm.active, .btn-group-sm > .btn-toggle.active.btn {
+  transition: background-color 0.25s;
+}
+.btn-toggle.btn-sm.active > .handle, .btn-group-sm > .btn-toggle.active.btn > .handle {
+  left: 1.6875rem;
+  transition: left 0.25s;
+}
+.btn-toggle.btn-sm.active:before, .btn-group-sm > .btn-toggle.active.btn:before {
+  opacity: 0.5;
+}
+.btn-toggle.btn-sm.active:after, .btn-group-sm > .btn-toggle.active.btn:after {
+  opacity: 1;
+}
+.btn-toggle.btn-sm.btn-sm:before, .btn-group-sm > .btn-toggle.btn:before, .btn-toggle.btn-sm.btn-sm:after, .btn-group-sm > .btn-toggle.btn:after {
+  line-height: 1.5rem;
+  color: #fff;
+  letter-spacing: 0.75px;
+  left: 0.4125rem;
+  width: 2.325rem;
+}
+.btn-toggle.btn-sm.btn-sm:before, .btn-group-sm > .btn-toggle.btn:before {
+  text-align: right;
+}
+.btn-toggle.btn-sm.btn-sm:after, .btn-group-sm > .btn-toggle.btn:after {
+  text-align: left;
+  opacity: 0;
+}
+.btn-toggle.btn-sm.btn-sm.active:before, .btn-group-sm > .btn-toggle.active.btn:before {
+  opacity: 0;
+}
+.btn-toggle.btn-sm.btn-sm.active:after, .btn-group-sm > .btn-toggle.active.btn:after {
+  opacity: 1;
+}
+.btn-toggle.btn-sm.btn-xs:before, .btn-group-sm > .btn-toggle.btn-xs.btn:before, .btn-toggle.btn-sm.btn-xs:after, .btn-group-sm > .btn-toggle.btn-xs.btn:after {
+  display: none;
+}
+.btn-toggle.btn-xs {
+  margin: 0 0;
+  padding: 0;
+  position: relative;
+  border: none;
+  height: 1rem;
+  width: 2rem;
+  border-radius: 1rem;
+}
+.btn-toggle.btn-xs:focus, .btn-toggle.btn-xs:focus.active, .btn-toggle.btn-xs.focus, .btn-toggle.btn-xs.focus.active {
+  outline: none;
+}
+.btn-toggle.btn-xs:before, .btn-toggle.btn-xs:after {
+  line-height: 1rem;
+  width: 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: absolute;
+  bottom: 0;
+  transition: opacity 0.25s;
+}
+.btn-toggle.btn-xs:before {
+  content: "Off";
+  left: 0;
+}
+.btn-toggle.btn-xs:after {
+  content: "On";
+  right: 0;
+  opacity: 0.5;
+}
+.btn-toggle.btn-xs > .handle {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  transition: left 0.25s;
+}
+.btn-toggle.btn-xs.active {
+  transition: background-color 0.25s;
+}
+.btn-toggle.btn-xs.active > .handle {
+  left: 1.125rem;
+  transition: left 0.25s;
+}
+.btn-toggle.btn-xs.active:before {
+  opacity: 0.5;
+}
+.btn-toggle.btn-xs.active:after {
+  opacity: 1;
+}
+.btn-toggle.btn-xs.btn-sm:before, .btn-group-sm > .btn-toggle.btn-xs.btn:before, .btn-toggle.btn-xs.btn-sm:after, .btn-group-sm > .btn-toggle.btn-xs.btn:after {
+  line-height: 1rem;
+  color: #fff;
+  letter-spacing: 0.75px;
+  left: 0.275rem;
+  width: 1.55rem;
+}
+.btn-toggle.btn-xs.btn-sm:before, .btn-group-sm > .btn-toggle.btn-xs.btn:before {
+  text-align: right;
+}
+.btn-toggle.btn-xs.btn-sm:after, .btn-group-sm > .btn-toggle.btn-xs.btn:after {
+  text-align: left;
+  opacity: 0;
+}
+.btn-toggle.btn-xs.btn-sm.active:before, .btn-group-sm > .btn-toggle.btn-xs.active.btn:before {
+  opacity: 0;
+}
+.btn-toggle.btn-xs.btn-sm.active:after, .btn-group-sm > .btn-toggle.btn-xs.active.btn:after {
+  opacity: 1;
+}
+.btn-toggle.btn-xs.btn-xs:before, .btn-toggle.btn-xs.btn-xs:after {
+  display: none;
+}
+.btn-toggle.btn-secondary {
+  color: #adb5bd;
+  background: #212529;
+}
+.btn-toggle.btn-secondary:before, .btn-toggle.btn-secondary:after {
+  color: #adb5bd;
+}
+.btn-toggle.btn-secondary.active {
+  background-color: #6c757d;
 }
 
 /*# sourceMappingURL=style.css.map */
