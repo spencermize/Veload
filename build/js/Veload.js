@@ -86,7 +86,7 @@ Veload.prototype.chartOps = {
 Veload.prototype.remote = remote;
 Veload.prototype.local = local;
 
-["allPoints","speeds","cadences","hr","rTrail","cTemps","cMods","enabledMods"].forEach(function(e){
+["allPoints","speeds","cadences","hr","rTrail","cTemps","cMods","enabledMods","modLoadQueue"].forEach(function(e){
 	Veload.prototype[e] = [];
 });
 
@@ -105,13 +105,15 @@ Veload.prototype.settings = function(){
 		var opts = {
 			enabledMods : _.map(self.enabledMods,function(e){return [e,_.startCase(e)]}),
 			allMods : _.map(data,function(e){return [e,_.startCase(e)]}), 
+			links : ["visibility","test"]
 		}
 		//console.log(opts);
 		var comp = Handlebars.compile(src);
 		comp = comp(opts);
 		var popts = {
 			title: "Veload Settings",
-			body: comp
+			body: comp,
+			accept: false
 		}
 		self.unpop();
 		self.pop(popts);
@@ -121,10 +123,14 @@ Veload.prototype.settings = function(){
 	})
 }
 Veload.prototype.moduleToggle = function(e){
-	var e = $(e)
-	console.log(e);
-	self.enableModule(e.closest('[data-name]').data("name"));
-	self.loaded();
+	var e = $(e);
+	var el = e.closest('[data-name]').data("name");
+	if(e.closest('.btn-toggle').hasClass("active")){
+		self.enableModule(el);
+		self.loaded();
+	}else{
+		self.disableModule(el);
+	}
 }
 Veload.prototype.start = function(){
 	var self = this;

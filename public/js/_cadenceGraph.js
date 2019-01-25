@@ -24,4 +24,4 @@ document.addEventListener('veloaded',function(){
 	$(document).trigger('cadenceGraphLoaded');		
 	}
 	$(document).trigger('cadenceGraphModuleLoaded');
-});
+},{once: true});

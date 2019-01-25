@@ -24,4 +24,4 @@ document.addEventListener('veloaded',function(){
 		return self.maps;
 	}
 	$(document).trigger("mapsModuleLoaded");
-});
+},{once: true});

@@ -9648,6 +9648,10 @@ footer, .grid-item, .navbar {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.5) 100%);
 }
 
+.nav-pills a {
+  text-transform: capitalize;
+}
+
 .modal-open .blurrer {
   transform-origin: 50%;
   transform: scale(1.3);

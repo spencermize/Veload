@@ -4,4 +4,4 @@ document.addEventListener('veloaded',function(){
 		$(document).trigger('goalsLoaded');
 	}
 	$(document).trigger('goalsModuleLoaded');
-});
+},{once: true});

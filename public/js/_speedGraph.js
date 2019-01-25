@@ -31,4 +31,4 @@ document.addEventListener('veloaded',function(){
 		$(document).trigger('speedGraphLoaded');		
 	}
 	$(document).trigger('speedGraphModuleLoaded');
-});
+},{once: true});

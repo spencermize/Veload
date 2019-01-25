@@ -25,6 +25,7 @@ Veload.prototype.loadInterface = function(){
 		$("body").removeClass("loading");				
 	});		
 	$(document).trigger('vModulesLoading');
+
 	$.getJSON(self.remote.userLayout,function(modules){
 		var modules = _.keyBy(modules, 'name');
 		_.forEach(modules,function(obj,mod){
@@ -34,7 +35,7 @@ Veload.prototype.loadInterface = function(){
 			
 		});
 		//native type here so modules don't have to depend upon jQuery custom events in the future
-	self.loaded();
+		self.loaded();
 	})
 }
 Veload.prototype.loaded = function(){
@@ -43,33 +44,40 @@ Veload.prototype.loaded = function(){
 }
 Veload.prototype.enableModule = function(mod){
 	// load modules
-	var modulesLoad = [];
-	
+
 	self.enabledMods.push(mod);
 	var name = mod+"-module";
 	var el = document.getElementById(name);
 	var src = el.innerHTML;
 	var initEvent = `${mod}ModuleLoaded`;
 	var finishedEvent = `${mod}Loaded`;
-	
-	modulesLoad.push(finishedEvent);
+	self.listenForFinish(finishedEvent);
 	self.cMods[mod] = Handlebars.compile(src);
 	$('.grid').append(self.cMods[mod]());	
-	$(document).on(initEvent,function(){
+	$(document).one(initEvent,function(){
 		//console.log(initEvent);
 		self[mod]();
 	});
-	$(document).on(finishedEvent,function(){
+}
+Veload.prototype.disableModule = function(mod){
+	self.enabledMods[mod] = null;
+	var el = $(`.grid-item[data-name=${mod}]`);
+	el.remove();
+}
+
+Veload.prototype.listenForFinish = function(finishedEvent){
+	self.modLoadQueue.push(finishedEvent);
+	$(document).one(finishedEvent,function(){
 		//console.log(finishedEvent);
-		_.remove(modulesLoad,function(e){
+		_.remove(self.modLoadQueue,function(e){
 			return e == finishedEvent;
 		});
 		//console.log(modulesLoad);
-		if(modulesLoad.length==0){
+		if(self.modLoadQueue.length==0){
 			$(document).trigger('vAllModulesLoaded');
 			console.log('vAllModulesLoaded');
 		}
-	});
+	});		
 }
 //second thing loaded
 Veload.prototype.loadProfile = function(){
@@ -94,11 +102,15 @@ Veload.prototype.loadDash = function(){
 Veload.prototype.initGrid = function(){
 	var self = this;
 	$(document).on('vAllModulesLoaded',function(){
-		self.$grid = $('.grid').packery({
-			itemSelector: '.grid-item',
-			percentPosition: true,
-			columnWidth: '.col-lg-2',
-		})
+		if(self.$grid){
+			self.$grid.packery('reloadItems');
+		}else{
+			self.$grid = $('.grid').packery({
+				itemSelector: '.grid-item',
+				percentPosition: true,
+				columnWidth: '.col-lg-2',
+			})
+		}
 		self.$grid.find('.grid-item').each( function( i, gridItem ) {
 			var draggie = new Draggabilly( gridItem,{
 				handle: ".card-header"

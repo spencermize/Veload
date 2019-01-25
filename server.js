@@ -33,7 +33,7 @@ const myStore = new SequelizeStore({
 })
 init(sequelize,args.reset);
 
-const modules = ['rideInfo','speedGraph','goals','maps'];
+const modules = ['rideInfo','speedGraph','goals','maps','cadenceGraph'];
 // view engine setup
 app.set('view engine', 'hbs');
 app.set('views',  __dirname + '/public/views/');

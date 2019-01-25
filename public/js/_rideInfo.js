@@ -21,4 +21,4 @@ document.addEventListener('veloaded',function(){
 		$(document).trigger('rideInfoLoaded');
 	}
 	$(document).trigger('rideInfoModuleLoaded');
-});
+},{once: true});
