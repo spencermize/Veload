@@ -43,10 +43,10 @@ Veload.prototype.loadGPX = function(url){
 			color: self.GOOD,
 			fillColor: self.GOOD
 		});
-		self.myIcon = Leaflet.marker([self.currLoc.lat,self.currLoc.lng],{icon: pulsingIcon,opacity:.8}).addTo(self.map);
+		self.myIcon = Leaflet.marker([self.currLoc.lat,self.currLoc.lng],{icon: pulsingIcon,opacity:.8}).addTo(getMap());
 	}).on('error',function(e){
 		self.error(e);
-	}).addTo(self.map);		
+	}).addTo(getMap());		
 }
 Veload.prototype.loadTrack = function(e){
 	self.loadGPX(e.closest("[data-ref]").data("ref"));
@@ -118,6 +118,7 @@ function getMap(){
 	return $('.map').data("map");
 }
 function createMap(){
+	console.log('create map');
 	var el = $('.map');
 	el.data("map",Leaflet.map(el[0],{
 		zoom: 9,

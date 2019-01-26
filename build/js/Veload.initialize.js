@@ -15,7 +15,9 @@ Veload.prototype.loadInterface = function(){
 	
 	if(window.location.pathname=="/dashboard"){
 		self.loadDash();
-	}	
+	}else{
+		$("body").removeClass("loading");			
+	}
 	$('#modal-container').on('hidden.bs.modal','#modal',function(){
 		console.log("destroying modal");
 		$('#modal').modal('dispose');

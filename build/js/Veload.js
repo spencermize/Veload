@@ -94,7 +94,7 @@ Veload.prototype.chartOps = {
 Veload.prototype.remote = remote;
 Veload.prototype.local = local;
 
-["allPoints","speeds","cadences","hr","rTrail","cTemps","enabledMods","modLoadQueue"].forEach(function(e){
+["speeds","rTrail","cTemps","enabledMods","modLoadQueue","points"].forEach(function(e){
 	Veload.prototype[e] = [];
 });
 
@@ -150,6 +150,7 @@ Veload.prototype.disableModule = function(mod){
 }
 
 Veload.prototype.enableModule = function(mod,cnf){
+	console.log(`enabling ${mod}`);
 	self.enabledMods.push(mod);
 	const config = Object.assign({
 		size_x: 1,
@@ -160,16 +161,20 @@ Veload.prototype.enableModule = function(mod,cnf){
 	var name = mod+"-module";
 	var el = document.getElementById(name);
 	var src = el.innerHTML;
+	var comp = Handlebars.compile(src)();
 	var finishedEvent = `initialized.${mod}`;
-	
-	$.getScript(`/js/_${mod}.js`,function(){
-		self[mod]();
-	})
-	
+
 	console.log("waiting for " + finishedEvent);
 	self.listenForFinish(finishedEvent);
+	$('.grid').data('grid').add_widget(src, config.size_x, config.size_y,config.col,config.row);
+	
+	$.getScript(`/js/_${mod}.js`,function(){
+		//call constructor if necessary
+		if(self[mod]){
+			self[mod]();
+		}
+	})
 
-	$('.grid').data('grid').add_widget(Handlebars.compile(src)(), config.size_x, config.size_y,config.col,config.row);
 }
 
 Veload.prototype.saveLayout = function(){
@@ -189,7 +194,7 @@ Veload.prototype.listenForFinish = function(finishedEvent){
 	$(document).one(finishedEvent,function(){
 		console.log(finishedEvent);
 	_.pull(self.modLoadQueue,finishedEvent);
-		//console.log(modulesLoad);
+		//console.log(self.modLoadQueue);
 		if(self.modLoadQueue.length==0){
 			$(document).trigger('modulesLoaded.veload');
 			console.log('modulesLoaded.veload');
@@ -251,12 +256,12 @@ Veload.prototype.clear = function(){
 		}
 		const events = {
 			acceptClick: function(){
-				self.allPoints = [];
+				self.points = [];
 				self.speeds = [];
 				self.timer.reset();
 				$("body").removeClass('stoppable');
 				self.unpop();
-				$(document).trigger("vClear");
+				$(document).trigger("clear.veload");
 			}
 		}
 		self.pop(config,events);	
@@ -365,7 +370,6 @@ Veload.prototype.startUpdating = function(){
 											
 				// speed point * (time since last update -> seconds)
 				var distance = metSpeed * (moment().diff(self.lastUpdate) / 1000 );
-								console.log(distance);
 				console.log("traveled " + distance);
 				self.lastUpdate = moment();
 				if(distance && self.rTrail.length){
@@ -385,13 +389,19 @@ Veload.prototype.startUpdating = function(){
 					var newLoc = geolib.computeDestinationPoint(self.currLoc,distance,self.rTrail[0].bearing);
 					self.currLoc.lat = newLoc.latitude;
 					self.currLoc.lng = newLoc.longitude;
+					var point = 
+					{
+						lat: newLoc.latitude,
+						lng: newLoc.longitude,
+						time: self.lastUpdate.format(),
+						hr: data.hr,
+						cad: data.cadence,
+						speed: speed
+					}
+					console.log(point);
+					self.points.push(point);
 					self.myIcon.setLatLng(self.currLoc);
 				}
-				self.desiredSpeed = $("#desiredSpeed").val();
-				self.allPoints.push({t:Date.now(),y:speed});
-				self.speeds.push(speed);
-				self.hr.push(data.hr);
-				self.cadences.push(data.cadence);
 				$(document).trigger('locationUpdated.veload');
 			})
 		}
@@ -461,18 +471,47 @@ Veload.prototype.pop = function(cnf = {}, evt = {}){
 }
 Veload.prototype.getAvg = function(){
 	var self = this;
-	return self.speeds.reduce(function(a,b){
-		return a + b
-	}, 0) / self.speeds.length
+	return self.getDistance / self.elapsed;
 }
 Veload.prototype.getDistance = function(){
 	var self = this;
-	return self.getAvg(self.speeds) * (self.elapsed / 60 / 60);
+	return geolib.getPathLength(self.points);
 }
 Veload.prototype.loading = function(){
 	$('body').addClass('loading');
 }
+Veload.prototype.lineGraph = function(n,param){
+	var self = this;
+	var name = n+'Graph';
+	var el = $(`.${name}`);
+	var chart;
+	$(document).on('modulesLoaded.veload',function(){
+		chart = new Chart(el, _.cloneDeep(self.chartOps));
+		el.closest(".grid-item").data('chart',chart);
+	})
+	$(document).on('clear.veload',function(){
+		chart.data.datasets[0].data = []
+		chart.update();
+	});
+	$(document).on('locationUpdated.veload',function(){
+		if(self.points.length){
+			var point = _.last(self.points);
+			console.log(point)
+			var dat = point[n] ? point[n] : point[param];
+			console.log("updating graph");
+			console.log(dat);
+			chart.data.datasets.forEach((dataset) => {
+				dataset.data.push({t:Date.now(),y:dat});
 
+				if(dataset.data.length > (5*120)){
+					dataset.data.shift();
+				}
+			});
+			chart.update();
+		}
+	});
+	$(document).trigger(`initialized.${name}`);		
+}
 //===============HELPERS===================
 $.fn.loader = function(height=64,width=64){
 	$(this).append(loadAni(height,width));
