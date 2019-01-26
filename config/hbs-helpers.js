@@ -9,12 +9,7 @@ hbs.registerHelper("debug",function(optionalValue) {
 		console.log(optionalValue);
 	}
 });
-/*
-hbs.registerHelper('partial', function(partialName, context, hash) {
-	console.log();
-	var rtn = hbs.handlebars.partials[partialName](context, hash); //changes
-	return rtn;
-});*/
+
 hbs.registerHelper("partial",function (name, options) {
     hbs.handlebars.registerPartial(name, options.fn);
 });
@@ -37,4 +32,9 @@ hbs.registerHelper('blk',function (name, options) {
 	hbs.handlebars.partials[name] = null;
 	
 	return partial(this, { data : options.hash });
+})
+
+hbs.registerHelper('startCase',function(name){
+	var _ = require('lodash');
+	return _.startCase(name);
 })

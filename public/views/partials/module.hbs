@@ -1,15 +1,17 @@
-<script async src="/js/_{{this}}.js"></script>
 <script id="{{this}}-module" type="text/x-handlebars-template">	
-	<div class="grid-item {{#blk "cardClass"}}{{/blk}}" data-name="{{this}}">
+	<div class="grid-item position-absolute {{#blk "cardClass"}}{{/blk}}" data-name="{{this}}" data-sizex="{{#blk "x"}}2{{/blk}}" data-sizey="{{#blk "y"}}1{{/blk}}" data-col="1" data-row="1">
 		<div class="grid-item-content">
-			<div class="card">
+			<div class="card bg-transparent">
 				<div class="card-header">
-					<div class="float-right mr-2">
+					<div class="float-left ml-2">
+						{{{startCase this}}}
+					</div>
+					<div class="float-right mr-2" data-cmd="moduleToggle">
 						{{> toggle }}
 					</div>				
 					{{#blk "cardHeader"}}{{/blk}}
 				</div>
-				<div class="card-body bg-light {{#blk "bodyClass"}}{{/blk}}">
+				<div class="card-body {{#blk "bodyClass"}}{{/blk}}">
 					{{#blk "bodyContent"}}{{/blk}}
 				</div>
 			</div>

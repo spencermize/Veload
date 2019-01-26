@@ -1,13 +1,13 @@
 <script id="settings-temp" type="text/x-handlebars-template">
 	<div class="settings">
-		<ul class="nav nav-pills card-header-pills mb-3">
+		<ul class="nav nav-pills card-header-pills mx-3 mb-3 mt-1">
 			\{{#each links as |value|}}
 				<li class="nav-item">
 					<a data-toggle="pill" class="nav-link \{{#if @first}}active\{{/if}}" href="#\{{value}}">\{{value}}</a>
 				</li>
 			\{{/each}}
 		</ul>
-		<div class="tab-content">
+		<div class="tab-content m-3">
 			<div class="tab-pane fade visibility show active" id="visibility">
 				\{{#each allMods as |value|}}
 					<div class="row" data-name='\{{value.[0]}}' data-cmd='moduleToggle'>

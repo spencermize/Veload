@@ -1,20 +1,14 @@
-const jQueryBridget = require('jquery-bridget');
-
+//Expose common libraries for modules
 const Chart = require("../third_party/Chart.bundle.min.js");
 const bootstrap = require("bootstrap");
 
 const _ = require('lodash');
 window._ = _;
 
-//Expose for modules
+require('../third_party/gridster/jquery.gridster.min.js');
+
 const Timer = require("easytimer.js").Timer;
 window.Timer = Timer;
-
-const Packery = require("packery");
-window.Packery = Packery;
-
-const Draggabilly = require("draggabilly");
-window.Draggabilly = Draggabilly;
 
 const Leaflet = require("leaflet");
 window.Leaflet = Leaflet;
@@ -25,8 +19,17 @@ window.moment = moment;
 const numeral = require("numeral");
 window.numeral = numeral;
 
-const geolib = require('geolib');
-jQueryBridget( 'packery', Packery, $ );
+const List = require("list.js");
+window.List = List;
+
+const omni = require("@mapbox/leaflet-omnivore");
+window.omni = omni;
+
+const geolib = require("geolib");
+window.geolib = geolib;
+
+const ico = require("@ansur/leaflet-pulse-icon");
+window.ico = ico;
 
 const local = [];
 local["status"] = "status";
@@ -35,7 +38,7 @@ const localUrl ="http://localhost:3001";
 for(var key in local){
 	local[key] = `${localUrl}/${local[key]}`;
 };
-var r = ["publish","athlete","user_layout","user_modules"];
+var r = ["publish","athlete","athlete_routes","athlete_activities","user_layout","user_modules"];
 var remote = [];
 const remoteUrl ="/api";
 
@@ -80,13 +83,16 @@ Veload.prototype.chartOps = {
 		},
 		legend: {
 			display: false
-		}
+		},
+		responsive: true,
+		maintainAspectRatio: false,
+		responsiveAnimationDuration: 400
 	}
 };
 Veload.prototype.remote = remote;
 Veload.prototype.local = local;
 
-["allPoints","speeds","cadences","hr","rTrail","cTemps","cMods","enabledMods","modLoadQueue"].forEach(function(e){
+["allPoints","speeds","cadences","hr","rTrail","cTemps","enabledMods","modLoadQueue"].forEach(function(e){
 	Veload.prototype[e] = [];
 });
 
@@ -131,6 +137,62 @@ Veload.prototype.moduleToggle = function(e){
 	}else{
 		self.disableModule(el);
 	}
+}
+Veload.prototype.disableModule = function(mod){
+	var el = $(`.grid-item[data-name=${mod}]`);
+	el.fadeOut(400,function(){
+		_.pull(self.enabledMods,mod);
+		$('.grid').data('grid').remove_widget(el);
+		self.saveLayout();			
+	})
+}
+
+Veload.prototype.enableModule = function(mod,cnf){
+	self.enabledMods.push(mod);
+	const config = Object.assign({
+		size_x: 1,
+		size_y: 1,
+		col: 1,
+		row: 1
+	},cnf);
+	var name = mod+"-module";
+	var el = document.getElementById(name);
+	var src = el.innerHTML;
+	var finishedEvent = `initialized.${mod}`;
+	
+	$.getScript(`/js/_${mod}.js`,function(){
+		self[mod]();
+	})
+	
+	console.log("waiting for " + finishedEvent);
+	self.listenForFinish(finishedEvent);
+
+	$('.grid').data('grid').add_widget(Handlebars.compile(src)(), config.size_x, config.size_y,config.col,config.row);
+}
+
+Veload.prototype.saveLayout = function(){
+	var data = [];
+	var e = $('.grid').data('grid');
+	e = e.serialize();
+	_.forEach(e,function(el,index){
+		e[index]["name"] = $(`.grid-item:nth-of-type(${index+1})`).data('name');
+	});
+	data.push(e)
+	$.post(self.remote.userLayout,{layout:data},function(data){
+		console.log('layout saved');
+	});
+}
+Veload.prototype.listenForFinish = function(finishedEvent){
+	self.modLoadQueue.push(finishedEvent);
+	$(document).one(finishedEvent,function(){
+		console.log(finishedEvent);
+	_.pull(self.modLoadQueue,finishedEvent);
+		//console.log(modulesLoad);
+		if(self.modLoadQueue.length==0){
+			$(document).trigger('modulesLoaded.veload');
+			console.log('modulesLoaded.veload');
+		}
+	});		
 }
 Veload.prototype.start = function(){
 	var self = this;
@@ -328,106 +390,11 @@ Veload.prototype.startUpdating = function(){
 				self.speeds.push(speed);
 				self.hr.push(data.hr);
 				self.cadences.push(data.cadence);
-				$(document).trigger('vUpdated');
+				$(document).trigger('locationUpdated.veload');
 			})
 		}
 	},self.UPDATEFREQ);
 }
-Veload.prototype.loadGPX = function(url){
-		var omni = require("@mapbox/leaflet-omnivore");
-		var om = omni.gpx(url);
-		var self = this;
-		om.on('ready', function(e) {
-			var geolib = require("geolib");
-			self.route = om.toGeoJSON().features[0].geometry.coordinates;
-			var gpx = e.target
-			self.map.fitBounds(gpx.getBounds());
-			for(coord = 0; coord<self.route.length-1;coord++){
-				var s = self.route[coord];
-				var f = self.route[coord+1];
-				var sl = {lat: s[1], lng: s[0]};
-				var fl = {lat: f[1], lng: f[0]};
-				var d = geolib.getDistance(sl,fl,1,1);
-				var b = geolib.getBearing(sl,fl);
-				self.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
-			}
-			self.currLoc = self.rTrail[0].latlng;
-			var ico = require("@ansur/leaflet-pulse-icon");
-			var pulsingIcon = Leaflet.icon.pulse({
-				iconSize:[20,20],
-				color: self.GOOD,
-				fillColor: self.GOOD
-			});
-			self.myIcon = Leaflet.marker([self.currLoc.lat,self.currLoc.lng],{icon: pulsingIcon,opacity:.8}).addTo(self.map);
-		}).on('error',function(e){
-			self.error(e);
-		}).addTo(self.map);		
-	}
-Veload.prototype.loadTrack = function(e){
-		self.loadGPX(e.closest("[data-ref]").data("ref"));
-		self.unpop();
-	}
-Veload.prototype.pickTrackGUI = function(){
-		var self = this;
-		var List = require("list.js");
-		var item = $('[data-module="map"] .search-wrap ul.list').cleanWhitespace().html();
-		var options = {
-			valueNames: [
-				'name',
-				'days',
-				'description',
-				{ 'data':['ref','timestamp']}
-			],
-			item: item,
-			page: 5,
-			pagination: true
-		}
-		self.loading();
-		$.getJSON("/api/athlete/routes",function(routes){
-			$.getJSON("/api/athlete/activities",function(activities){
-				var data = routes.concat(activities);
-					var config = {
-					title: 'Please choose a prior Strava Route or Activity',
-					accept: false,
-					body: $('[data-name="maps"] .search-wrap').html()
-				}
-				self.unpop();
-				self.pop(config);
-				$('#modal .searcher').attr("id","searchme");
-				var list = new List("searchme",options);
-				list.clear();
-	
-				data.forEach(function(el){
-					if(el.map.summary_polyline){
-						var type;
-						var dist = numeral(geolib.convertUnit('mi',el.distance)).format(Veload.MPHFORM);
-						if(el.type == "Run" || el.type == "Bike"){
-							var avg = numeral(el.average_speed).format(Veload.MPHFORM)
-							type = "activities";
-							created = el.start_date;
-							desc = `You averaged ${avg} mph and traveled ${dist} miles.`;
-						}else if(el.type==1){
-							type = "routes";
-							created = el.created_at;
-							desc = `You own this ${dist} mile route.`;
-						}else{
-							type = false;
-						}
-						if(type){
-							var days = moment(created).fromNow();
-							list.add({
-								name: el.name,
-								timestamp: created,
-								days: days, 
-								description:desc, 
-								ref:`/api/${type}GPX/${el.id}`
-							});
-						}
-					}
-				});
-			})
-		});
-	},
 
 Veload.prototype.fullscreen = function(config){
 		if(config.caller!="voice"){

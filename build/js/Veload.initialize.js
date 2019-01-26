@@ -5,80 +5,46 @@ Veload.prototype.loadInterface = function(){
 	var self = this;
 	// load required elements
 	elements = ['modal','footer'];
+	elements.forEach(function(templ){
+		var src = document.getElementById(`${templ}-temp`).innerHTML;
+		self.cTemps[templ] = Handlebars.compile(src);	
+	});	
 	
 	//ensure timers are ready to go so we can attach listeners;
 	self.initTimers();
 	
-	elements.forEach(function(templ){
-		var src = document.getElementById(`${templ}-temp`).innerHTML;
-		self.cTemps[templ] = Handlebars.compile(src);	
-	});
+	if(window.location.pathname=="/dashboard"){
+		self.loadDash();
+	}	
 	$('#modal-container').on('hidden.bs.modal','#modal',function(){
-		console.log("removing stuff");
+		console.log("destroying modal");
 		$('#modal').modal('dispose');
 		$('body').removeClass('modal-open');
 		$('.modal-backdrop').remove();
 	});	
 
 	//wait until modules loaded before showing loaded
-	$(document).on('vAllModulesLoaded',function(){
+	$(document).on('modulesLoaded.veload',function(){
 		$("body").removeClass("loading");				
 	});		
-	$(document).trigger('vModulesLoading');
+	$(document).trigger('modulesLoading.veload');
 
 	$.getJSON(self.remote.userLayout,function(modules){
-		var modules = _.keyBy(modules, 'name');
+		var modules = _.keyBy(modules[0], 'name');
 		_.forEach(modules,function(obj,mod){
-			if(obj.status=="true"){
-				self.enableModule(mod);
-			}
-			
+			self.enableModule(mod,obj);
 		});
-		//native type here so modules don't have to depend upon jQuery custom events in the future
+
 		self.loaded();
 	})
 }
 Veload.prototype.loaded = function(){
-	var veloaded = new CustomEvent('veloaded', {bubbles: true, cancelable: true});
-	document.dispatchEvent(veloaded);		
-}
-Veload.prototype.enableModule = function(mod){
-	// load modules
-
-	self.enabledMods.push(mod);
-	var name = mod+"-module";
-	var el = document.getElementById(name);
-	var src = el.innerHTML;
-	var initEvent = `${mod}ModuleLoaded`;
-	var finishedEvent = `${mod}Loaded`;
-	self.listenForFinish(finishedEvent);
-	self.cMods[mod] = Handlebars.compile(src);
-	$('.grid').append(self.cMods[mod]());	
-	$(document).one(initEvent,function(){
-		//console.log(initEvent);
-		self[mod]();
-	});
-}
-Veload.prototype.disableModule = function(mod){
-	self.enabledMods[mod] = null;
-	var el = $(`.grid-item[data-name=${mod}]`);
-	el.remove();
+	//native type here so modules don't have to depend upon jQuery custom events in the future	
+	console.log('loaded.veload');
+	var l = new CustomEvent('loaded.veload', {bubbles: true, cancelable: true});
+	document.dispatchEvent(l);		
 }
 
-Veload.prototype.listenForFinish = function(finishedEvent){
-	self.modLoadQueue.push(finishedEvent);
-	$(document).one(finishedEvent,function(){
-		//console.log(finishedEvent);
-		_.remove(self.modLoadQueue,function(e){
-			return e == finishedEvent;
-		});
-		//console.log(modulesLoad);
-		if(self.modLoadQueue.length==0){
-			$(document).trigger('vAllModulesLoaded');
-			console.log('vAllModulesLoaded');
-		}
-	});		
-}
 //second thing loaded
 Veload.prototype.loadProfile = function(){
 	var self = this;
@@ -101,60 +67,60 @@ Veload.prototype.loadDash = function(){
 
 Veload.prototype.initGrid = function(){
 	var self = this;
-	$(document).on('vAllModulesLoaded',function(){
-		if(self.$grid){
-			self.$grid.packery('reloadItems');
-		}else{
-			self.$grid = $('.grid').packery({
-				itemSelector: '.grid-item',
-				percentPosition: true,
-				columnWidth: '.col-lg-2',
-			})
-		}
-		self.$grid.find('.grid-item').each( function( i, gridItem ) {
-			var draggie = new Draggabilly( gridItem,{
-				handle: ".card-header"
-			});
-			self.$grid.packery( 'bindDraggabillyEvents', draggie );
-			draggie.on("dragEnd",function(){
-				var data = [];
-				$(self.$grid.packery('getItemElements')).each(function(index,el){
-					var el = $(el);
-					var n = el.data('name');
-					var conf = {
-							name : n,
-							status: el.find('.btn-toggle').hasClass('active'),
-							top: el.css('top'),
-							left: el.css('left')
-						}
-					data.push(conf)
-					console.log(data);
-				})
-				$.post(self.remote.userLayout,{layout:data},function(data){
-					console.log(data);
-				});
-			});
-		});
-		self.$grid.on( 'dblclick', '.grid-item .card-header', function( event ) {
-			var $item = $( event.currentTarget ).closest('.grid-item');
-			$item.toggleClass('col-lg-8');
-			self.$grid.packery('layout');
-		});
-		self.$grid.on('mouseover', '.grid-item', (function(e){
-			var card = $(e.target).closest('.grid-item');
-			var time;
-			card.addClass('full');
-			clearTimeout(time);
-			card.on('mouseout',(function(){ 
-				clearTimeout(time);
-				time = setTimeout(function(){
-					$(e.target).closest('.grid-item').removeClass('full');
-				},2000);
-			}));
-		}));
+	var margX = 20;
+	var margY = 20;
+	var cols = 6;
+	var rows = 4;
+	var gridSettings = {
+		widget_selector: '.grid-item',
+		widget_base_dimensions: self.getWidgetSize(cols,rows,margX,margY),
+		widget_margins: [margX,margY],
+		draggable: {
+			stop: function(){
+				self.saveLayout()
+			},
+			handle: '.card-header'
+		},
+		shift_widgets_up: false,
+		resize: {
+			enabled: true,
+			stop: function (e, ui, $widget) {
+				self.saveLayout()
+				$(document).trigger(`gridItemResized.${$(e.target).closest('.grid-item').data('name')}`);
+			}
+		},
+		autogenerate_stylesheet: true,
+		min_cols: cols,
+		max_cols: cols,
+		min_rows: rows,
+		max_rows: rows,
+		max_size_x: 3
+	}
+	var g = $('.grid').gridster(gridSettings).data('gridster');
+	$('.grid').data('grid',g);
+	$(document).on("fullscreenchange",function(){
+		//TODO: doesn't work
+		$('.grid').data('grid').set_dom_grid_height($(window).height())
 	});
+	$('.grid').on('mouseover', '.grid-item', (function(e){
+		var card = $(e.target).closest('.grid-item');
+		var time;
+		card.addClass('full');
+		clearTimeout(time);
+		card.on('mouseout',(function(){ 
+			clearTimeout(time);
+			time = setTimeout(function(){
+				$(e.target).closest('.grid-item').removeClass('full');
+			},2000);
+		}));
+	}));
 }
-
+Veload.prototype.getWidgetSize = function(cols,rows,margX,margY){
+	var availH = ($(window).height()-$('nav.navbar').height()-(margY*(rows+1))-20);
+	var w = ($(window).width()-(margX*(cols+1))) / cols;
+	var h = availH / rows;
+	return [w,h]
+}
 Veload.prototype.initTimers = function(){
 	var self = this;
 	self.timer = new Timer();

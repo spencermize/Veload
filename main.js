@@ -15,16 +15,13 @@ var initialize = require('./build/js/Veload.initialize.js');
 //create an instance;
 $(function(){
 	var V = Veload();	
+	window.V = V;	
 	V.loadInterface();
 	V.loadProfile();
 	$(document).on('click','[data-cmd]', function(e){
 		let fnc = $(e.target).closest('[data-cmd]').data('cmd');
 		console.log(fnc);
 		V[fnc]($(e.target));
-	});	
-	if(window.location.pathname=="/dashboard"){
-		V.loadDash();
-	}
-	window.V = V;
+	});
 });
 

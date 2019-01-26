@@ -1,7 +1,5 @@
-document.addEventListener('veloaded',function(){
-	Veload.prototype.goals = function(){
-		var self = this;
-		$(document).trigger('goalsLoaded');
-	}
-	$(document).trigger('goalsModuleLoaded');
-},{once: true});
+Veload.prototype.goals = function(){
+	var self = this;
+	$(document).trigger('initialized.goals');
+}
+$(document).trigger('moduleLoaded.goals');
