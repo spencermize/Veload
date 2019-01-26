@@ -31,13 +31,15 @@ window.geolib = geolib;
 const ico = require("@ansur/leaflet-pulse-icon");
 window.ico = ico;
 
-const local = [];
-local["status"] = "status";
-local["stats"] = "stats";
+var l = ["status","stats","circ"];
+var local = [];
 const localUrl ="http://localhost:3001";
-for(var key in local){
-	local[key] = `${localUrl}/${local[key]}`;
-};
+_.forEach(l,function(n){
+	var k = n.replace("_","/");
+	var m = _.camelCase(n);
+	local[m] = `${localUrl}/${k}`;
+});
+
 var r = ["publish","athlete","athlete_routes","athlete_activities","user_layout","user_modules"];
 var remote = [];
 const remoteUrl ="/api";
@@ -111,7 +113,7 @@ Veload.prototype.settings = function(){
 		var opts = {
 			enabledMods : _.map(self.enabledMods,function(e){return [e,_.startCase(e)]}),
 			allMods : _.map(data,function(e){return [e,_.startCase(e)]}), 
-			links : ["visibility","test"]
+			links : ["visibility","connection"]
 		}
 		//console.log(opts);
 		var comp = Handlebars.compile(src);
