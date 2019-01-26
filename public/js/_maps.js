@@ -2,7 +2,6 @@ console.log("trying to load map...");
 Veload.prototype.maps = function(){
 	var self = this;
 	$(document).one(`modulesLoaded.veload`,function(e){
-		console.log("hello");
 		createMap()
 		navigator.geolocation.getCurrentPosition(function(position) {
 			getMap().panTo([position.coords.latitude,position.coords.longitude]);

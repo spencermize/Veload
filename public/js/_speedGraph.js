@@ -2,7 +2,7 @@ Veload.prototype.speedGraph = function(){
 	var self = this;
 	var name = "speedGraph";
 	var el = $(`.${name}`);
-	var chart = new Chart(el, this.chartOps);
+	var chart = new Chart(el, _.cloneDeep(this.chartOps));
 	el.closest(".grid-item").data('chart',chart);
 	$(document).on('vClear',function(){
 		chart.data.datasets[0].data = [];
@@ -11,8 +11,9 @@ Veload.prototype.speedGraph = function(){
 
 	$(document).on('locationUpdated.veload',function(){
 		var speed = self.speeds[self.speeds.length-1];
-		var chart = $(`.${name}`).data('chart');
 		chart.data.datasets.forEach((dataset) => {
+			console.log('data speed');
+			console.log(dataset)
 			dataset.data.push({t:Date.now(),y:speed});
 
 			if(speed>=self.desiredSpeed){
