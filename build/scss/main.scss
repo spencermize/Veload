@@ -214,7 +214,7 @@ nav .pause,.playing .play,.stop{
 		height: 100%;
 		.card-header{
 			cursor: move;
-			background: rgba(255,255,255,0.25);
+			background: rgba(255,255,255,0.75);
 			transition: all .5s;
 			height: 0;
 			padding: 0;
@@ -223,7 +223,7 @@ nav .pause,.playing .play,.stop{
 			text-shadow: 0.05em 0 $secondary, 0 0.05em $secondary, -0.05em 0 $secondary, 0 -0.05em $secondary, -0.05em -0.05em $secondary, -0.05em 0.05em $secondary, 0.05em -0.05em $secondary, 0.05em 0.05em $secondary
 		}
 		.card-body{
-			background-color: rgba(255,255,255,0.5) !important;			
+			background-color: rgba(255,255,255,0.95) !important;			
 			transition: all .5s;
 			background: 0;
 			border-bottom: 0;

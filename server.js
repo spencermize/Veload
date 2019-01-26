@@ -208,17 +208,37 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 	let strava = res.locals.strava;
 	switch (req.params.action) {
 		case 'publish' :
-			let distance = req.query.distance * 1609.34;
-			strava.activities.create({
+			var points = req.body.points;
+			const { buildGPX, GarminBuilder } = require('gpx-builder');
+			const { Point } = GarminBuilder.MODELS;
+			const _ = require('lodash');
+			var pointsMod = []
+			_.forEach(points,function(point){
+				pointsMod.push(new Point(point.lat,point.lng,{
+					time: point.time,
+					hr: point.hr,
+					cad: point.cad,
+					speed: point.speed
+				}))
+			})
+			console.log(points)
+			const gpxData = new GarminBuilder();
+
+			gpxData.setSegmentPoints(pointsMod);
+ 
+			var rand = Math.floor(Math.random() * Math.floor(99999999));
+			var file = `${__dirname}/temp/gpx${rand}.gpx`;
+			fs.writeFileSync(file,buildGPX(gpxData.toObject()));
+			strava.uploads.post({
 					access_token: res.locals.token,
+					file: file,
 					name: "Veload Session",
-					type: "ride",
-					start_date_local: req.query.start,
-					trainer: true,
-					elapsed_time: req.query.elapsed,
-					distance: distance
+					type: "virtualride",
+					data_type: 'gpx',
+					statusCallback: function(err,payload){
+						res.json(payload);	
+					}
 				},function(err,rs){
-					res.json(rs);
 			});
 			break;
 		case 'user':

@@ -309,9 +309,8 @@ Veload.prototype.upload = function(){
 		var self = this;
 		var avg = self.getAvg();
 		var distance = self.getDistance();
-		$('.modal-footer').loader(36,36);
-		var query = `${self.remote.publish}?elapsed=${self.elapsed}&distance=${distance}&start=${self.startTime}`;
-		$.post(query,function(data){
+		$('.modal-footer').loader(36,36,true);
+		$.post(self.remote.publish,{points:self.points},function(data){
 			if(data.id){
 				var config = {
 					title: "Congrats!",
@@ -329,7 +328,7 @@ Veload.prototype.upload = function(){
 			}
 		}).fail(function(err){
 			console.log(err);
-			error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${self.remote.publish}) responded (${err.status} ${err.statusText}) <br /> ${query}</p>`);
+			self.error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${self.remote.publish}) responded (${err.status} ${err.statusText}) <br /> ${query}</p>`);
 		});
 	}
 Veload.prototype.error = function(err){
@@ -389,12 +388,13 @@ Veload.prototype.startUpdating = function(){
 					var newLoc = geolib.computeDestinationPoint(self.currLoc,distance,self.rTrail[0].bearing);
 					self.currLoc.lat = newLoc.latitude;
 					self.currLoc.lng = newLoc.longitude;
+					if(data.cad<0){data.cad=0}
 					var point = 
 					{
 						lat: newLoc.latitude,
 						lng: newLoc.longitude,
 						time: self.lastUpdate.format(),
-						hr: data.hr,
+						hr: data.hr || _.last(self.points).hr,
 						cad: data.cadence,
 						speed: speed
 					}
@@ -469,13 +469,18 @@ Veload.prototype.pop = function(cnf = {}, evt = {}){
 	$('#modal .btn-accept').on('click',events.acceptClick);
 	$('#modal').modal('show');			
 }
-Veload.prototype.getAvg = function(){
+Veload.prototype.getAvg = function(unit){
 	var self = this;
-	return self.getDistance / self.elapsed;
+	return self.getDistance(unit) / (self.elapsed/60);
 }
-Veload.prototype.getDistance = function(){
+Veload.prototype.getDistance = function(unit){
 	var self = this;
-	return geolib.getPathLength(self.points);
+	var dm = geolib.getPathLength(self.points);
+	if(unit == "miles"){
+		return dm / 1609.344;
+	}else if(unit == "meters"){
+		return dm;
+	}
 }
 Veload.prototype.loading = function(){
 	$('body').addClass('loading');
@@ -502,7 +507,8 @@ Veload.prototype.lineGraph = function(n,param){
 			console.log(dat);
 			chart.data.datasets.forEach((dataset) => {
 				dataset.data.push({t:Date.now(),y:dat});
-
+				dataset.pointBackgroundColor.push(self.GOOD);
+				dataset.backgroundColor = self.GOODBG;
 				if(dataset.data.length > (5*120)){
 					dataset.data.shift();
 				}
@@ -513,7 +519,10 @@ Veload.prototype.lineGraph = function(n,param){
 	$(document).trigger(`initialized.${name}`);		
 }
 //===============HELPERS===================
-$.fn.loader = function(height=64,width=64){
+$.fn.loader = function(height=64,width=64,clear=false){
+	if(clear){
+		$(this).empty();
+	}
 	$(this).append(loadAni(height,width));
 	return this;
 }

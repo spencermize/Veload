@@ -38,6 +38,7 @@
     "geolib": "*",
     "gps-to-gpx": "^1.4.0",
     "gps-util": "*",
+    "gpx-builder": "^2.0.1",
     "greenlock-express": "*",
     "install": "^0.12.2",
     "jquery": "^3.3.1",

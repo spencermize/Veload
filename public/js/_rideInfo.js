@@ -1,11 +1,16 @@
 Veload.prototype.rideInfo = function(){
 	console.log('init ride info');
 	var self = this;
+	$('[data-ride="carousel"]').carousel();
 	$(document).on('locationUpdated.veload',function(){
-		$("#currSpeed").html(numeral(self.speeds[self.speeds.length-1]).format(self.MPHFORM) + " mph");
-		$("#distance").html(numeral(self.getDistance()).format(self.MPHFORM) + " miles");					
-		$("#avgSpeed").html(numeral(self.getAvg()).format(self.MPHFORM) + " mph");
-		$("#hr").text(self.hr[self.hr.length-1]);
+		if(self.points.length){
+			var point = _.last(self.points);
+			$("#currSpeed").html(numeral(point.speed).format(self.MPHFORM) + "<br /> mph");
+			$("#currCadence").html(numeral(point.cadence).format(self.MPHFORM));
+			$("#distance").html(numeral(self.getDistance("miles")).format(self.MPHFORM) + "<br /> miles");					
+			$("#avgSpeed").html(numeral(self.getAvg("miles")).format(self.MPHFORM) + "<br /> mph");
+			$("#hr").text(point.hr);
+		}
 	});
 	
 	self.timer.addEventListener('secondsUpdated', function (e) {
