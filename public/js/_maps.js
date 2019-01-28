@@ -5,13 +5,17 @@ Veload.prototype.maps = function(){
 		createMap()
 		navigator.geolocation.getCurrentPosition(function(position) {
 			getMap().panTo([position.coords.latitude,position.coords.longitude]);
-			self.currLoc = {lat:position.coords.latitude,lng:position.coords.longitude};
+			self.points.push(new Point(position.coords.latitude,position.coords.longitude));
 		});		
 		Leaflet.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
 
 		}).addTo(getMap());
 		$(document).on('locationUpdated.veload',function(){
-			getMap().flyTo(self.currLoc,18);
+			getMap().flyTo(_.last(self.points),18,{
+				animate: true,
+				duration: 1 // in seconds
+			});
+			self.myIcon.setLatLng(_.last(self.points));
 		});
 		$(document).on('gridItemResized.maps',function(){
 			console.log('redrawing map');
@@ -23,27 +27,28 @@ Veload.prototype.maps = function(){
 Veload.prototype.loadGPX = function(url){
 	var om = omni.gpx(url);
 	var self = this;
+	self.points = [];
 	om.on('ready', function(e) {
-		self.route = om.toGeoJSON().features[0].geometry.coordinates;
+		var route = om.toGeoJSON().features[0].geometry.coordinates;
 		var gpx = e.target
 		getMap().fitBounds(gpx.getBounds());
-		for(coord = 0; coord<self.route.length-1;coord++){
-			var s = self.route[coord];
-			var f = self.route[coord+1];
+		for(coord = 0; coord<route.length-1;coord++){
+			var s = route[coord];
+			var f = route[coord+1];
 			var sl = {lat: s[1], lng: s[0]};
 			var fl = {lat: f[1], lng: f[0]};
 			var d = geolib.getDistance(sl,fl,1,1);
 			var b = geolib.getBearing(sl,fl);
 			self.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
 		}
-		self.currLoc = self.rTrail[0].latlng;
+		self.points.push(new Point(self.rTrail[0].latlng.lat,self.rTrail[0].latlng.lng));
 
 		var pulsingIcon = Leaflet.icon.pulse({
 			iconSize:[20,20],
 			color: self.GOOD,
 			fillColor: self.GOOD
 		});
-		self.myIcon = Leaflet.marker([self.currLoc.lat,self.currLoc.lng],{icon: pulsingIcon,opacity:.8}).addTo(getMap());
+		self.myIcon = Leaflet.marker([_.last(self.points).lat,_.last(self.points).lng],{icon: pulsingIcon,opacity:.8}).addTo(getMap());
 	}).on('error',function(e){
 		self.error(e);
 	}).addTo(getMap());		

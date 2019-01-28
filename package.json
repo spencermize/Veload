@@ -6,12 +6,15 @@
   "main": "veload.js",
   "devDependencies": {
     "browserify-shim": "^3.8.14",
+    "moment-locales-webpack-plugin": "^1.0.7",
     "nodemon": "*",
     "sass": "^1.16.1",
-    "stylelint": "^9.10.1"
+    "stylelint": "^9.10.1",
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1"
   },
   "scripts": {
-    "js:watch": "watchify main.js -o public/js/bundle.js -v -d",
+    "js:watch": "webpack --info-verbosity verbose",
     "css:lint": "stylelint --config build/.stylelintrc --syntax scss \"scss/**/*.scss\" --cache --cache-location \"build/.stylelintcache/\"",
     "css:watch": "sass build/scss/main.scss public/css/style.css --watch",
     "css": "npm run css:lint && npm run css:watch",
@@ -27,9 +30,11 @@
     "body-parser": "^1.18.3",
     "bootstrap": "^4.2.1",
     "browserify": "*",
+    "chartist": "^0.11.0",
+    "chartjs-plugin-streaming": "^1.7.1",
+    "chartjs-plugin-zoom": "^0.6.6",
     "connect-session-sequelize": "*",
     "conversions": "^1.5.2",
-    "dsmorse-gridster": "^0.8.0",
     "easytimer.js": "^3.0.1",
     "express": "4.16.4",
     "express-hbs": "^2.0.1",

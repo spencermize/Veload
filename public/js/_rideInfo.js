@@ -6,7 +6,7 @@ Veload.prototype.rideInfo = function(){
 		if(self.points.length){
 			var point = _.last(self.points);
 			$("#currSpeed").html(numeral(point.speed).format(self.MPHFORM) + "<br /> mph");
-			$("#currCadence").html(numeral(point.cadence).format(self.MPHFORM));
+			$("#currCadence").html(numeral(point.cad).format(self.MPHFORM));
 			$("#distance").html(numeral(self.getDistance("miles")).format(self.MPHFORM) + "<br /> miles");					
 			$("#avgSpeed").html(numeral(self.getAvg("miles")).format(self.MPHFORM) + "<br /> mph");
 			$("#hr").text(point.hr);

@@ -1,12 +1,14 @@
-const Handlebars = require('handlebars');
-const $ = require("jquery");
-
-//expose a common language
-window.$ = $;
-window.Handlebars = Handlebars;
+var DEBUG = true;
+if(!DEBUG){
+    if(!window.console) window.console = {};
+    var methods = ["log", "debug", "warn", "info"];
+    for(var i=0;i<methods.length;i++){
+        console[methods[i]] = function(){};
+    }
+}
 
 //init Veload Core, expose globally
-var Veload = require("./build/js/Veload.js");
+import {Veload} from './build/js/Veload.js';
 window.Veload = Veload;
 
 //add to the prototype;

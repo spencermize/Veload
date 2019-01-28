@@ -20,8 +20,8 @@ const axios = require('axios')
 
 //get post variables
 var bodyParser = require('body-parser');
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.use(bodyParser.json({limit: '50mb'})); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb', parameterLimit:500000})); // support encoded bodies
 
 //db connections
 const Sequelize = require('sequelize');

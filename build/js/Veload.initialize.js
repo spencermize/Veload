@@ -1,10 +1,12 @@
 const annyang = require("annyang");
+import Handlebars from 'handlebars';
+import Timer from 'easytimer.js';
 
 // first thing loaded
 Veload.prototype.loadInterface = function(){
 	var self = this;
 	// load required elements
-	elements = ['modal','footer'];
+	var elements = ['modal','footer'];
 	elements.forEach(function(templ){
 		var src = document.getElementById(`${templ}-temp`).innerHTML;
 		self.cTemps[templ] = Handlebars.compile(src);	
@@ -12,7 +14,7 @@ Veload.prototype.loadInterface = function(){
 	
 	//ensure timers are ready to go so we can attach listeners;
 	self.initTimers();
-	
+
 	if(window.location.pathname=="/dashboard"){
 		self.loadDash();
 	}else{
@@ -26,25 +28,30 @@ Veload.prototype.loadInterface = function(){
 	});	
 
 	//wait until modules loaded before showing loaded
-	$(document).on('modulesLoaded.veload',function(){
+	$(document).one('modulesLoaded.veload',function(){
 		$("body").removeClass("loading");				
-	});		
+	});	
+	
+	$(document).one('loaded.veload',function(){
+		//build up the charts
+		self.charts();		
+	})
 	$(document).trigger('modulesLoading.veload');
-
+	
+	//enable each module
 	$.getJSON(self.remote.userLayout,function(modules){
 		var modules = _.keyBy(modules[0], 'name');
 		_.forEach(modules,function(obj,mod){
 			self.enableModule(mod,obj);
 		});
 
+		//html is ready to play
 		self.loaded();
 	})
 }
 Veload.prototype.loaded = function(){
-	//native type here so modules don't have to depend upon jQuery custom events in the future	
 	console.log('loaded.veload');
-	var l = new CustomEvent('loaded.veload', {bubbles: true, cancelable: true});
-	document.dispatchEvent(l);		
+	$(document).trigger('loaded.veload');
 }
 
 //second thing loaded
