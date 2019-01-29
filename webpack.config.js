@@ -1,16 +1,15 @@
 const path = require('path');
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
-
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+ 
 const webpack = require('webpack');
-new webpack.ProvidePlugin({
-	'$': 'jquery',
-	'Handlebars': 'handlebars'
- })
  
 module.exports = {
-  entry: './main.js',
+  entry: {
+	  main: './build/js/main.js'
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'public/js')
   },
   watch: true,
@@ -30,6 +29,12 @@ module.exports = {
 	
 	plugins: [
         // To strip all locales except “en”
-        new MomentLocalesPlugin()
-    ],
+        new MomentLocalesPlugin(),
+		new BundleAnalyzerPlugin(),
+		new webpack.ProvidePlugin({
+			'$': 'jquery',
+			'Handlebars': 'handlebars',
+			'_': 'lodash'
+		})
+    ]
 };

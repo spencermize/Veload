@@ -9,7 +9,8 @@ let helpers = require('./config/hbs-helpers.js');
 
 //webapp
 const express = require('express');
-let session = require('express-session');
+const compression = require('compression')
+const session = require('express-session');
 const https = require('https');
 const fs = require('fs');
 const homedir = require('os').homedir();
@@ -22,6 +23,9 @@ const axios = require('axios')
 var bodyParser = require('body-parser');
 app.use(bodyParser.json({limit: '50mb'})); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb', parameterLimit:500000})); // support encoded bodies
+
+//be nice to bandwidth
+app.use(compression())
 
 //db connections
 const Sequelize = require('sequelize');

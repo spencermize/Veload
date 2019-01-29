@@ -3,21 +3,19 @@
   "description": "Bike at Home",
   "repository": "https://github.com/spencermize/Veload.git",
   "version": "0.1.0",
-  "main": "veload.js",
+  "private": true,
   "devDependencies": {
-    "browserify-shim": "^3.8.14",
     "moment-locales-webpack-plugin": "^1.0.7",
     "nodemon": "*",
     "sass": "^1.16.1",
-    "stylelint": "^9.10.1",
     "webpack": "^4.29.0",
+    "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1"
   },
   "scripts": {
-    "js:watch": "webpack --info-verbosity verbose",
-    "css:lint": "stylelint --config build/.stylelintrc --syntax scss \"scss/**/*.scss\" --cache --cache-location \"build/.stylelintcache/\"",
+    "js:watch": "webpack -d --info-verbosity verbose",
     "css:watch": "sass build/scss/main.scss public/css/style.css --watch",
-    "css": "npm run css:lint && npm run css:watch",
+    "css": "npm run css:watch",
     "app:watch": "nodemon app.js",
     "watch": "start npm run js:watch && start npm run css:watch && start npm run app:watch"
   },
@@ -33,6 +31,7 @@
     "chartist": "^0.11.0",
     "chartjs-plugin-streaming": "^1.7.1",
     "chartjs-plugin-zoom": "^0.6.6",
+    "compression": "^1.7.3",
     "connect-session-sequelize": "*",
     "conversions": "^1.5.2",
     "easytimer.js": "^3.0.1",
@@ -41,6 +40,7 @@
     "express-session": "*",
     "font-awesome-assets": "0.0.8",
     "geolib": "*",
+    "glob": "^7.1.3",
     "gps-to-gpx": "^1.4.0",
     "gps-util": "*",
     "gpx-builder": "^2.0.1",
@@ -58,11 +58,5 @@
     "strava-v3": "*",
     "svgfont2js": "^0.1.2",
     "yargs": "*"
-  },
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
-  },
-  "browserify-shim": {}
+  }
 }

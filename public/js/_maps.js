@@ -1,37 +1,56 @@
 console.log("trying to load map...");
-Veload.prototype.maps = function(){
-	var self = this;
+	
+function Maps(){
 	$(document).one(`modulesLoaded.veload`,function(e){
-		createMap()
-		navigator.geolocation.getCurrentPosition(function(position) {
-			getMap().panTo([position.coords.latitude,position.coords.longitude]);
-			self.points.push(new Point(position.coords.latitude,position.coords.longitude));
-		});		
-		Leaflet.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
-
-		}).addTo(getMap());
-		$(document).on('locationUpdated.veload',function(){
-			getMap().flyTo(_.last(self.points),18,{
-				animate: true,
-				duration: 1 // in seconds
-			});
-			self.myIcon.setLatLng(_.last(self.points));
-		});
-		$(document).on('gridItemResized.maps',function(){
-			console.log('redrawing map');
-			getMap().invalidateSize();
-		});
+		V.createMap();
+		V.leafMe();
+		V.updateMap();
 	});
 	$(document).trigger("initialized.maps");
+//	if (!(this instanceof Maps)) return new Maps(opts);
 }
-Veload.prototype.loadGPX = function(url){
+
+V.getMap = function(){
+	return $('.map').data("map");
+}
+
+V.createMap = function(){
+	console.log('create map');
+	var el = $('.map');
+	el.data("map",L.map(el[0],{
+		zoom: 9,
+		center: [51.505, -0.09],
+		attributionControl: false
+	}));	
+}
+V.leafMe = function(){
+	L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
+
+	}).addTo(V.getMap());
+}
+
+V.updateMap = function(){
+	$(document).on('locationUpdated.veload',function(){
+		V.getMap().flyTo(_.last(V.points),18,{
+			animate: true,
+			duration: 1 // in seconds
+		});
+		V.myIcon.setLatLng(_.last(V.points));
+	});
+	$(document).on('gridItemResized.maps',function(){
+		console.log('redrawing map');
+		V.getMap().invalidateSize();
+	});	
+}
+
+V.loadGPX = function(url){
+	var V = this;
 	var om = omni.gpx(url);
-	var self = this;
-	self.points = [];
+	V.points = [];
 	om.on('ready', function(e) {
 		var route = om.toGeoJSON().features[0].geometry.coordinates;
 		var gpx = e.target
-		getMap().fitBounds(gpx.getBounds());
+		V.getMap().fitBounds(gpx.getBounds());
 		for(coord = 0; coord<route.length-1;coord++){
 			var s = route[coord];
 			var f = route[coord+1];
@@ -39,27 +58,25 @@ Veload.prototype.loadGPX = function(url){
 			var fl = {lat: f[1], lng: f[0]};
 			var d = geolib.getDistance(sl,fl,1,1);
 			var b = geolib.getBearing(sl,fl);
-			self.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
+			V.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
 		}
-		self.points.push(new Point(self.rTrail[0].latlng.lat,self.rTrail[0].latlng.lng));
+		V.points.push(new Point(V.rTrail[0].latlng.lat,V.rTrail[0].latlng.lng));
 
-		var pulsingIcon = Leaflet.icon.pulse({
+		var pulsingIcon = L.icon.pulse({
 			iconSize:[20,20],
-			color: self.GOOD,
-			fillColor: self.GOOD
+			color: V.opts.colors.GOOD,
+			fillColor: V.opts.colors.GOOD
 		});
-		self.myIcon = Leaflet.marker([_.last(self.points).lat,_.last(self.points).lng],{icon: pulsingIcon,opacity:.8}).addTo(getMap());
+		V.myIcon = L.marker([_.last(V.points).lat,_.last(V.points).lng],{icon: pulsingIcon,opacity:.8}).addTo(V.getMap());
 	}).on('error',function(e){
-		self.error(e);
-	}).addTo(getMap());		
+		V.error(e);
+	}).addTo(V.getMap());		
 }
-Veload.prototype.loadTrack = function(e){
-	self.loadGPX(e.closest("[data-ref]").data("ref"));
-	self.unpop();
+V.loadTrack = function(e){
+	V.loadGPX(e.closest("[data-ref]").data("ref"));
+	V.unpop();
 }
-Veload.prototype.pickTrackGUI = function(){
-	var self = this;
-
+V.pickTrackGUI = function(){
 	var item = $('[data-module="map"] .search-wrap ul.list').cleanWhitespace().html();
 	var options = {
 		valueNames: [
@@ -72,17 +89,17 @@ Veload.prototype.pickTrackGUI = function(){
 		page: 5,
 		pagination: true
 	}
-	self.loading();
-	$.getJSON(self.remote.athleteRoutes,function(routes){
-		$.getJSON(self.remote.athleteActivities,function(activities){
+	V.loading();
+	$.getJSON(V.opts.urls.remote.athleteRoutes,function(routes){
+		$.getJSON(V.opts.urls.remote.athleteActivities,function(activities){
 			var data = routes.concat(activities);
 				var config = {
 				title: 'Please choose a Strava Route or Activity',
 				accept: false,
 				body: $('[data-name="maps"] .search-wrap').html()
 			}
-			self.unpop();
-			self.pop(config);
+			V.unpop();
+			V.pop(config);
 			$('#modal .searcher').attr("id","searchme");
 			var list = new List("searchme",options);
 			list.clear();
@@ -118,17 +135,5 @@ Veload.prototype.pickTrackGUI = function(){
 		})
 	});
 }
-	
-function getMap(){
-	return $('.map').data("map");
-}
-function createMap(){
-	console.log('create map');
-	var el = $('.map');
-	el.data("map",Leaflet.map(el[0],{
-		zoom: 9,
-		center: [51.505, -0.09],
-		attributionControl: false
-	}));	
-}
+
 $(document).trigger("moduleLoaded.maps");

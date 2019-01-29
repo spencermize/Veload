@@ -1,4 +1,4 @@
-Veload.prototype.goals = function(){
+function Goals(){
 	var self = this;
 	$(document).trigger('initialized.goals');
 }

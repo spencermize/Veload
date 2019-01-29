@@ -1,27 +1,31 @@
-Veload.prototype.rideInfo = function(){
-	console.log('init ride info');
-	var self = this;
-	$('[data-ride="carousel"]').carousel();
-	$(document).on('locationUpdated.veload',function(){
-		if(self.points.length){
-			var point = _.last(self.points);
-			$("#currSpeed").html(numeral(point.speed).format(self.MPHFORM) + "<br /> mph");
-			$("#currCadence").html(numeral(point.cad).format(self.MPHFORM));
-			$("#distance").html(numeral(self.getDistance("miles")).format(self.MPHFORM) + "<br /> miles");					
-			$("#avgSpeed").html(numeral(self.getAvg("miles")).format(self.MPHFORM) + "<br /> mph");
-			$("#hr").text(point.hr);
-		}
-	});
-	
-	self.timer.addEventListener('secondsUpdated', function (e) {
-		$('#elapsedTime').html(self.timer.getTimeValues().toString());
-	});
-	self.timer.addEventListener('started', function (e) {
-		$('#elapsedTime').html(self.timer.getTimeValues().toString());
-	});
-	self.timer.addEventListener('reset', function (e) {
-		$('#elapsedTime').html(self.timer.getTimeValues().toString());
-	});
-	$(document).trigger('initialized.rideInfo');
+function RideInfo() {
+  console.log('init ride info');
+  V.rideRoller();
+
+  $(document).trigger('initialized.rideInfo');
 }
 $(document).trigger('moduleLoaded.rideInfo');
+
+Veload.prototype.rideRoller = function(){
+  var self = this;
+  $(document).on('locationUpdated.veload', function () {
+    if (self.points.length) {
+      var point = _.last(V.points);
+      $("#currSpeed").html(numeral(point.speed).format(V.MPHFORM) + "<br /> mph");
+      $("#currCadence").html(numeral(point.cad).format(V.MPHFORM));
+      $("#distance").html(numeral(V.getDistance("miles")).format(V.MPHFORM) + "<br /> miles");
+      $("#avgSpeed").html(numeral(V.getAvg("miles")).format(V.MPHFORM) + "<br /> mph");
+      $("#hr").text(point.hr);
+    }
+  });
+
+  V.timer.addEventListener('secondsUpdated', function (e) {
+    $('#elapsedTime').html(self.timer.getTimeValues().toString());
+  });
+  V.timer.addEventListener('started', function (e) {
+    $('#elapsedTime').html(self.timer.getTimeValues().toString());
+  });
+  V.timer.addEventListener('reset', function (e) {
+    $('#elapsedTime').html(self.timer.getTimeValues().toString());
+  });
+}
