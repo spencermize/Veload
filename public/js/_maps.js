@@ -3,7 +3,6 @@ console.log("trying to load map...");
 function Maps(){
 	$(document).one(`modulesLoaded.veload`,function(e){
 		V.createMap();
-		V.leafMe();
 		V.updateMap();
 	});
 	$(document).trigger("initialized.maps");
@@ -22,18 +21,16 @@ V.createMap = function(){
 		center: [51.505, -0.09],
 		attributionControl: false
 	}));	
-}
-V.leafMe = function(){
 	L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
 
-	}).addTo(V.getMap());
+	}).addTo(V.getMap());	
 }
 
 V.updateMap = function(){
 	$(document).on('locationUpdated.veload',function(){
 		V.getMap().flyTo(_.last(V.points),18,{
 			animate: true,
-			duration: 1 // in seconds
+			duration: .25 // in seconds
 		});
 		V.myIcon.setLatLng(_.last(V.points));
 	});

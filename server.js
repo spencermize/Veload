@@ -4,16 +4,17 @@ const args = require('yargs').argv;
 //various helpers
 let moment = require('moment');
 let hbs = require('express-hbs');
+let _ = require('lodash');
+const { DownloaderHelper } = require('node-downloader-helper');
+let findRemoveSync = require('find-remove');
 global.hbs = hbs;
-let helpers = require('./config/hbs-helpers.js');
+require('./config/hbs-helpers.js');
 
 //webapp
 const express = require('express');
 const compression = require('compression')
 const session = require('express-session');
-const https = require('https');
 const fs = require('fs');
-const homedir = require('os').homedir();
 const app = express();
 
 //communicate with Strave & other APIs
@@ -37,7 +38,7 @@ const myStore = new SequelizeStore({
 })
 init(sequelize,args.reset);
 
-const modules = ['rideInfo','speedGraph','goals','maps','cadenceGraph','heartrateGraph'];
+const modules = ['rideInfo','speedGraph','maps','cadenceGraph','heartrateGraph'];
 // view engine setup
 app.set('view engine', 'hbs');
 app.set('views',  __dirname + '/public/views/');
@@ -61,6 +62,12 @@ app.use(session({
 }));
 myStore.sync();
 
+//cleanup old files
+setInterval(function(){
+	findRemoveSync(__dirname + '/temp', {age: {seconds: 360000}});
+	findRemoveSync(__dirname + '/backgrounds', {age: {seconds: 360000}});
+}, 360000);
+
 // route for user Login
 app.get('/login', sessionChecker,(req, res) => {
 	showLogin(req,res);
@@ -70,9 +77,9 @@ app.route('/logout').get((req, res) => {
 	res.redirect('/login');
 });
 // route for Home-Page
-app.get('/', sessionChecker, (req, res) => {
+app.get('/', (req, res) => {
 	console.log("home");
-	res.redirect('/dashboard');
+	res.render('home',{layout: 'default',bodyClass: 'home'});
 });
 app.get('/dashboard',sessionChecker, (req, res) => {
 	res.render('dashboard', {layout: 'default', modules: modules});
@@ -123,6 +130,82 @@ app.get('/icons/:img',function(req,res,next){
 		res.send(r);
 	});
 });
+app.get('/photos/:img',function(req,res){
+	const path = __dirname + '/backgrounds/';
+	if(req.params.img){
+		res.sendFile(path + req.params.img);
+	}else{
+		res.json({status: "error"});
+	}
+
+});
+
+function getPhotos(qs,callback,res){
+	const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=f01b5e40d794a63ebd9b51fd4eb985ab&${qs}`;
+	console.log(q);
+	axios.get(q)
+		.then(function(response){
+			var url = "";
+			var data = response.data
+			try{
+				if (data.photos.total > 0) {
+					var attempts = 0;
+					while (!url && attempts < (data.photos.photo.length)) {
+						const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length - 1))];
+						url = p.url_o ? p.url_o : p.url_k;
+						attempts++;
+					}
+					if (url) {
+						callback({'url':url},res);
+					}
+				} else {
+					console.log('no results');
+					callback(response,res);
+				}
+			}catch(error){
+				console.log(error);
+				if(error){
+					throw response.data;
+				}else{
+					throw {"error": "unknown"};
+				}
+				
+			}
+		})
+		.catch(function(error){
+			callback(error);
+		});
+}
+function photosCallback(rs,res){
+	if(rs.url){
+		const file = _.last(rs.url.split("/"));
+		const path = __dirname + '/backgrounds/';
+		const full = path + file;
+		const rurl = '/photos/'+ file;
+		const { getColorFromURL } = require('color-thief-node');
+		if(fs.existsSync(full)){
+			getColorFromURL(full).then(function(color){
+				res.json({url: rurl,color:color});
+			});
+		}else{
+			const dl = new DownloaderHelper(rs.url, path);
+			dl.on('start',function(){
+				console.log('starting ' + rs.url);
+			}).on('end',function(){
+				getColorFromURL(full).then(function(color){
+					res.json({url: rurl,color:color});
+				});
+			}).on('error',function(error){
+				console.log('uh oh');
+				res.json(error)	
+			});
+
+			dl.start();
+		}
+	}else{
+		res.json(rs)
+	}
+}
 app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava], function(req,res,next){
 	let data = "";
 	let strava = res.locals.strava;
@@ -201,8 +284,16 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 				});
 			});
 			break;
+		case 'photos' :
+			var q = req.query;
+			var qs = "";
+			_.forEach(q,function(val,key){
+				qs += `${key}=${val}&`;
+			});
+			qs = _.trimEnd(qs,"&");
+			getPhotos(qs,photosCallback,res);
+			break;
 		default:
-			data = {"status" : "error", "msg":"User not found"};
 			data = {"status" : "error", "msg":"Sorry, operation unsupported"};
 			res.json(data);
 			break;

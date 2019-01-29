@@ -3,7 +3,7 @@
 {{> header}}
 
 
-<body class="paused loggedout loading">
+<body class="paused loggedout loading {{bodyClass}}">
 <div class="modal fade show loader">
 	<div class="modal-dialog centered" role="document">
 		<div class='spin'></div>
@@ -15,7 +15,7 @@
 	{{> nav }}
 
     <div class="container-fluid">
-        <div id="main" role="main" class="pt-3 flex-wrap d-flex justify-content-between">
+        <div id="main" role="main" class="">
 			{{{body}}}
 		</div>
     </div>

@@ -6,7 +6,7 @@ function RideInfo() {
 }
 $(document).trigger('moduleLoaded.rideInfo');
 
-Veload.prototype.rideRoller = function(){
+V.rideRoller = function(){
   var self = this;
   $(document).on('locationUpdated.veload', function () {
     if (self.points.length) {

@@ -56,40 +56,52 @@ Veload.prototype.moduleToggle = function (e) {
 }
 Veload.prototype.disableModule = function (mod) {
 	var el = $(`.grid-item[data-name=${mod}]`);
-	el.fadeOut(400, function () {
+	if(el.length){
+		el.fadeOut(400, function () {
+			_.pull(self.enabledMods, mod);
+			$('.grid').data('grid').remove_widget(el);
+			self.saveLayout();
+		})
+	}else{
 		_.pull(self.enabledMods, mod);
-		$('.grid').data('grid').remove_widget(el);
-		self.saveLayout();
-	})
+	}
+
 }
 
 Veload.prototype.enableModule = function (mod, cnf) {
-	console.log(`enabling ${mod}`);
-	self.enabledMods.push(mod);
-	const config = Object.assign({
-		size_x: 1,
-		size_y: 1,
-		col: 1,
-		row: 1
-	}, cnf);
-	var name = mod + "-module";
-	var el = document.getElementById(name);
-	var src = el.innerHTML;
-	var comp = Handlebars.compile(src)();
-	var finishedEvent = `initialized.${mod}`;
+	if(mod){
+		console.log(`enabling ${mod}`);
+		V.enabledMods.push(mod);
+		const config = Object.assign({
+			size_x: 1,
+			size_y: 1,
+			col: 1,
+			row: 1
+		}, cnf);
+		var name = mod + "-module";
+		var el = document.getElementById(name);
+		if(el){
+			var src = el.innerHTML;
+			var comp = Handlebars.compile(src)();
 
-	console.log("waiting for " + finishedEvent);
-	self.listenForFinish(finishedEvent);
-	$('.grid').data('grid').add_widget(src, config.size_x, config.size_y, config.col, config.row);
+			var finishedEvent = `initialized.${mod}`;
 
-	if($(`[data-name=${mod}]`).data("script")){
-		$.getScript(`/js/_${mod}.js`, function () {
-			//call constructor if necessary
-			console.log(_.upperFirst(mod));
-			if (window[_.upperFirst(mod)]) {
-				window[_.upperFirst(mod)]();
-			}
-		})
+			console.log("waiting for " + finishedEvent);
+			self.listenForFinish(finishedEvent);
+			$('.grid').data('grid').add_widget(src, config.size_x, config.size_y, config.col, config.row);
+		
+			if($(`[data-name=${mod}]`).data("script")){
+				$.getScript(`/js/_${mod}.js`, function () {
+					//call constructor if necessary
+					console.log(_.upperFirst(mod));
+					if (window[_.upperFirst(mod)]) {
+						window[_.upperFirst(mod)]();
+					}
+				})
+			}		
+		}else{
+			V.disableModule(name);
+		}
 	}
 }
 

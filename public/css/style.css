@@ -10442,6 +10442,7 @@ body {
   position: fixed;
   top: 25%;
   left: 50%;
+  width: 64px;
   transform: translate(-50%, -50%) !important;
 }
 .loading .loader.modal-backdrop {
@@ -10504,10 +10505,6 @@ body {
 
 footer, .grid-item, .navbar {
   transition: opacity 0.5s;
-}
-
-.navbar {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.5) 100%);
 }
 
 .nav-pills a {
@@ -10576,10 +10573,6 @@ nav .pause, .playing .play, .stop {
   margin: -100% 0 0 -100%;
 }
 
-.playing .leaflet-marker-icon {
-  transition: transform 1s;
-}
-
 .pagination .page {
   cursor: pointer;
   position: relative;
@@ -10622,12 +10615,12 @@ nav .pause, .playing .play, .stop {
   padding: 0;
   overflow: hidden;
   color: #eee;
+  border: 0;
   text-shadow: 0.05em 0 #6c757d, 0 0.05em #6c757d, -0.05em 0 #6c757d, 0 -0.05em #6c757d, -0.05em -0.05em #6c757d, -0.05em 0.05em #6c757d, 0.05em -0.05em #6c757d, 0.05em 0.05em #6c757d;
 }
 .grid .card .card-body {
-  background-color: rgba(255, 255, 255, 0.95) !important;
+  background-color: rgba(255, 255, 255, 0.95);
   transition: all 0.5s;
-  background: 0;
   border-bottom: 0;
   overflow: hidden;
   position: relative;
@@ -10982,6 +10975,26 @@ nav .pause, .playing .play, .stop {
 }
 .btn-toggle.btn-secondary.active {
   background-color: #6c757d;
+}
+
+.home .navbar {
+  display: none;
+}
+.home .modal-backdrop {
+  display: block !important;
+  opacity: 0.75;
+}
+.home .cover {
+  padding: 0 1.5rem;
+  z-index: 2000;
+  color: white;
+  margin-top: 20vh;
+}
+.home .cover .btn-lg, .home .cover .btn-group-lg > .btn {
+  padding: 0.75rem 1.25rem;
+}
+.home .cover-container {
+  max-width: 42em;
 }
 
 /*# sourceMappingURL=style.css.map */

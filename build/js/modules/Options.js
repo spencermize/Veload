@@ -6,7 +6,7 @@ var places = {
     },
     remote : {
         url : "/api",
-        endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities", "user_layout", "user_modules"],
+        endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities", "user_layout", "user_modules","photos"],
         combined: []
     }
 }
@@ -41,6 +41,11 @@ var Options = {
                 pointRadius: 3,
                 pointBackgroundColor: []
             }]
+        },
+        defaults : {
+            global: {
+                defaultFontFamily: 'Work Sans'
+            }
         },
         options: {
             tooltips: {

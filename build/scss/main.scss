@@ -43,6 +43,7 @@ body:fullscreen nav{
 	  position: fixed;
 	  top: 25%;
 	  left: 50%;
+	  width: 64px;
 	  transform: translate(-50%, -50%) !important;
 	}
 	.loader{
@@ -104,9 +105,6 @@ body:fullscreen nav{
 }
 footer,.grid-item,.navbar{
   transition: opacity .5s;	
-}
-.navbar{
-	background: linear-gradient(90deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.5) 100%)	
 }
 .nav-pills a{
 	text-transform: capitalize;
@@ -175,11 +173,7 @@ nav .pause,.playing .play,.stop{
 		margin: -100% 0 0 -100%;
 	}	
 }
-.playing{
-	.leaflet-marker-icon{
-	    transition: transform 1s;
-	}
-}
+
 .pagination{
 	.page{
 		cursor: pointer;
@@ -224,12 +218,12 @@ nav .pause,.playing .play,.stop{
 			padding: 0;
 			overflow: hidden;
 			color: #eee;
+			border: 0;
 			text-shadow: 0.05em 0 $secondary, 0 0.05em $secondary, -0.05em 0 $secondary, 0 -0.05em $secondary, -0.05em -0.05em $secondary, -0.05em 0.05em $secondary, 0.05em -0.05em $secondary, 0.05em 0.05em $secondary
 		}
 		.card-body{
-			background-color: rgba(255,255,255,0.95) !important;			
+			background-color: rgba(255,255,255,0.95);			
 			transition: all .5s;
-			background: 0;
 			border-bottom: 0;
 			overflow: hidden;
 			position: relative;
@@ -283,4 +277,26 @@ nav .pause,.playing .play,.stop{
   &.btn-secondary {
     @include toggle-color($active-bg:$secondary);
   }
+}
+.home{
+	.navbar{
+		display: none;
+	}
+	.modal-backdrop{
+		display: block !important;
+		opacity: .75;
+	}
+	.cover {
+		padding: 0 1.5rem;
+		z-index: 2000;
+		color: white;
+		margin-top: 20vh;
+		.btn-lg {
+			padding: .75rem 1.25rem;
+		  }
+	  }
+	  .cover-container {
+		max-width: 42em;
+	  }
+	  
 }
