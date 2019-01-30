@@ -2,10 +2,9 @@
 import { TinyColor } from '@ctrl/tinycolor';
 import { mostReadable } from '@ctrl/tinycolor';
 function PhotoRefresher() {
-	var radius = .5;
-	const maxResults = 50;
 	var i;
 	
+	updatePhoto();
 	$(document).on("pause.veload",function(f){
 		clearInterval(i);
 	});
@@ -13,25 +12,7 @@ function PhotoRefresher() {
 	$(document).on("start.veload",function(){
 		var radius = 1;
 		i = setInterval(function () {
-            var l = _.last(V.points);
-			$.get(`${V.opts.urls.remote.photos}?lat=${l.lat}&lon=${l.lng}&format=json&extras=url_o,url_k,url_h&radius=${radius}&per_page=${maxResults}&tags=beautiful,pretty,sunset,sunrise,architecture,landscape,building,outdoors,trail,travel&sort=interestingness-desc&content_type=1&nojsoncallback=1,has_geo=true`, function (data) {
-				var url = data.url;
-				if (url && `url("${url}")` != $('.bg.blurrer').css('background-image')) {
-					$('<img/>').attr('src', url).on('load', function () {
-						$(this).remove();
-						var el1 = $('.bg.blurrer').addClass("curr");
-						el1.before("<span class='bg blurrer' />");
-						var el2 = $('.bg.blurrer:not(.curr)');
-						el2.css({ 'background-image': `url(${url})` });
-						el2.addClass('in').data('color',data.color);
-						$('.bg.blurrer.curr').removeClass('in');
-						$(document).trigger('backgroundUpdated.veload');
-						setTimeout(function () { $('.bg.blurrer.curr').remove(); }, 2000);
-					});
-				}else{
-					radius = radius * 2;
-				}
-			});
+;			radius = updatePhoto(radius);
 		}, 15000);
 
 	})
@@ -51,11 +32,39 @@ function PhotoRefresher() {
 		var chart = $('.grid-item:has([data-chart])');
 		chart.each(function(_i,ch){
 			var c = $(ch).data('chart')
-			c.options.scales.yAxes[0].gridLines.color = darkCol;
+			c.options.scales.yAxes[0].gridLines.color = domCol;
 			c.update();
 		})
-		$('.navbar .btn[class^="btn-outline"]').css({'color':readable,'border-color':readable});
+		$('.navbar [class*="btn-outline"]').css({'color':readable,'border-color':readable});
 	});
 }
+function updatePhoto(radius){
+	var url;
+	if(V.points.length){
+		var l = _.last(V.points);
+		url = `${V.opts.urls.remote.photos}?lat=${l.lat}&lon=${l.lng}&radius=${radius}`;
+	}else{
+		url = `${V.opts.urls.remote.photosRandom}`;
+	}
+	$.get(url, function (data) {
+		var url = data.url;
+		if (url && `url("${url}")` != $('.bg.blurrer').css('background-image')) {
+			$('<img/>').attr('src', url).on('load', function () {
+				$(this).remove();
+				var el1 = $('.bg.blurrer').addClass("curr");
+				el1.before("<span class='bg blurrer' />");
+				var el2 = $('.bg.blurrer:not(.curr)');
+				el2.css({ 'background-image': `url(${url})` });
+				el2.addClass('in').data('color',data.color);
+				$('.bg.blurrer.curr').removeClass('in');
+				$(document).trigger('backgroundUpdated.veload');
+				setTimeout(function () { $('.bg.blurrer.curr').remove(); }, 2000);
+			});
+		}else{
+			radius = radius * 2;
+		}
+	})
+	return radius;
+}
 
-export {PhotoRefresher};
+export {PhotoRefresher,updatePhoto};

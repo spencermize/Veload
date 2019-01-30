@@ -234,7 +234,7 @@ Veload.prototype.error = function (err) {
 
 Veload.prototype.poll = function () {
 	var self = this;
-	$.getJSON(self.opts.urls.local.status, function (data) {
+	$.getJSON(self.opts.urls.local.stats, function (data) {
 		if (data.status && data.status.length) {
 			self.connected(data);
 		} else {

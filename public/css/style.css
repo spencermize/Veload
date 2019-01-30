@@ -10445,9 +10445,13 @@ body {
   width: 64px;
   transform: translate(-50%, -50%) !important;
 }
+.loading .loader {
+  z-index: 100001;
+}
 .loading .loader.modal-backdrop {
   opacity: 0.95;
   background-color: #fff;
+  z-index: 10000;
 }
 .loading .text-center {
   height: 64px;
@@ -10480,7 +10484,7 @@ body {
   content: "";
   position: fixed;
   display: block;
-  background: url("https://loremflickr.com/1920/1080/scenic,road/all") no-repeat center center fixed;
+  background: url("") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;

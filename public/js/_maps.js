@@ -29,8 +29,8 @@ V.createMap = function(){
 V.updateMap = function(){
 	$(document).on('locationUpdated.veload',function(){
 		V.getMap().flyTo(_.last(V.points),18,{
-			animate: true,
-			duration: .25 // in seconds
+			//animate: true,
+			//duration: .25 // in seconds
 		});
 		V.myIcon.setLatLng(_.last(V.points));
 	});

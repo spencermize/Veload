@@ -11,6 +11,7 @@ if(!DEBUG){
 import {Options} from './modules/Options.js';
 import {Veload} from './modules/Veload.js';
 import HandlebarsHelpers from './modules/HandlebarsHelpers.js';
+import {updatePhoto} from './modules/PhotoRefresher.js';
 import {SettingsPane} from './modules/SettingsPane.js';
 
 window.Veload = Veload;
@@ -24,6 +25,7 @@ $(function(){
 	var initialize = require('./modules/Veload.initialize.js');
 	
 	V.loadInterface();
+	updatePhoto();
 	V.loadProfile();
 	$(document).on('click','[data-cmd]', function(e){
 		let fnc = $(e.target).closest('[data-cmd]').data('cmd');

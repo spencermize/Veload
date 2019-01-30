@@ -65,7 +65,7 @@ myStore.sync();
 //cleanup old files
 setInterval(function(){
 	findRemoveSync(__dirname + '/temp', {age: {seconds: 360000}});
-	findRemoveSync(__dirname + '/backgrounds', {age: {seconds: 360000}});
+	findRemoveSync(__dirname + '/backgrounds', {age: {seconds: 360000000}});
 }, 360000);
 
 // route for user Login
@@ -132,16 +132,69 @@ app.get('/icons/:img',function(req,res,next){
 });
 app.get('/photos/:img',function(req,res){
 	const path = __dirname + '/backgrounds/';
-	if(req.params.img){
-		res.sendFile(path + req.params.img);
-	}else{
-		res.json({status: "error"});
+	try{
+		if(req.params.img.indexOf("jpg")>-1){
+			if(fs.existsSync(path + req.params.img)){
+				res.sendFile(path + req.params.img);
+			}else{
+				res.sendFile(path + 'bicycles/' + req.params.img);
+			}
+			
+		}else{
+			res.json({})
+		}
+	}catch(error){
+		res.json(error);
 	}
 
 });
 
-function getPhotos(qs,callback,res){
-	const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=f01b5e40d794a63ebd9b51fd4eb985ab&${qs}`;
+function getRandomPhoto(dir,callback){
+	const path = require('path');
+	const fs = require('fs');
+
+	fs.readdir(dir, (err, files) => {
+		if (err) return callback(err);
+
+		function checkRandom () {
+			if (!files.length) {
+				// callback with an empty string to indicate there are no files
+				return callback(null, undefined);
+			}
+			const randomIndex = Math.floor(Math.random() * files.length);
+			const file = files[randomIndex]
+			fs.stat(path.join(dir, file), (err, stats) => {
+				if (err) return callback(err);
+				if (stats.isFile()) {
+					return callback(null, file);
+				}
+				// remove this file from the array because for some reason it's not a file
+				files.splice(randomIndex, 1);
+
+				// try another random one
+				checkRandom();
+			})
+		}
+		checkRandom();
+	})
+}
+function getPhotos(qs,callback,res,pop){
+	const api = 'f01b5e40d794a63ebd9b51fd4eb985ab';
+	var tags,sort,text;
+	if(pop){
+		tags = _.join(["ride","bicycle","-car"],",");
+		sort = 'interestingness-desc';
+		text = 'solo+bike+ride';
+		
+	}else{
+		tags = _.join(["beautiful","sunset","sunrise","architecture","landscape","building","outdoors","trail","travel","-car"],",");
+		sort = 'relevance';
+		text = '';
+	}
+	const mode = 'any';
+	const format = 'json';
+	const perpage = 50;
+	const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${api}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&${qs}`;
 	console.log(q);
 	axios.get(q)
 		.then(function(response){
@@ -152,11 +205,11 @@ function getPhotos(qs,callback,res){
 					var attempts = 0;
 					while (!url && attempts < (data.photos.photo.length)) {
 						const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length - 1))];
-						url = p.url_o ? p.url_o : p.url_k;
+						url = p.url_k ? p.url_k : p.url_h;
 						attempts++;
 					}
 					if (url) {
-						callback({'url':url},res);
+						callback({'url':url,'pop':pop},res);
 					}
 				} else {
 					console.log('no results');
@@ -177,9 +230,13 @@ function getPhotos(qs,callback,res){
 		});
 }
 function photosCallback(rs,res){
+	console.log(rs)
 	if(rs.url){
 		const file = _.last(rs.url.split("/"));
-		const path = __dirname + '/backgrounds/';
+		var path = __dirname + '/backgrounds/';
+		if(rs.pop){
+			path += 'bicycles/'
+		}
 		const full = path + file;
 		const rurl = '/photos/'+ file;
 		const { getColorFromURL } = require('color-thief-node');
@@ -287,11 +344,21 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 		case 'photos' :
 			var q = req.query;
 			var qs = "";
-			_.forEach(q,function(val,key){
-				qs += `${key}=${val}&`;
-			});
-			qs = _.trimEnd(qs,"&");
-			getPhotos(qs,photosCallback,res);
+			if(req.params.sub.indexOf("populate")>-1){
+				getPhotos(qs,photosCallback,res,true);
+			}else if(req.params.sub.indexOf("random")>-1){
+				const path = __dirname + '/backgrounds/bicycles';
+				getRandomPhoto(path,function(err,file){
+					photosCallback({url: file,pop:true},res)
+				});			
+			}else{
+				_.forEach(q,function(val,key){
+					qs += `${key}=${val}&`;
+				});
+				qs = _.trimEnd(qs,"&");
+				getPhotos(qs,photosCallback,res,false);
+			};
+
 			break;
 		default:
 			data = {"status" : "error", "msg":"Sorry, operation unsupported"};

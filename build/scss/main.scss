@@ -48,9 +48,11 @@ body:fullscreen nav{
 	}
 	.loader{
 		@extend .d-block;
+		z-index: 100001;
 		&.modal-backdrop{
 			opacity: .95;
 			background-color: #fff;
+			z-index: 10000;
 		}
 	}
 	.text-center{
@@ -82,7 +84,7 @@ body:fullscreen nav{
   content: "";
   position: fixed;
   display: block;
-  background: url('https://loremflickr.com/1920/1080/scenic,road/all') no-repeat center center fixed; 
+  background: url('') no-repeat center center fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
