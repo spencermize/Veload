@@ -84,7 +84,9 @@ body:fullscreen nav{
   content: "";
   position: fixed;
   display: block;
-  background: url('') no-repeat center center fixed; 
+  background-repeat: no-repeat;
+  background-position:  center center;
+  background-attachment:  fixed; 
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -280,25 +282,40 @@ nav .pause,.playing .play,.stop{
     @include toggle-color($active-bg:$secondary);
   }
 }
-.home{
+.home,.about{
 	.navbar{
 		display: none;
 	}
 	.modal-backdrop{
 		display: block !important;
-		opacity: .75;
+		opacity: .45;
+		z-index: 0;
 	}
 	.cover {
 		padding: 0 1.5rem;
 		z-index: 2000;
 		color: white;
-		margin-top: 20vh;
+		margin-top: 10vh;
 		.btn-lg {
 			padding: .75rem 1.25rem;
-		  }
-	  }
-	  .cover-container {
-		max-width: 42em;
-	  }
+			}
+	}
+	.cover-container {
+		max-width: 50em;
+	}
+	.weather{
+		.rot{
+			opacity: 0;
+			display: none;
+			transition: all .5s;
+		}
+		.in{
+			opacity: 1;
+			display: inline-block;
+		}
+	}
+	ol li{
+		margin-bottom: 15px;
+	}
 	  
 }

@@ -6,7 +6,7 @@ var places = {
     },
     remote : {
         url : "/api",
-        endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities", "user_layout", "user_modules","photos","photos_random"],
+        endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities", "user_layout", "user_modules","photos","photos_random","weather"],
         combined: []
     }
 }

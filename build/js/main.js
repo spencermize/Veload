@@ -10,6 +10,7 @@ if(!DEBUG){
 //init Veload Core, expose globally
 import {Options} from './modules/Options.js';
 import {Veload} from './modules/Veload.js';
+import {HomePage} from './modules/HomePage.js';
 import HandlebarsHelpers from './modules/HandlebarsHelpers.js';
 import {updatePhoto} from './modules/PhotoRefresher.js';
 import {SettingsPane} from './modules/SettingsPane.js';
@@ -20,13 +21,21 @@ window.Veload = Veload;
 $(function(){
 	var V = new Veload(Options);	
 	window.V = V;	
-	V.SettingsPane = SettingsPane;
 
 	var initialize = require('./modules/Veload.initialize.js');
-	
-	V.loadInterface();
+
 	updatePhoto();
-	V.loadProfile();
+
+	if(window.location.pathname=="/" || window.location.pathname=="/about"){
+		HomePage();
+		$("body").removeClass("loading");
+	}else{
+		V.SettingsPane = SettingsPane;
+		V.loadInterface();
+		V.loadProfile();
+	}
+
+	
 	$(document).on('click','[data-cmd]', function(e){
 		let fnc = $(e.target).closest('[data-cmd]').data('cmd');
 		console.log(fnc);

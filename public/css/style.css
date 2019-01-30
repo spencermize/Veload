@@ -10484,7 +10484,9 @@ body {
   content: "";
   position: fixed;
   display: block;
-  background: url("") no-repeat center center fixed;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-attachment: fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -10981,24 +10983,37 @@ nav .pause, .playing .play, .stop {
   background-color: #6c757d;
 }
 
-.home .navbar {
+.home .navbar, .about .navbar {
   display: none;
 }
-.home .modal-backdrop {
+.home .modal-backdrop, .about .modal-backdrop {
   display: block !important;
-  opacity: 0.75;
+  opacity: 0.45;
+  z-index: 0;
 }
-.home .cover {
+.home .cover, .about .cover {
   padding: 0 1.5rem;
   z-index: 2000;
   color: white;
-  margin-top: 20vh;
+  margin-top: 10vh;
 }
-.home .cover .btn-lg, .home .cover .btn-group-lg > .btn {
+.home .cover .btn-lg, .home .cover .btn-group-lg > .btn, .about .cover .btn-lg, .about .cover .btn-group-lg > .btn {
   padding: 0.75rem 1.25rem;
 }
-.home .cover-container {
-  max-width: 42em;
+.home .cover-container, .about .cover-container {
+  max-width: 50em;
+}
+.home .weather .rot, .about .weather .rot {
+  opacity: 0;
+  display: none;
+  transition: all 0.5s;
+}
+.home .weather .in, .about .weather .in {
+  opacity: 1;
+  display: inline-block;
+}
+.home ol li, .about ol li {
+  margin-bottom: 15px;
 }
 
 /*# sourceMappingURL=style.css.map */

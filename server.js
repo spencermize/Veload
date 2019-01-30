@@ -78,8 +78,10 @@ app.route('/logout').get((req, res) => {
 });
 // route for Home-Page
 app.get('/', (req, res) => {
-	console.log("home");
 	res.render('home',{layout: 'default',bodyClass: 'home'});
+});
+app.get('/about',(req, res) => {
+	res.render('about',{layout: 'default',bodyClass: 'about'});
 });
 app.get('/dashboard',sessionChecker, (req, res) => {
 	res.render('dashboard', {layout: 'default', modules: modules});
@@ -195,7 +197,6 @@ function getPhotos(qs,callback,res,pop){
 	const format = 'json';
 	const perpage = 50;
 	const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${api}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&${qs}`;
-	console.log(q);
 	axios.get(q)
 		.then(function(response){
 			var url = "";
@@ -230,7 +231,6 @@ function getPhotos(qs,callback,res,pop){
 		});
 }
 function photosCallback(rs,res){
-	console.log(rs)
 	if(rs.url){
 		const file = _.last(rs.url.split("/"));
 		var path = __dirname + '/backgrounds/';
@@ -341,31 +341,47 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 				});
 			});
 			break;
+	}
+});
+app.get('/api/:action/:sub1?/:sub2?/public',function(req,res,next){
+	switch (req.params.action) {
 		case 'photos' :
-			var q = req.query;
-			var qs = "";
-			if(req.params.sub.indexOf("populate")>-1){
-				getPhotos(qs,photosCallback,res,true);
-			}else if(req.params.sub.indexOf("random")>-1){
-				const path = __dirname + '/backgrounds/bicycles';
-				getRandomPhoto(path,function(err,file){
-					photosCallback({url: file,pop:true},res)
-				});			
-			}else{
-				_.forEach(q,function(val,key){
-					qs += `${key}=${val}&`;
-				});
-				qs = _.trimEnd(qs,"&");
-				getPhotos(qs,photosCallback,res,false);
-			};
+		var q = req.query;
+		var qs = "";
+		if(req.params.sub1.indexOf("populate")>-1){
+			getPhotos(qs,photosCallback,res,true);
+		}else if(req.params.sub1.indexOf("random")>-1){
+			const path = __dirname + '/backgrounds/bicycles';
+			getRandomPhoto(path,function(err,file){
+				photosCallback({url: file,pop:true},res)
+			});			
+		}else{
+			_.forEach(q,function(val,key){
+				qs += `${key}=${val}&`;
+			});
+			qs = _.trimEnd(qs,"&");
+			getPhotos(qs,photosCallback,res,false);
+		};
 
+		break;
+		case 'weather' :
+			var lat = req.params.sub1;
+			var lng = req.params.sub2;
+			console.log(lat);
+			console.log(lng);
+			var api = `https://api.darksky.net/forecast/263159236472d0f073884aa16f6ae34a/${lat},${lng}?exclude=minutely,hourly,daily,alerts,flags`;
+			axios.get(api)
+				.then(function(response){
+					console.log(response);
+					res.json(response.data);
+				});
 			break;
 		default:
 			data = {"status" : "error", "msg":"Sorry, operation unsupported"};
 			res.json(data);
 			break;
 	}
-});
+})
 app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(req,res,next){
 	let strava = res.locals.strava;
 	switch (req.params.action) {

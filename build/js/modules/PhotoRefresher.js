@@ -44,7 +44,7 @@ function updatePhoto(radius){
 		var l = _.last(V.points);
 		url = `${V.opts.urls.remote.photos}?lat=${l.lat}&lon=${l.lng}&radius=${radius}`;
 	}else{
-		url = `${V.opts.urls.remote.photosRandom}`;
+		url = `${V.opts.urls.remote.photosRandom}/public`;
 	}
 	$.get(url, function (data) {
 		var url = data.url;
