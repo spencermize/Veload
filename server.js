@@ -1,6 +1,10 @@
 //command line parameters
 const args = require('yargs').argv;
 
+//get local variables
+const fs = require('fs');
+var config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
+
 //various helpers
 let moment = require('moment');
 let hbs = require('express-hbs');

@@ -1,8 +1,6 @@
 //get local variables
 const fs = require('fs');
 var config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
-global.fs = fs;
-global.config = config;
 
 if(config.env == 'dev'){
   'use strict';
