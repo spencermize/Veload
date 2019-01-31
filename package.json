@@ -4,6 +4,10 @@
   "repository": "https://github.com/spencermize/Veload.git",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "10.x",
+    "npm": "6.4.1"
+  },
   "devDependencies": {
     "moment-locales-webpack-plugin": "^1.0.7",
     "nodemon": "*",
