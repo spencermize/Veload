@@ -23,9 +23,8 @@ Veload.prototype.loadInterface = function(){
 	}
 	$('#modal-container').on('hidden.bs.modal','#modal',function(){
 		console.log("destroying modal");
-		$('#modal').modal('dispose');
+		$('#modal').modal('dispose').removeClass().addClass('modal fade');
 		$('body').removeClass('modal-open');
-		$('.modal-backdrop').remove();
 	});	
 
 	//wait until modules loaded before showing loaded
@@ -71,12 +70,18 @@ Veload.prototype.loadDash = function(){
 	var self = this;
 	self.initVoice();
 	self.poll();
+	self.startPolling();
 	PhotoRefresher();
-	setInterval(function(){self.poll();},3000);
 	self.initGrid();
 	$('[data-toggle="tooltip"]').tooltip();
 }
-
+Veload.prototype.startPolling = function(){
+	var self = this;
+	V.poller = setInterval(function(){self.poll();},3000);
+}
+Veload.prototype.stopPolling = function(){
+	clearInterval(V.poller);
+}
 Veload.prototype.initGrid = function(){
 	var self = this;
 	var margX = 20;

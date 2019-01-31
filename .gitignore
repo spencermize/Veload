@@ -61,8 +61,8 @@ typings/
 .next
 
 
-#strava
-strava_config
+#configs
+config/*
 
 public/img/icons/*
 

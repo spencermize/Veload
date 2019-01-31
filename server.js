@@ -20,6 +20,9 @@ const app = express();
 //communicate with Strave & other APIs
 const axios = require('axios')
 
+//get local variables
+var config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
+
 //get post variables
 var bodyParser = require('body-parser');
 app.use(bodyParser.json({limit: '50mb'})); // support json encoded bodies
@@ -181,7 +184,6 @@ function getRandomPhoto(dir,callback){
 	})
 }
 function getPhotos(qs,callback,res,pop){
-	const api = 'f01b5e40d794a63ebd9b51fd4eb985ab';
 	var tags,sort,text;
 	if(pop){
 		tags = _.join(["ride","bicycle","-car"],",");
@@ -196,7 +198,7 @@ function getPhotos(qs,callback,res,pop){
 	const mode = 'any';
 	const format = 'json';
 	const perpage = 50;
-	const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${api}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&${qs}`;
+	const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${config.flickr}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&${qs}`;
 	axios.get(q)
 		.then(function(response){
 			var url = "";
@@ -369,7 +371,7 @@ app.get('/api/:action/:sub1?/:sub2?/public',function(req,res,next){
 			var lng = req.params.sub2;
 			console.log(lat);
 			console.log(lng);
-			var api = `https://api.darksky.net/forecast/263159236472d0f073884aa16f6ae34a/${lat},${lng}?exclude=minutely,hourly,daily,alerts,flags`;
+			var api = `https://api.darksky.net/forecast/${config.darksky}/${lat},${lng}?exclude=minutely,hourly,daily,alerts,flags`;
 			axios.get(api)
 				.then(function(response){
 					console.log(response);
@@ -434,6 +436,24 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 						res.json(data);
 					});
 					break;
+				case 'circ' :
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {
+						user.circumference = req.query.value;
+						user.save().then(function(user){
+							data = {"status" : "success"}
+							res.json(data);	
+						})
+					});
+					break;
+				case 'url' :
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {
+						user.url = req.query.value;
+						user.save().then(function(user){
+							data = {"status" : "success"}
+							res.json(data);	
+						})
+					});				
+					break;
 				default : 
 					data = {"error":"Sorry, operation unsupported"};
 					res.json(data);	
@@ -452,11 +472,7 @@ function capitalizeFirstLetter(string) {
 function reAuthStrava(req,resp,user){
 	User.findOne({ where: { username: user } }).then(function (user) {
 		console.log("" + user.username + " found...");
-		let strava = require("strava-v3");
-		var configPath = 'config/strava_config';
-		var config = fs.readFileSync(configPath, {encoding: 'utf-8'});
-		config = JSON.parse(config);
-		axios.post(`https://www.strava.com/oauth/token?client_id=${config.client_id}&client_secret=${config.client_secret}&refresh_token=${user.refresh_token}&grant_type=refresh_token`,{}).then((res) =>
+		axios.post(`https://www.strava.com/oauth/token?client_id=${config.strava.client_id}&client_secret=${config.strava.client_secret}&refresh_token=${user.refresh_token}&grant_type=refresh_token`,{}).then((res) =>
 		{
 			user.access_token = res.data.access_token;
 			user.refresh_token = res.data.refresh_token;
@@ -477,8 +493,8 @@ function reAuthStrava(req,resp,user){
 	});
 }
 function dbConnect(){
-	return new Sequelize('veload', 'veload', 'y0OT1*jtd3G1VH$x', {
-		host: '35.224.151.186',
+	return new Sequelize(config.dbtable, config.dbuser, config.dbpass, {
+		host: config.dbhost,
 		dialect: 'mysql',
 		operatorsAliases: false,
 
@@ -497,7 +513,15 @@ function userModel(sequelize){
 		access_token: Sequelize.STRING,
 		refresh_token: Sequelize.STRING,
 		expires_at: Sequelize.DATE,
-		layout: Sequelize.JSON
+		layout: Sequelize.JSON,
+		circumference: {
+			type: Sequelize.FLOAT,
+			defaultValue: 2.120
+		},
+		url: {
+			type: Sequelize.STRING,
+			defaultValue: "http://localhost:3001"
+		}
 	});
 	return User;
 }

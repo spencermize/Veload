@@ -13,10 +13,15 @@ function SettingsPane() {
 		var popts = {
 			title: "Veload Settings",
 			body: comp,
-			accept: false
+			accept: false,
+			modalClass: "veload-settings"
+		}
+		var events = {
+
 		}
 		V.unpop();
-		V.pop(popts);
+		V.pop(popts,events);
+		V.poll();
 		_.forEach(_.difference(data, V.enabledMods), function (el) {
 			$(`[data-name=${el}] .btn-toggle`).removeClass('active');
 		});

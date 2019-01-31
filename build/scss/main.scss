@@ -282,6 +282,11 @@ nav .pause,.playing .play,.stop{
     @include toggle-color($active-bg:$secondary);
   }
 }
+
+.btn.connected{
+	background-color: $primary !important;
+	@extend .btn-primary;
+}
 .home,.about{
 	.navbar{
 		display: none;

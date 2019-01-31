@@ -41,6 +41,7 @@ window.Point = Point;
 
 function Veload(opts) {
 	this.opts = opts;
+	this.status = {};
 	if (!(this instanceof Veload)) return new Veload(opts);
 }
 
@@ -235,11 +236,12 @@ Veload.prototype.error = function (err) {
 Veload.prototype.poll = function () {
 	var self = this;
 	$.getJSON(self.opts.urls.local.stats, function (data) {
-		if (data.status && data.status.length) {
-			self.connected(data);
-		} else {
-			self.notConnected();
-		}
+		self.status = data;
+		$(document).trigger('connectionInfo.veload', data);
+	})
+	.fail(function(){
+		self.status = {};
+		$(document).trigger('connectionInfo.veload');
 	});
 }
 
@@ -310,39 +312,9 @@ Veload.prototype.fullscreen = function (config) {
 	}
 }
 
-Veload.prototype.notConnected = function () {
-	if (!$('.disco').length) {
-		var self = this;
-		var config = {
-			title: 'Error!',
-			body: 'Please check that your sensor is connected in the veload monitor!',
-			accept: true,
-			close: false,
-			acceptText: 'Retry',
-			modalClass: 'disco'
-		}
-		const events = {
-			acceptClick: function () {
-				self.poll()
-			}
-		}
-		this.pop(config, events);
-	}
-},
-	Veload.prototype.connected = function (data) {
-		self.currentConnection = data.status;
-		const config = {
-			status: `veload connected on port ${data.status}`,
-			statusClass: ''
-		}
-		if ($('#modal').hasClass('disco')) {
-			self.unpop();
-		}
-	},
-	Veload.prototype.unpop = function () {
-		$('#modal').modal('hide');
-		$('body').removeClass('loading');
-	}
+Veload.prototype.unpop = function () {
+	$('body').removeClass('loading');
+}
 Veload.prototype.pop = function (cnf = {}, evt = {}) {
 	var self = this;
 	const config = Object.assign({

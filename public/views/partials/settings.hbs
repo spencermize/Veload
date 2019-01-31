@@ -17,21 +17,21 @@
 			</div>
 			<div class="tab-pane fade connection" id="connection">
 				<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
-					<button class="btn btn-lg btn-outline-secondary mr-2" data-toggle="tooltip" data-title="Heart Rate Monitor" disabled><i class="fas fa-heart"></i></button>
-					<button class="btn btn-lg btn-outline-secondary mr-2" data-toggle="tooltip" data-title="Speed Sensor" disabled><i class="fas fa-bicycle"></i></button>
-					<button class="btn btn-lg btn-outline-secondary mr-2" data-toggle="tooltip" data-title="Cadence Sensor" disabled><i class="fas fa-drum"></i></button>
+					<button class="btn btn-lg btn-outline-secondary mr-2" data-sensor="hr" data-toggle="tooltip" data-title="Heart Rate Monitor" disabled><i class="fas fa-heart"></i></button>
+					<button class="btn btn-lg btn-outline-secondary mr-2" data-sensor="speed" data-toggle="tooltip" data-title="Speed Sensor" disabled><i class="fas fa-bicycle"></i></button>
+					<button class="btn btn-lg btn-outline-secondary mr-2" data-sensor="cadence" data-toggle="tooltip" data-title="Cadence Sensor" disabled><i class="fas fa-drum"></i></button>
 				</div>
 				<div class="input-group my-3">
 					<div class="input-group-prepend">
 						<span class="input-group-text">Monitor URL:</span>
 					</div>
-					<input type="text" class="form-control" aria-describedby="basic-addon3" value="http://localhost:3001" data-update="local.circ">
+					<input type="text" class="form-control" data-param="url" data-update="remote.user_url">
 				</div>
 				<div class="input-group my-3">
 					<div class="input-group-prepend">
 						<span class="input-group-text">Wheel Circumference</span>
 					</div>
-					<input type="text" class="form-control" aria-describedby="basic-addon3" value="2.120">
+					<input type="text" class="form-control" data-param="circ" data-update="local.circ">
 				</div>				
 
 			</div>

@@ -23,7 +23,7 @@ function HomePage(){
                     if(v.cloudCover > .5){
                         status.push('cloudy');
                     }
-                    if(v.humidity > .6){
+                    if(v.humidity > .6 && v.temperature > 70){
                         status.push('humid');
                     }
                     if(v.temperature < 45){
