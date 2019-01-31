@@ -22,7 +22,8 @@
     "css:watch": "sass build/scss/main.scss public/css/style.css --watch",
     "css": "npm run css:watch",
     "app:watch": "nodemon app.js",
-    "watch": "start npm run js:watch && start npm run css:watch && start npm run app:watch"
+    "watch": "start npm run js:watch && start npm run css:watch && start npm run app:watch",
+    "start": "node app.js"
   },
   "dependencies": {
     "@ansur/leaflet-pulse-icon": "^0.1.1",
