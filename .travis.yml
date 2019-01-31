@@ -1,0 +1,8 @@
+language: node_js
+deploy:
+  provider: gae
+  keyfile: veload-9badc1235d9e.json
+  project: veload
+before_install:
+- openssl aes-256-cbc -K $encrypted_840f089326ed_key -iv $encrypted_840f089326ed_iv
+  -in veload-9badc1235d9e.json.enc -out veload-9badc1235d9e.json -d
