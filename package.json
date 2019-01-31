@@ -4,6 +4,7 @@
   "repository": "https://github.com/spencermize/Veload.git",
   "version": "0.1.0",
   "private": true,
+  "main": "app.js",
   "engines": {
     "node": "10.15.0",
     "npm": "6.4.1"
