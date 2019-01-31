@@ -14,14 +14,10 @@ require('./config/hbs-helpers.js');
 const express = require('express');
 const compression = require('compression')
 const session = require('express-session');
-const fs = require('fs');
 const app = express();
 
 //communicate with Strave & other APIs
 const axios = require('axios')
-
-//get local variables
-var config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
 
 //get post variables
 var bodyParser = require('body-parser');
