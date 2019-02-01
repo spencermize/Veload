@@ -4,6 +4,7 @@ const configExists = fs.existsSync('config/config.json');
 var config = "";
 if (configExists) {
   config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', { encoding: 'utf-8' }));
+  loadStravaVars(config);
 }
 
 if (config.env == 'development') {
@@ -38,19 +39,21 @@ if (config.env == 'development') {
     .file('config.json')
     .download({ destination: os.tmpdir() + '/config.json' })
     .then(() => {
-      storage
-        .bucket(bucketName)
-        .file('strava_config')
-        .download({ destination: os.tmpdir() + '/strava_config' })
-        .then(() => {
           console.info('config downloaded successfully')
           config = JSON.parse(fs.readFileSync(os.tmpdir() + '/config.json', { encoding: 'utf-8' }));
+          loadStravaVars(config)
           var app = require('./server.js')
-          app.listen(config.productionOps.port, () => console.log(`Veload started on port ${config.productionOps.port}!`))
-        })
+          app.listen(process.env.PORT, () => console.log(`Veload started on port ${process.env.PORT}!`))
     })
     .catch(e => {
       console.log(e);
       console.error(`config download: There was an error: ${JSON.stringify(e, undefined, 2)}`)
     })
+  }
+
+  function loadStravaVars(config){
+    process.env.STRAVA_ACCESS_TOKEN = config.strava.access_token;
+    process.env.STRAVA_CLIENT_ID = config.strava.client_id;
+    process.env.STRAVA_CLIENT_SECRET = config.strava.client_secret;
+    process.env.STRAVA_REDIRECT_URI = config.strava.redirect_uri;
   }

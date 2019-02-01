@@ -17,7 +17,7 @@ let hbs = require('express-hbs');
 let _ = require('lodash');
 const { DownloaderHelper } = require('node-downloader-helper');
 global.hbs = hbs;
-require('./config/hbs-helpers.js');
+require('./build/js/modules/HbsHelpers.js');
 
 //webapp
 const express = require('express');
@@ -507,7 +507,7 @@ function dbConnect(){
 		host: config.dbhost,
 		dialect: 'mysql',
 		operatorsAliases: false,
-
+		logging: config.sqlLogging,
 		pool: {
 		max: 5,
 		min: 0,
