@@ -394,11 +394,11 @@ Veload.prototype.charts = function () {
 		$(document).trigger(`initialized.${name}`);					
 	});
 	$(document).on('clear.veload', function () {
-		var charts = $('[data-chart]');
-		charts.each(function (ind, el) {
-			var v = $(el);
-			v.closest('.grid-item').data('chart');
+		var chart = $('.grid-item:has([data-chart])');
+		chart.each(function(_i,ch){
+			var v = $(ch).data('chart')		
 			v.data.datasets[0].data = [];
+			v.data.datasets[0].pointBackgroundColor = [];
 			v.update();
 		})
 	});

@@ -44,7 +44,6 @@
     "express": "4.16.4",
     "express-hbs": "^2.0.1",
     "express-session": "*",
-    "find-remove": "^1.2.2",
     "font-awesome-assets": "0.0.8",
     "geolib": "*",
     "gps-to-gpx": "^1.4.0",

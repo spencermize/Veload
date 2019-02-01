@@ -21,7 +21,7 @@ function PhotoRefresher() {
 		var c = el.data('color');
 		var col = {r: c[0], g: c[1], b: c[2]}
 		var domCol = new TinyColor(col);
-		var newCol = domCol.lighten(30).desaturate(10).setAlpha(.9);
+		var newCol = domCol.lighten(50).desaturate(20).setAlpha(.9);
 		var darkCol = domCol.darken(50);
 		var readable = mostReadable(newCol,["#fff","#000",domCol,darkCol]).toHexString()
 		$('.card-body,.navbar')
@@ -35,7 +35,7 @@ function PhotoRefresher() {
 			c.options.scales.yAxes[0].gridLines.color = domCol;
 			c.update();
 		})
-		$('.navbar [class*="btn-outline"]').css({'color':readable,'border-color':readable});
+		//$('.navbar [class*="btn-outline"]').css({'color':readable,'border-color':readable});
 	});
 }
 function updatePhoto(radius){

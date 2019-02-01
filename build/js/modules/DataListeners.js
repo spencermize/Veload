@@ -14,9 +14,7 @@ function DataListeners(){
         var fnc = el.data('update');
         var host = fnc.split(".")[0];
         var path = fnc.split(".")[1];
-        console.log(fnc);
         load(el);
-        console.log(V.opts.urls[host][path]);
         if(el.val().length){
             $.post(`${V.opts.urls[host][path]}?value=${el.val()}`,function(data){
                 if(data.status="success"){
@@ -35,9 +33,6 @@ function DataListeners(){
             $(`[data-sensor="${key}"]`).toggleClass('connected',value)
         });
         _.forEach(status,function(value,key){
-            console.log(value);
-            console.log(key)
-            console.log(`[data-param="${key}"]`)
             $(`[data-param="${key}"]:not(:focus)`).val(value);
         });
 

@@ -10,14 +10,12 @@ if(fs.existsSync('config/config.json')){
 }else if(fs.existsSync(os.tmpdir() + '/config.json')){
 	config = JSON.parse(fs.readFileSync(os.tmpdir() + '/config.json', {encoding: 'utf-8'}));
 }
-console.log(config);
 
 //various helpers
 let moment = require('moment');
 let hbs = require('express-hbs');
 let _ = require('lodash');
 const { DownloaderHelper } = require('node-downloader-helper');
-let findRemoveSync = require('find-remove');
 global.hbs = hbs;
 require('./config/hbs-helpers.js');
 
@@ -86,12 +84,6 @@ app.use(session({
 }));
 myStore.sync();
 
-//cleanup old files
-setInterval(function(){
-	findRemoveSync(__dirname + '/temp', {age: {seconds: 360000}});
-	findRemoveSync(__dirname + '/backgrounds', {age: {seconds: 360000000}});
-}, 360000);
-
 // route for user Login
 app.get('/login', sessionChecker,(req, res) => {
 	showLogin(req,res);
@@ -144,7 +136,7 @@ app.get('/icons/:img',function(req,res,next){
 	let fa_name = req.params.img.replace(".svg","");
 	let color = req.query.color || "";
 	img = img.replace(".","_" + color + ".");
-	let path = 'public/img/icons/';	
+	let path = `${os.tmpdir()}/icons/`;	
 	if (!fs.existsSync(path+img)) {
 		console.log("creating new icon...");
 		const fa = require('font-awesome-assets');
@@ -157,13 +149,12 @@ app.get('/icons/:img',function(req,res,next){
 	});
 });
 app.get('/photos/:img',function(req,res){
-	const path = __dirname + '/backgrounds/';
 	try{
 		if(req.params.img.indexOf("jpg")>-1){
-			if(fs.existsSync(path + req.params.img)){
-				res.sendFile(path + req.params.img);
+			if(fs.existsSync(`${os.tmpdir()}/${req.params.img}`)){
+				res.sendFile(`${os.tmpdir()}/${req.params.img}`);
 			}else{
-				res.sendFile(path + 'bicycles/' + req.params.img);
+				res.sendFile(`${__dirname}/public/img/backgrounds/${req.params.img}`);
 			}
 			
 		}else{
@@ -256,9 +247,11 @@ function getPhotos(qs,callback,res,pop){
 function photosCallback(rs,res){
 	if(rs.url){
 		const file = _.last(rs.url.split("/"));
-		var path = __dirname + '/backgrounds/';
+		var path;
 		if(rs.pop){
-			path += 'bicycles/'
+			path = `${__dirname}/public/img/backgrounds/`
+		}else{
+			path = os.tmpdir() + '/backgrounds/';
 		}
 		const full = path + file;
 		const rurl = '/photos/'+ file;
@@ -374,7 +367,7 @@ app.get('/api/:action/:sub1?/:sub2?/public',function(req,res,next){
 		if(req.params.sub1.indexOf("populate")>-1){
 			getPhotos(qs,photosCallback,res,true);
 		}else if(req.params.sub1.indexOf("random")>-1){
-			const path = __dirname + '/backgrounds/bicycles';
+			const path = `${__dirname}/public/img/backgrounds/`;
 			getRandomPhoto(path,function(err,file){
 				photosCallback({url: file,pop:true},res)
 			});			
@@ -390,8 +383,6 @@ app.get('/api/:action/:sub1?/:sub2?/public',function(req,res,next){
 		case 'weather' :
 			var lat = req.params.sub1;
 			var lng = req.params.sub2;
-			console.log(lat);
-			console.log(lng);
 			var api = `https://api.darksky.net/forecast/${config.darksky}/${lat},${lng}?exclude=minutely,hourly,daily,alerts,flags`;
 			axios.get(api)
 				.then(function(response){
@@ -422,13 +413,12 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 					speed: point.speed
 				}))
 			})
-			console.log(points)
 			const gpxData = new GarminBuilder();
 
 			gpxData.setSegmentPoints(pointsMod);
  
 			var rand = Math.floor(Math.random() * Math.floor(99999999));
-			var file = `${__dirname}/temp/gpx${rand}.gpx`;
+			var file = `${os.tmpdir()}/gpx${rand}.gpx`;
 			fs.writeFileSync(file,buildGPX(gpxData.toObject()));
 			strava.uploads.post({
 					access_token: res.locals.token,
@@ -446,7 +436,6 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 			switch(req.params.sub){
 				case 'layout' : 				
 					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						console.log(req.body.layout);
 						user.layout = req.body.layout;
 						user.save().then(function(user){
 							data = {"status" : "success"}
