@@ -10,6 +10,7 @@ before_install:
   -in veload-9badc1235d9e.json.enc -out veload-9badc1235d9e.json -d
 env:
   - CXX=g++-4.8
+cache: npm
 addons:
   apt:
     sources:
