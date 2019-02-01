@@ -314,6 +314,7 @@ Veload.prototype.fullscreen = function (config) {
 
 Veload.prototype.unpop = function () {
 	$('body').removeClass('loading');
+	$('#modal').modal('hide');
 }
 Veload.prototype.pop = function (cnf = {}, evt = {}) {
 	var self = this;

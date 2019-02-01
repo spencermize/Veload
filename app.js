@@ -53,3 +53,4 @@ if (config.env == 'development') {
       console.log(e);
       console.error(`config download: There was an error: ${JSON.stringify(e, undefined, 2)}`)
     })
+  }
