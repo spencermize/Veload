@@ -45,6 +45,7 @@ if (config.env == 'development') {
         .then(() => {
           console.info('config downloaded successfully')
           config = JSON.parse(fs.readFileSync(os.tmpdir() + '/config.json', { encoding: 'utf-8' }));
+          global.config = config;
           var app = require('./server.js')
           app.listen(config.productionOps.port, () => console.log(`Veload started on port ${config.productionOps.port}!`))
         })
