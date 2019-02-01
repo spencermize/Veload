@@ -3,6 +3,7 @@ const args = require('yargs').argv;
 
 //get local variables
 const fs = require('fs');
+const os = require('os');
 var config;
 if(fs.existsSync('config/config.json')){
 	config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
