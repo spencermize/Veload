@@ -1,6 +1,11 @@
 runtime: nodejs10
 
 instance_class: B1
+manual_scaling:
+  instances: 1
 
+handlers:
+- url: /*
+  secure: always
 beta_settings:
   cloud_sql_instances: veload:us-central1:veload=tcp:3306
