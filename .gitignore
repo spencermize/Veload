@@ -68,3 +68,4 @@ public/img/icons/*
 
 temp/*
 backgrounds/*
+!backgrounds/bicycles
