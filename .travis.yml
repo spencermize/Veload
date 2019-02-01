@@ -17,4 +17,4 @@ addons:
     packages:
       - g++-4.8
 after_deploy:
-- script: ./deploy/rollbar.sh $rollbar_key
+- script: bash deploy/rollbar.sh $rollbar_key

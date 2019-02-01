@@ -20,6 +20,20 @@ const compression = require('compression')
 const session = require('express-session');
 const app = express();
 
+
+// include and initialize the rollbar library with your access token
+var Rollbar = require("rollbar");
+var rollbar = new Rollbar({
+  accessToken: config.rollbar,
+  environment: config.env,
+  captureUncaught: true,
+  captureUnhandledRejections: true
+});
+app.use(rollbar.errorHandler());
+
+// record a generic message and send it to Rollbar
+ rollbar.log("veload startup initiated");
+
 //communicate with Strave & other APIs
 const axios = require('axios')
 

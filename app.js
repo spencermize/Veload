@@ -2,7 +2,7 @@
 const fs = require('fs');
 var config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
 
-if(config.env == 'dev'){
+if(config.env == 'development'){
   'use strict';
   require('greenlock-express').create({
     email: config.devOps.email    // The email address of the ACME user / hosting provider
@@ -19,16 +19,6 @@ if(config.env == 'dev'){
   }).listen(config.devOps.http,config.devOps.https);
 }else{
 
-  // include and initialize the rollbar library with your access token
-  var Rollbar = require("rollbar");
-  var rollbar = new Rollbar({
-    accessToken: config.productionOps.rollbar,
-    captureUncaught: true,
-    captureUnhandledRejections: true
-  });
-
-  // record a generic message and send it to Rollbar
-  rollbar.log("veload startup initiated");
   var app = require('./server.js')
   app.listen(config.productionOps.port, () => console.log(`Veload started on port ${config.productionOps.port}!`))
 }
