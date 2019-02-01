@@ -23,10 +23,10 @@ if(config.env == 'development'){
   }).listen(config.devOps.http,config.devOps.https);
 }else{
   // On Google Cloud Platform authentication is handled for us
-  const gcs = require('@google-cloud/storage')()
+  const gcs = require('@google-cloud/storage');
 
-  const bucketName = `envvars.veload.bike`
-  console.log(`Downloading config from bucket envars`)
+  const bucketName = `envvars.veload.bike`;
+  console.log(`Downloading config from bucket envars`);
   gcs
     .bucket(bucketName)
     .file('config.json')
