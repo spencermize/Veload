@@ -28,6 +28,7 @@
   "dependencies": {
     "@ansur/leaflet-pulse-icon": "^0.1.1",
     "@ctrl/tinycolor": "^2.2.1",
+    "@google-cloud/storage": "^2.4.1",
     "@mapbox/leaflet-omnivore": "^0.3.4",
     "annyang": "^2.6.1",
     "axios": "*",
