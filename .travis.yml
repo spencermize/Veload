@@ -1,4 +1,6 @@
 language: node_js
+node_js:
+ - "node"
 deploy:
   provider: gae
   keyfile: veload-9badc1235d9e.json
@@ -6,3 +8,11 @@ deploy:
 before_install:
 - openssl aes-256-cbc -K $encrypted_028b3f96138f_key -iv $encrypted_028b3f96138f_iv
   -in veload-9badc1235d9e.json.enc -out veload-9badc1235d9e.json -d
+env:
+  - CXX=g++-4.8
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
