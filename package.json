@@ -60,6 +60,7 @@
     "npm": "^6.6.0",
     "numeral": "^2.0.6",
     "popper.js": "^1.14.6",
+    "rollbar": "^2.5.2",
     "sequelize": "*",
     "strava-v3": "*",
     "yargs": "*"
