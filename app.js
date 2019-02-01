@@ -24,7 +24,7 @@ if (config.env == 'development') {
 } else {
   // On Google Cloud Platform authentication is handled for us
   const { Storage } = require('@google-cloud/storage');
-
+  const os = require('os');
   const storage = new Storage({
     projectId: 'veload',
   });
@@ -36,15 +36,15 @@ if (config.env == 'development') {
   storage
     .bucket(bucketName)
     .file('config.json')
-    .download({ destination: 'config/config.json' })
+    .download({ destination: os.tmpdir() + '/config.json' })
     .then(() => {
       storage
         .bucket(bucketName)
         .file('strava_config')
-        .download({ destination: 'config/strava_config' })
+        .download({ destination: os.tmpdir() + '/strava_config' })
         .then(() => {
           console.info('config downloaded successfully')
-          config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', { encoding: 'utf-8' }));
+          config = JSON.parse(fs.readFileSync(os.tmpdir() + '/config.json', { encoding: 'utf-8' }));
           var app = require('./server.js')
           app.listen(config.productionOps.port, () => console.log(`Veload started on port ${config.productionOps.port}!`))
         })
