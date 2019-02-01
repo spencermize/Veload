@@ -3,10 +3,12 @@ const args = require('yargs').argv;
 
 //get local variables
 const fs = require('fs');
-if(!config){
-	var config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
+var config;
+if(fs.existsSync('config/config.json')){
+	config = JSON.parse(fs.readFileSync(__dirname + '/config/config.json', {encoding: 'utf-8'}));
+}else if(fs.existsSync(os.tmpdir() + 'config.json')){
+	config = JSON.parse(fs.readFileSync(os.tmpdir() + '/config.json', {encoding: 'utf-8'}));
 }
-
 
 //various helpers
 let moment = require('moment');
