@@ -21,18 +21,25 @@ require('./build/js/modules/HbsHelpers.js');
 //webapp
 const express = require('express');
 const compression = require('compression')
+const responseTime = require('response-time')
 const session = require('express-session');
 const app = express();
 
-// include and initialize the rollbar library with your access token
-var Rollbar = require("rollbar");
-var rollbar = new Rollbar({
-  accessToken: config.rollbar,
-  environment: config.env,
-  captureUncaught: true,
-  captureUnhandledRejections: true
-});
-app.use(rollbar.errorHandler());
+app.use(responseTime());
+
+
+if(config.env !== "development"){
+	// include and initialize the rollbar library with your access token
+	var Rollbar = require("rollbar");
+	var rollbar = new Rollbar({
+		accessToken: config.rollbar,
+		environment: config.env,
+		captureUncaught: true,
+		captureUnhandledRejections: true
+	});	
+	app.use(rollbar.errorHandler());
+}
+
 
 // record a generic message and send it to Rollbar
 if(config.env=="production"){
@@ -69,6 +76,9 @@ app.engine( 'hbs', hbs.express4( {
   layoutsDir: __dirname + '/public/views/layouts/',
   partialsDir: __dirname + '/public/views/partials/',
 }));
+
+const Photos = require(`${__dirname}/build/js/modules/Photos.js`);
+
 console.log("startUp");
 //serve from public folder
 app.use(express.static('public',{index:false}));
@@ -223,7 +233,6 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 						res.json(results);	
 					});
 				}else{
-					console.log(rs);
 					res.send(rs);
 				}
 			});					
@@ -258,34 +267,35 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 			break;
 	}
 });
-app.get('/api/:action/:sub1?/:sub2?/public',function(req,res,next){
+app.get('/api/:action/:sub1?/:sub2?/:sub3?/public',function(req,res){
 	switch (req.params.action) {
 		case 'photos' :
-			const Photos = require(`${__dirname}/build/js/modules/Photos.js`);	
 			if(req.params.sub1.indexOf("random")>-1){
-				const path = `${__dirname}/public/img/backgrounds/`;
-				Photos.getRandomPhoto(path,function(err,file){
-					Photos.photosCallback({url: file,permanent:true},res)
-				});			
+				(async () => {
+					const result = await Photos.randos();
+					const randomFile = result[Math.floor(Math.random() * result.length)];
+					const color = await Photos.colors(randomFile)
+					res.json({url: `/photos/${randomFile}`, color: color})
+				})();
 			}else{
-				var q = req.query;
-				var qs = "";
-				_.forEach(q,function(val,key){
-					qs += `${key}=${val}&`;
-				});
-				qs = _.trimEnd(qs,"&");
-				Photos.getPhotos(qs,Photos.photosCallback,res);
+				(async () => {
+					const photo = await Photos.photos(req.params.sub1,req.params.sub2,req.params.sub3);
+					const filename = _.last(photo.split('/'))
+					const download = await Photos.download(photo);
+					const color = await Photos.colors(filename);
+					res.json({url: `/photos/${filename}`, color: color})
+				})();
 			};
 
 		break;
 		case 'weather' :
-			var lat = req.params.sub1;
-			var lng = req.params.sub2;
-			var api = `https://api.darksky.net/forecast/${config.darksky}/${lat},${lng}?exclude=minutely,hourly,daily,alerts,flags`;
-			axios.get(api)
-				.then(function(response){
-					res.json(response.data);
-				});
+			(async () => {
+				var lat = req.params.sub1;
+				var lng = req.params.sub2;
+				var api = `https://api.darksky.net/forecast/${config.darksky}/${lat},${lng}?exclude=minutely,hourly,daily,alerts,flags`;
+				var response = await axios(api);
+				res.json(response.data);
+			})()
 			break;
 		default:
 			data = {"status" : "error", "msg":"Sorry, operation unsupported"};
@@ -382,6 +392,7 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 			break;
 	}
 });
+
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }

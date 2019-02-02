@@ -1,19 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-var Photos = {
-    getRandomPhoto: function(dir,callback){
-        fs.readdir(dir, (err, files) => {
-            if (err) return callback(err);
-            if (!files.length) {
-                // callback with an empty string to indicate there are no files
-                return callback(null, undefined);
-            }
-            const randomIndex = Math.floor(Math.random() * files.length);
-            const file = files[randomIndex]
-            return callback(null, file);
-        })
+const fs = require('fs').promises;
+const os = require('os');
+
+var PhotosUncached = {
+    getRandomPhotoList: async function(){
+        var photosDir = `${appRoot}/public/img/backgrounds/`;
+        return await fs.readdir(photosDir)
     },
-    getPhotos: function(qs,callback,res){
+    getPhotos: async function(lat,lon,rad){
         const axios = require('axios');
         var tags = ["beautiful","sunset","sunrise","architecture","landscape","building","outdoors","trail","travel","-car"].join(",");
         var sort = 'relevance';
@@ -21,81 +14,67 @@ var Photos = {
         const mode = 'any';
         const format = 'json';
         const perpage = 50;
-        const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${config.flickr}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&${qs}`;
-        axios.get(q)
-            .then(function(response){
-                var url = "";
-                var data = response.data
-                try{
-                    if (data.photos.total > 0) {
-                        var attempts = 0;
-                        while (!url && attempts < (data.photos.photo.length)) {
-                            const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length - 1))];
-                            url = p.url_k ? p.url_k : p.url_h;
-                            attempts++;
-                        }
-                        if (url) {
-                            callback({'url':url,'permanent':false},res);
-                        }
-                    } else {
-                        console.log('no results');
-                        callback(response,res);
-                    }
-                }catch(error){
-                    console.log(error);
-                    if(error){
-                        throw response.data;
-                    }else{
-                        throw {"error": "unknown"};
-                    }
-                    
-                }
-            })
-            .catch(function(error){
-                callback(error);
-            });
-    },
-    photosCallback: function(rs,res){
-        try{
-            if(rs.url){
-                const file = rs.url.split("/")[rs.url.split("/").length-1];
-                var p;
-                if(rs.permanent){
-                    p = `${appRoot}/public/img/backgrounds/`;
-                }else{
-                    p = os.tmpdir() + '/backgrounds/';
-                }
-                const full = p + file;
-                const rurl = '/photos/'+ file;
-                const { getColorFromURL } = require('color-thief-node');
-
-                if(fs.existsSync(full)){
-                    console.log(full)
-                    getColorFromURL(full).then(function(color){
-                        res.json({url: rurl,color:color});
-                    });
-                }else{
-                    const { DownloaderHelper } = require('node-downloader-helper');
-                    const dl = new DownloaderHelper(rs.url, p);
-                    dl.on('start',function(){
-                        console.log('starting ' + rs.url);
-                    }).on('end',function(){
-                        getColorFromURL(full).then(function(color){
-                            res.json({url: rurl,color:color});
-                        });
-                    }).on('error',function(error){
-                        console.log('uh oh');
-                        res.json(error)	
-                    });
-
-                    dl.start();
-                }
-            }else{
-                res.json(rs)
+        const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${config.flickr}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&lat=${lat}&lon=${lon}&radius=${rad}`;
+        var response = await axios(q);
+        var url = "";
+        var data = response.data
+        if (data.photos.total > 0) {
+            var attempts = 0;
+            while (!url && attempts < (data.photos.photo.length)) {
+                const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length - 1))];
+                url = p.url_k ? p.url_k : p.url_h;
+                attempts++;
             }
-        }catch(err){
-            res.json(err);
+            if (url) {
+                return await url
+            }
+        } else {
+            console.log('no results');
+            return error
         }
+    },
+    downloadPhoto : async function(photo){
+        const { DownloaderHelper } = require('node-downloader-helper');
+        try{
+            await fs.mkdir(`${os.tmpdir()}/backgrounds/`);
+        }catch(e){
+            //directory exists
+        }
+        const dl = new DownloaderHelper(photo, `${os.tmpdir()}/backgrounds/`);
+        return new Promise(function(resolve,reject){
+            dl.on('start',function(){
+                console.log('starting ' + photo);
+            }).on('end',function(){
+                resolve(`${os.tmpdir()}/backgrounds/`)
+            }).on('error',function(error){
+                console.log('uh oh');
+                reject(error);
+            });
+
+            dl.start();
+        }).then(async function(path){
+            console.log("file downlaoded")
+            return await path;
+        })
+    },
+    getPhotoColors: async function(file){
+        const { getColorFromURL } = require('color-thief-node');
+        try{
+            await fs.access(`${appRoot}/public/img/backgrounds/${file}`)
+            return await getColorFromURL(`${appRoot}/public/img/backgrounds/${file}`);
+        }catch(e){
+            console.log("checking colors")
+            return await getColorFromURL(`${os.tmpdir()}/backgrounds/${file}`)
+        }
+
     }
 }
+const mem = require('mem');
+Photos = {
+    colors : mem(PhotosUncached.getPhotoColors),
+    randos : mem(PhotosUncached.getRandomPhotoList),
+    photos : PhotosUncached.getPhotos,
+    download : mem(PhotosUncached.downloadPhoto)
+}
+
 module.exports = Photos;
