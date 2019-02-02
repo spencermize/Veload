@@ -1,3 +1,7 @@
+//set a global (:-() to determine app root
+var path = require('path');
+global.appRoot = path.resolve(__dirname);
+
 //get local variables
 const fs = require('fs');
 const configExists = fs.existsSync('config/config.json');

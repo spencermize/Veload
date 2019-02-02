@@ -1,7 +1,7 @@
 @import "variables";
 @import "ani";
 @import "grid";
-@import "../../node_modules/chartist/dist/scss/chartist.scss";
+
 html {
     overflow: scroll;
 	overflow: -moz-scrollbars-none;
@@ -157,12 +157,16 @@ nav .pause,.playing .play,.stop{
 		margin-top: 5px;
 		z-index: 5;
 	}
+	.card-body{
+		background-color: transparent !important;
+	}
 	.map{
 		position: absolute !important;
 		top: 0;
 		left: 0;
 		bottom: 0;
 		right: 0;
+		opacity: .9;
 		z-index:0;
 	}
 	.leaflet-pulsing-icon {
@@ -210,13 +214,17 @@ nav .pause,.playing .play,.stop{
 .chart-container{
 	position: relative;
 }
-
+.card-header{
+	background: rgba(255,255,255,0.75);
+}
+.card-body{
+	background-color: rgba(255,255,255,0.95);	
+}
 .grid{
 	.card{
 		height: 100%;
 		.card-header{
 			cursor: move;
-			background: rgba(255,255,255,0.75);
 			transition: all .5s;
 			height: 0;
 			padding: 0;
@@ -226,7 +234,6 @@ nav .pause,.playing .play,.stop{
 			text-shadow: 0.05em 0 $secondary, 0 0.05em $secondary, -0.05em 0 $secondary, 0 -0.05em $secondary, -0.05em -0.05em $secondary, -0.05em 0.05em $secondary, 0.05em -0.05em $secondary, 0.05em 0.05em $secondary
 		}
 		.card-body{
-			background-color: rgba(255,255,255,0.95);			
 			transition: all .5s;
 			border-bottom: 0;
 			overflow: hidden;
@@ -287,7 +294,7 @@ nav .pause,.playing .play,.stop{
 	background-color: $primary !important;
 	@extend .btn-primary;
 }
-.home,.about{
+.over{
 	.navbar{
 		display: none;
 	}

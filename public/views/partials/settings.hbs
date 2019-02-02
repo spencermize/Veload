@@ -8,14 +8,7 @@
 			\{{/each}}
 		</ul>
 		<div class="tab-content m-3">
-			<div class="tab-pane fade visibility show active" id="visibility">
-				\{{#each allMods as |value|}}
-					<div class="row" data-name='\{{value.[0]}}' data-cmd='moduleToggle'>
-						<div class="col-lg-5">\{{value.[1]}}</div><div class="col-lg-3">{{> toggle }}</div>
-					</div>
-				\{{/each}}
-			</div>
-			<div class="tab-pane fade connection" id="connection">
+			<div class="tab-pane fade connection show active" id="connection">
 				<div class="btn-toolbar d-flex justify-content-center" role="toolbar" aria-label="Toolbar with button groups">
 					<button class="btn btn-lg btn-outline-secondary mr-2" data-sensor="hr" data-toggle="tooltip" data-title="Heart Rate Monitor" disabled><i class="fas fa-heart"></i></button>
 					<button class="btn btn-lg btn-outline-secondary mr-2" data-sensor="speed" data-toggle="tooltip" data-title="Speed Sensor" disabled><i class="fas fa-bicycle"></i></button>
@@ -33,8 +26,18 @@
 					</div>
 					<input type="text" class="form-control" data-param="circ" data-update="local.circ">
 				</div>				
-
+				<select class="form-control" data-param="units" data-update="remote.user_units">
+					<option>Miles</option>
+					<option>Kilometers</option>
+				</select>
 			</div>
+			<div class="tab-pane fade visibility" id="visibility">
+				\{{#each allMods as |value|}}
+					<div class="row" data-name='\{{value.[0]}}' data-cmd='moduleToggle'>
+						<div class="col-lg-5">\{{value.[1]}}</div><div class="col-lg-3">{{> toggle }}</div>
+					</div>
+				\{{/each}}
+			</div>			
 		</div>
 	</div>
 </script>

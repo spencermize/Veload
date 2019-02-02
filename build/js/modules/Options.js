@@ -1,12 +1,12 @@
 var places = {
     local : {
         url : "http://localhost:3001",
-        endpoints: ["status", "stats", "circ"],
+        endpoints: [ "stats", "circ"],
         combined: []
     },
     remote : {
         url : "/api",
-        endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities", "user_layout", "user_modules","user_circ","user_url","photos","photos_random","weather"],
+        endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities", "user_layout", "user_modules","user_circ","user_url","user_units","photos","photos_random","weather"],
         combined: []
     }
 }

@@ -15,7 +15,6 @@ if(fs.existsSync('config/config.json')){
 let moment = require('moment');
 let hbs = require('express-hbs');
 let _ = require('lodash');
-const { DownloaderHelper } = require('node-downloader-helper');
 global.hbs = hbs;
 require('./build/js/modules/HbsHelpers.js');
 
@@ -24,7 +23,6 @@ const express = require('express');
 const compression = require('compression')
 const session = require('express-session');
 const app = express();
-
 
 // include and initialize the rollbar library with your access token
 var Rollbar = require("rollbar");
@@ -37,7 +35,9 @@ var rollbar = new Rollbar({
 app.use(rollbar.errorHandler());
 
 // record a generic message and send it to Rollbar
- rollbar.log("veload startup initiated");
+if(config.env=="production"){
+	rollbar.log("veload startup initiated");
+}
 
 //communicate with Strave & other APIs
 const axios = require('axios')
@@ -94,14 +94,17 @@ app.route('/logout').get((req, res) => {
 });
 // route for Home-Page
 app.get('/', (req, res) => {
-	res.render('home',{layout: 'default',bodyClass: 'home'});
+	res.render('home',{layout: 'default',bodyClass: 'home over'});
 });
-app.get('/about',(req, res) => {
-	res.render('about',{layout: 'default',bodyClass: 'about'});
+app.get('/static/:page',(req, res) => {
+	res.render(req.params.page,{layout: 'default',bodyClass: `${req.params.page} over`});
 });
 app.get('/dashboard',sessionChecker, (req, res) => {
 	res.render('dashboard', {layout: 'default', modules: modules});
 });	
+app.get('/chargbee',(req,resp,next) => {
+	console.log(req.query.sub_id);
+})
 app.get('/strava',(req, resp, next) => {
 	let code = req.query.code;
 	let strava = require('strava-v3');
@@ -165,120 +168,6 @@ app.get('/photos/:img',function(req,res){
 	}
 
 });
-
-function getRandomPhoto(dir,callback){
-	const path = require('path');
-	const fs = require('fs');
-
-	fs.readdir(dir, (err, files) => {
-		if (err) return callback(err);
-
-		function checkRandom () {
-			if (!files.length) {
-				// callback with an empty string to indicate there are no files
-				return callback(null, undefined);
-			}
-			const randomIndex = Math.floor(Math.random() * files.length);
-			const file = files[randomIndex]
-			fs.stat(path.join(dir, file), (err, stats) => {
-				if (err) return callback(err);
-				if (stats.isFile()) {
-					return callback(null, file);
-				}
-				// remove this file from the array because for some reason it's not a file
-				files.splice(randomIndex, 1);
-
-				// try another random one
-				checkRandom();
-			})
-		}
-		checkRandom();
-	})
-}
-function getPhotos(qs,callback,res,pop){
-	var tags,sort,text;
-	if(pop){
-		tags = _.join(["ride","bicycle","-car"],",");
-		sort = 'interestingness-desc';
-		text = 'solo+bike+ride';
-		
-	}else{
-		tags = _.join(["beautiful","sunset","sunrise","architecture","landscape","building","outdoors","trail","travel","-car"],",");
-		sort = 'relevance';
-		text = '';
-	}
-	const mode = 'any';
-	const format = 'json';
-	const perpage = 50;
-	const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${config.flickr}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&${qs}`;
-	axios.get(q)
-		.then(function(response){
-			var url = "";
-			var data = response.data
-			try{
-				if (data.photos.total > 0) {
-					var attempts = 0;
-					while (!url && attempts < (data.photos.photo.length)) {
-						const p = data.photos.photo[Math.floor(Math.random() * (data.photos.photo.length - 1))];
-						url = p.url_k ? p.url_k : p.url_h;
-						attempts++;
-					}
-					if (url) {
-						callback({'url':url,'pop':pop},res);
-					}
-				} else {
-					console.log('no results');
-					callback(response,res);
-				}
-			}catch(error){
-				console.log(error);
-				if(error){
-					throw response.data;
-				}else{
-					throw {"error": "unknown"};
-				}
-				
-			}
-		})
-		.catch(function(error){
-			callback(error);
-		});
-}
-function photosCallback(rs,res){
-	if(rs.url){
-		const file = _.last(rs.url.split("/"));
-		var path;
-		if(rs.pop){
-			path = `${__dirname}/public/img/backgrounds/`
-		}else{
-			path = os.tmpdir() + '/backgrounds/';
-		}
-		const full = path + file;
-		const rurl = '/photos/'+ file;
-		const { getColorFromURL } = require('color-thief-node');
-		if(fs.existsSync(full)){
-			getColorFromURL(full).then(function(color){
-				res.json({url: rurl,color:color});
-			});
-		}else{
-			const dl = new DownloaderHelper(rs.url, path);
-			dl.on('start',function(){
-				console.log('starting ' + rs.url);
-			}).on('end',function(){
-				getColorFromURL(full).then(function(color){
-					res.json({url: rurl,color:color});
-				});
-			}).on('error',function(error){
-				console.log('uh oh');
-				res.json(error)	
-			});
-
-			dl.start();
-		}
-	}else{
-		res.json(rs)
-	}
-}
 app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava], function(req,res,next){
 	let data = "";
 	let strava = res.locals.strava;
@@ -297,6 +186,16 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 				case 'modules':
 					res.json(modules);
 					break;
+				case 'units':
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {
+						res.json({"unit":user.unit});
+					});
+					break;
+				case 'circ':
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {
+						res.json({"circ":user.circumference});
+					});
+					break;				
 			}
 			break;
 		case 'athlete':
@@ -362,22 +261,21 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 app.get('/api/:action/:sub1?/:sub2?/public',function(req,res,next){
 	switch (req.params.action) {
 		case 'photos' :
-		var q = req.query;
-		var qs = "";
-		if(req.params.sub1.indexOf("populate")>-1){
-			getPhotos(qs,photosCallback,res,true);
-		}else if(req.params.sub1.indexOf("random")>-1){
-			const path = `${__dirname}/public/img/backgrounds/`;
-			getRandomPhoto(path,function(err,file){
-				photosCallback({url: file,pop:true},res)
-			});			
-		}else{
-			_.forEach(q,function(val,key){
-				qs += `${key}=${val}&`;
-			});
-			qs = _.trimEnd(qs,"&");
-			getPhotos(qs,photosCallback,res,false);
-		};
+			const Photos = require(`${__dirname}/build/js/modules/Photos.js`);	
+			if(req.params.sub1.indexOf("random")>-1){
+				const path = `${__dirname}/public/img/backgrounds/`;
+				Photos.getRandomPhoto(path,function(err,file){
+					Photos.photosCallback({url: file,permanent:true},res)
+				});			
+			}else{
+				var q = req.query;
+				var qs = "";
+				_.forEach(q,function(val,key){
+					qs += `${key}=${val}&`;
+				});
+				qs = _.trimEnd(qs,"&");
+				Photos.getPhotos(qs,Photos.photosCallback,res);
+			};
 
 		break;
 		case 'weather' :
@@ -386,7 +284,6 @@ app.get('/api/:action/:sub1?/:sub2?/public',function(req,res,next){
 			var api = `https://api.darksky.net/forecast/${config.darksky}/${lat},${lng}?exclude=minutely,hourly,daily,alerts,flags`;
 			axios.get(api)
 				.then(function(response){
-					console.log(response);
 					res.json(response.data);
 				});
 			break;
@@ -464,6 +361,15 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 						})
 					});				
 					break;
+				case 'units' :
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {
+						user.units = req.query.value;
+						user.save().then(function(user){
+							data = {"status" : "success"}
+							res.json(data);	
+						})
+					});
+					break;
 				default : 
 					data = {"error":"Sorry, operation unsupported"};
 					res.json(data);	
@@ -524,6 +430,10 @@ function userModel(sequelize){
 		refresh_token: Sequelize.STRING,
 		expires_at: Sequelize.DATE,
 		layout: Sequelize.JSON,
+		units: {
+			type: Sequelize.ENUM("miles","kilometers"),
+			defaultValue: "miles",
+		},
 		circumference: {
 			type: Sequelize.FLOAT,
 			defaultValue: 2.120
@@ -546,7 +456,7 @@ function getStrava(req,res,next){
 function showLogin(req,res){
 	let strava = require("strava-v3");
 	let url = strava.oauth.getRequestAccessURL({scope:"activity:write,read,read_all,activity:read_all"});
-	res.render('login', {layout: 'default', url: url});
+	res.render('login', {layout: 'default', url: url,bodyClass: 'login over'});
 }
 function init(sequelize,reset,alter=true){
 	sequelize.sync({ force: reset, alter: alter }).then(function(err) {

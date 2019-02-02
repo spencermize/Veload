@@ -12,7 +12,7 @@ function PhotoRefresher() {
 	$(document).on("start.veload",function(){
 		var radius = 1;
 		i = setInterval(function () {
-;			radius = updatePhoto(radius);
+			radius = updatePhoto(radius);
 		}, 15000);
 
 	})

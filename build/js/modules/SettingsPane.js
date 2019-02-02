@@ -5,7 +5,7 @@ function SettingsPane() {
 		var opts = {
 			enabledMods: _.map(V.enabledMods, function (e) { return [e, _.startCase(e)] }),
 			allMods: _.map(data, function (e) { return [e, _.startCase(e)] }),
-			links: ["visibility", "connection"]
+			links: ["connection","visibility"]
 		}
 		//console.log(opts);
 		var comp = Handlebars.compile(src);

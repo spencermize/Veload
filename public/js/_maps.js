@@ -21,9 +21,10 @@ V.createMap = function(){
 		center: [51.505, -0.09],
 		attributionControl: false
 	}));	
-	L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
+	/*L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
 
-	}).addTo(V.getMap());	
+	}).addTo(V.getMap());	*/
+	L.tileLayer.provider('CartoDB.Positron').addTo(V.getMap());
 }
 
 V.updateMap = function(){

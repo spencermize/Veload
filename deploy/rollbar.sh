@@ -1,4 +1,4 @@
-ACCESS_TOKEN=$rollbar_key
+ACCESS_TOKEN=$1
 ENVIRONMENT=production
 LOCAL_USERNAME=`whoami`
 REVISION=`git rev-parse --verify HEAD`

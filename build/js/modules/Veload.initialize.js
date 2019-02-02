@@ -69,19 +69,13 @@ Veload.prototype.loadProfile = function(){
 Veload.prototype.loadDash = function(){
 	var self = this;
 	self.initVoice();
-	self.poll();
-	self.startPolling();
+	V.poller.poll();
+	V.poller.startPolling(3000);
 	PhotoRefresher();
 	self.initGrid();
 	$('[data-toggle="tooltip"]').tooltip();
 }
-Veload.prototype.startPolling = function(){
-	var self = this;
-	V.poller = setInterval(function(){self.poll();},3000);
-}
-Veload.prototype.stopPolling = function(){
-	clearInterval(V.poller);
-}
+
 Veload.prototype.initGrid = function(){
 	var self = this;
 	var margX = 20;

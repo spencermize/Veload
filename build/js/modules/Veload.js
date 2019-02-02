@@ -14,6 +14,7 @@ import numeral from 'numeral';
 import List from 'list.js';
 import omni from '@mapbox/leaflet-omnivore';
 import ico from '@ansur/leaflet-pulse-icon';
+import '../../../node_modules/leaflet-providers/leaflet-providers.js';
 import geolib from 'geolib';
 import Timer from 'easytimer.js';
 import {Point} from './Point.js';
@@ -136,7 +137,6 @@ Veload.prototype.start = function () {
 		$('body').addClass('playing stoppable');
 		$('body').removeClass('paused');
 		self.timer.start();
-		self.refresher = self.startUpdating();
 		$(document).trigger("start.veload");
 	}else{
 		V.pickTrackGUI();
@@ -148,7 +148,6 @@ Veload.prototype.pause = function () {
 	$('body').removeClass('playing');
 	$('body').addClass('paused');
 	self.timer.pause();
-	clearInterval(self.refresher);
 	$(document).trigger("pause.veload");
 }
 Veload.prototype.stop = function () {
@@ -230,80 +229,6 @@ Veload.prototype.error = function (err) {
 	console.log(err);
 	this.unpop();
 	this.pop(config);
-}
-
-
-Veload.prototype.poll = function () {
-	var self = this;
-	$.getJSON(self.opts.urls.local.stats, function (data) {
-		self.status = data;
-		$(document).trigger('connectionInfo.veload', data);
-	})
-	.fail(function(){
-		self.status = {};
-		$(document).trigger('connectionInfo.veload');
-	});
-}
-
-Veload.prototype.startUpdating = function () {
-	self = this;
-	var hrCount = 0;
-	return setInterval(function () {
-		if (self.currentConnection) {
-			$.getJSON(self.opts.urls.local.stats, function (data) {
-				//expect meters/second
-				var metSpeed = new Number(data.speed);
-
-				// m/s -> mph
-				var speed = metSpeed * 2.23694;
-
-				// speed point * (time since last update -> seconds)
-				var last = _.last(self.points)
-				var distance = metSpeed * (moment().diff(moment(last.time)) / 1000);
-				console.log("traveled " + distance);
-				if (distance && self.rTrail.length) {
-					while (distance > self.rTrail[0].distance) {
-						console.log("Change up!");
-						//change direction
-						//first, just bump us to the next waypoint
-						self.points.push(new Point(self.rTrail[1].latlng.lat, self.rTrail[1].latlng.lng));
-						//then, set the distance remaining after we get to the new waypoint
-						distance = distance - self.rTrail[0].distance;
-						//then, ditch the old waypoint
-						self.rTrail.shift();
-					}
-
-					self.rTrail[0].distance = self.rTrail[0].distance - distance;
-					console.log(self.rTrail[0].distance + " remaining until waypoint");
-					var newLoc = geolib.computeDestinationPoint(last, distance, self.rTrail[0].bearing);
-					var last5Cad = 0;
-					var last5Speed = 0;
-					var last5Hr = 0;
-					var right = _.takeRight(self.points, 5)
-					_.forEach(right, function (point) {
-						last5Cad += point.cad;
-						last5Speed += point.speed;
-						last5Hr += point.hr;
-					});
-					var cad = (last5Cad + data.cadence) / (right.length + 1);
-					var sp = (last5Speed + speed) / (right.length + 1);
-					var hr = (last5Hr + data.hr) / (right.length + 1);
-					var point = new Point(newLoc.latitude, newLoc.longitude, moment().format(), hr, cad, sp);
-					console.log(point);
-					self.points.push(point);
-				} else {
-					if (self.points.length) {
-						self.points.push(new Point(_.last(self.points).lat, _.last(self.points).lng, moment().format(), _.last(self.points).hr, 0, 0));
-					}
-				}
-				$(document).trigger('locationUpdated.veload');
-				if (hrCount % 15 == 0) {
-					$(document).trigger('hrUpdated.veload');
-				}
-				hrCount++;
-			})
-		}
-	}, self.opts.UPDATEFREQ);
 }
 
 Veload.prototype.fullscreen = function (config) {

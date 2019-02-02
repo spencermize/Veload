@@ -12,6 +12,7 @@ import {Options} from './modules/Options.js';
 import {Veload} from './modules/Veload.js';
 import {HomePage} from './modules/HomePage.js';
 import HandlebarsHelpers from './modules/HandlebarsHelpers.js';
+import {LocalPoller} from './modules/LocalPoller.js';
 import {updatePhoto} from './modules/PhotoRefresher.js';
 import {SettingsPane} from './modules/SettingsPane.js';
 import {ConnectionStatus} from './modules/ConnectionStatus.js';
@@ -23,7 +24,8 @@ window.Veload = Veload;
 $(function(){
 	var V = new Veload(Options);	
 	window.V = V;	
-
+	V.poller = LocalPoller;
+	V.poller.handleEvents();
 	require('./modules/Veload.initialize.js');
 
 	updatePhoto();

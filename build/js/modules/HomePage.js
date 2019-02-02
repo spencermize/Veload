@@ -47,7 +47,6 @@ function HomePage(){
                     setInterval(function(){
                         $(`.rot.in`).removeClass('in');
                         var num = loc % $('.rot').length + 1;
-                        console.log(num);
                         $(`.rot:nth-of-type(${num})`).addClass('in');
                         loc++;
                     },1000);            
