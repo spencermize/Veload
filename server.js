@@ -10,7 +10,7 @@ if(fs.existsSync('config/config.json')){
 }else if(fs.existsSync(os.tmpdir() + '/config.json')){
 	config = JSON.parse(fs.readFileSync(os.tmpdir() + '/config.json', {encoding: 'utf-8'}));
 }
-
+global.config = config;
 //various helpers
 let moment = require('moment');
 let hbs = require('express-hbs');

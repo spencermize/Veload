@@ -63,6 +63,7 @@
     "popper.js": "^1.14.6",
     "rollbar": "^2.5.2",
     "sequelize": "*",
+    "spdy": "^4.0.0",
     "strava-v3": "*",
     "yargs": "*"
   }

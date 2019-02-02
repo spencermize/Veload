@@ -1,31 +1,16 @@
-const { DownloaderHelper } = require('node-downloader-helper');
 const fs = require('fs');
 const path = require('path');
 var Photos = {
     getRandomPhoto: function(dir,callback){
         fs.readdir(dir, (err, files) => {
             if (err) return callback(err);
-
-            function checkRandom () {
-                if (!files.length) {
-                    // callback with an empty string to indicate there are no files
-                    return callback(null, undefined);
-                }
-                const randomIndex = Math.floor(Math.random() * files.length);
-                const file = files[randomIndex]
-                fs.stat(path.join(dir, file), (err, stats) => {
-                    if (err) return callback(err);
-                    if (stats.isFile()) {
-                        return callback(null, file);
-                    }
-                    // remove this file from the array because for some reason it's not a file
-                    files.splice(randomIndex, 1);
-
-                    // try another random one
-                    checkRandom();
-                })
+            if (!files.length) {
+                // callback with an empty string to indicate there are no files
+                return callback(null, undefined);
             }
-            checkRandom();
+            const randomIndex = Math.floor(Math.random() * files.length);
+            const file = files[randomIndex]
+            return callback(null, file);
         })
     },
     getPhotos: function(qs,callback,res){
@@ -90,6 +75,7 @@ var Photos = {
                         res.json({url: rurl,color:color});
                     });
                 }else{
+                    const { DownloaderHelper } = require('node-downloader-helper');
                     const dl = new DownloaderHelper(rs.url, p);
                     dl.on('start',function(){
                         console.log('starting ' + rs.url);

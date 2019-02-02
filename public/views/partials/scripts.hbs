@@ -1,2 +1,14 @@
   <script src="https://js.chargebee.com/v2/chargebee.js" data-cb-site="veload-test" ></script>
   <script src="/js/main.js"></script>
+
+{{#if (production)}}
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-133719576-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-133719576-1');
+</script>
+{{/if}}

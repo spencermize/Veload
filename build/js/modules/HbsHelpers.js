@@ -38,3 +38,11 @@ hbs.registerHelper('startCase',function(name){
 	var _ = require('lodash');
 	return _.startCase(name);
 })
+
+hbs.registerHelper('production',function(){
+	if(config.env=="development"){
+		return false;
+	}else{
+		return true;
+	}
+})
