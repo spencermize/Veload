@@ -74,8 +74,10 @@ if (config.env == 'development') {
           config = JSON.parse(fs.readFileSync(os.tmpdir() + '/config.json', { encoding: 'utf-8' }));
           loadStravaVars(config)
           var app = require('./server.js')
-          spdy.createServer({},app)
-          .listen(process.env.PORT, () => console.log(`Veload started on port ${process.env.PORT}!`))
+          //is this crashing GAE?
+          //spdy.createServer({},app).listen(process.env.PORT, () => console.log(`Veload started on port ${process.env.PORT}!`))
+
+          app.listen(process.env.PORT, () => console.log(`Veload started on port ${process.env.PORT}!`))
     })
     .catch(e => {
       console.log(e);
