@@ -13,16 +13,24 @@
     "moment-locales-webpack-plugin": "^1.0.7",
     "nodemon": "*",
     "sass": "^1.16.1",
+    "source-map-loader": "^0.2.4",
+    "terser-webpack-plugin": "^1.2.1",
+    "uglifyjs-webpack-plugin": "^2.1.1",
     "webpack": "^4.29.0",
     "webpack-bundle-analyzer": "^3.0.3",
     "webpack-cli": "^3.2.1"
   },
   "scripts": {
-    "js:watch": "webpack -d --info-verbosity verbose",
-    "css:watch": "sass build/scss/main.scss public/css/style.css --watch",
+    "dev": "set NODE_ENV=development",
+    "prod": "set NODE_ENV=production",
+    "js:watch": "webpack -d --info-verbosity verbose -w",
+    "js:build": "webpack -d --info-verbosity verbose",
+    "css:watch": "sass srce/scss/main.scss public/css/style.css --watch",
+    "css:build": "sass src/scss/main.scss public/css/style.css --no-source-map --style=compressed",
     "css": "npm run css:watch",
     "app:watch": "nodemon app.js",
-    "watch": "start npm run js:watch && start npm run css:watch && start npm run app:watch",
+    "watch": "npm run dev && start npm run js:watch && start npm run css:watch && start npm run app:watch",
+    "build": "npm run prod && npm run js:build && npm run css:build",
     "start": "node app.js"
   },
   "dependencies": {

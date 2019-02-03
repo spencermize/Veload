@@ -16,7 +16,7 @@ let moment = require('moment');
 let hbs = require('express-hbs');
 let _ = require('lodash');
 global.hbs = hbs;
-require('./build/js/modules/HbsHelpers.js');
+require('./src/js/modules/HbsHelpers.js');
 
 //webapp
 const express = require('express');
@@ -77,7 +77,7 @@ app.engine( 'hbs', hbs.express4( {
   partialsDir: __dirname + '/public/views/partials/',
 }));
 
-const Photos = require(`${__dirname}/build/js/modules/Photos.js`);
+const Photos = require(`${__dirname}/src/js/modules/Photos.js`);
 
 console.log("startUp");
 //serve from public folder

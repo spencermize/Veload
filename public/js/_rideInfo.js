@@ -11,21 +11,25 @@ V.rideRoller = function(){
   $(document).on('locationUpdated.veload', function () {
     if (self.points.length) {
       var point = _.last(V.points);
-      $("#currSpeed").html(numeral(point.speed).format(V.MPHFORM) + "<br /> mph");
-      $("#currCadence").html(numeral(point.cad).format(V.MPHFORM));
-      $("#distance").html(numeral(V.getDistance("miles")).format(V.MPHFORM) + "<br /> miles");
-      $("#avgSpeed").html(numeral(V.getAvg("miles")).format(V.MPHFORM) + "<br /> mph");
-      $("#hr").text(point.hr);
+      var per = V.user.units == "miles" ? "mph" : "kph";
+      $(".active #currSpeed").html(`${numeral(point.speed).format(V.NUMFORM)}<br /> ${per}`);
+      $(".active #currCadence").html(numeral(point.cad).format(V.NUMFORM));
+      $(".active #distance").html(`${numeral(V.getDistance(V.user.units)).format(V.NUMFORM)}<br /> ${V.user.units}`);
+      $(".active #avgSpeed").html(`${numeral(V.getAvg(V.user.units)).format(V.NUMFORM)}<br />${V.user.units}`);
+
     }
+    $(document).on('hrUpdated.veload', function () {
+      $(".active #hr").text(point.hr);
+    })
   });
 
   V.timer.addEventListener('secondsUpdated', function (e) {
-    $('#elapsedTime').html(self.timer.getTimeValues().toString());
+    $('.active #elapsedTime').html(self.timer.getTimeValues().toString());
   });
   V.timer.addEventListener('started', function (e) {
-    $('#elapsedTime').html(self.timer.getTimeValues().toString());
+    $('.active #elapsedTime').html(self.timer.getTimeValues().toString());
   });
   V.timer.addEventListener('reset', function (e) {
-    $('#elapsedTime').html(self.timer.getTimeValues().toString());
+    $('.active #elapsedTime').html(self.timer.getTimeValues().toString());
   });
 }
