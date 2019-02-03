@@ -28,7 +28,6 @@ $(function(){
 	V.poller.handleEvents();
 	require('./modules/Veload.initialize.js');
 
-	updatePhoto();
 	DataListeners();
 	if(window.location.pathname=="/" || window.location.pathname=="/about"){
 		HomePage();
@@ -39,5 +38,6 @@ $(function(){
 		V.loadProfile();
 		ConnectionStatus();
 	}
+	updatePhoto();
 });
 

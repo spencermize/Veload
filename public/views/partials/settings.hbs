@@ -18,17 +18,17 @@
 					<div class="input-group-prepend">
 						<span class="input-group-text">Monitor URL:</span>
 					</div>
-					<input type="text" class="form-control" data-param="url" data-update="remote.user_url">
+					<input type="text" class="form-control" data-param="url" data-finish="opts.updateLocal">
 				</div>
 				<div class="input-group my-3">
 					<div class="input-group-prepend">
 						<span class="input-group-text">Wheel Circumference</span>
 					</div>
-					<input type="text" class="form-control" data-param="circ" data-update="local.circ">
+					<input type="text" class="form-control" data-param="circ" data-update="local.circ,remote.userCirc">
 				</div>				
-				<select class="form-control" data-param="units" data-update="remote.user_units">
-					<option>Miles</option>
-					<option>Kilometers</option>
+				<select class="form-control" data-param="units" data-update="remote.userUnits">
+					<option value="miles">Miles</option>
+					<option value="kilometers">Kilometers</option>
 				</select>
 			</div>
 			<div class="tab-pane fade visibility" id="visibility">

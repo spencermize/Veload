@@ -193,20 +193,24 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 						res.json(user.layout);
 					});
 					break;
-				case 'modules':
-					res.json(modules);
-					break;
 				case 'units':
 					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						res.json({"unit":user.unit});
+						res.json({"unit":user.units});
 					});
 					break;
 				case 'circ':
 					User.findOne({ where: { username: req.session.user } }).then(function (user) {
 						res.json({"circ":user.circumference});
 					});
-					break;				
+					break;
+				case 'all':
+					User.findOne({ attributes:['circumference','units','layout','url'], where: { username: req.session.user } }).then(function (user) {
+						res.json(user);
+					});			
 			}
+			break;
+		case 'modules':
+			res.json(modules);
 			break;
 		case 'athlete':
 		case 'activities':
@@ -440,7 +444,10 @@ function userModel(sequelize){
 		access_token: Sequelize.STRING,
 		refresh_token: Sequelize.STRING,
 		expires_at: Sequelize.DATE,
-		layout: Sequelize.JSON,
+		layout: {
+			type: Sequelize.JSON,
+			defaultValue: false
+		},
 		units: {
 			type: Sequelize.ENUM("miles","kilometers"),
 			defaultValue: "miles",
@@ -451,7 +458,7 @@ function userModel(sequelize){
 		},
 		url: {
 			type: Sequelize.STRING,
-			defaultValue: "http://localhost:3001"
+			defaultValue: "http://127.0.0.1:3001"
 		}
 	});
 	return User;

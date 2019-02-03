@@ -35,7 +35,7 @@ window.Point = Point;
 	Veload.prototype[e] = [];
 });
 
-["currentConnection", "athlete", "refresher", "desiredSpeed", "elapsed", "$grid", "myIcon", "photos"].forEach(function (e) {
+["user","status","athlete", "refresher", "desiredSpeed", "elapsed", "$grid", "myIcon", "photos"].forEach(function (e) {
 	Veload.prototype[e] = "";
 });
 
@@ -74,12 +74,17 @@ Veload.prototype.enableModule = function (mod, cnf) {
 	if(mod){
 		console.log(`enabling ${mod}`);
 		V.enabledMods.push(mod);
-		const config = Object.assign({
+		var mob = {}
+		var def = {
 			size_x: 1,
 			size_y: 1,
 			col: 1,
 			row: 1
-		}, cnf);
+		}
+		if($(window).width()<1000){
+			var mob = Object.cloneDeep(def);
+		}
+		const config = Object.assign(def, cnf, mob);
 		var name = mod + "-module";
 		var el = document.getElementById(name);
 		if(el){
@@ -90,7 +95,7 @@ Veload.prototype.enableModule = function (mod, cnf) {
 
 			console.log("waiting for " + finishedEvent);
 			self.listenForFinish(finishedEvent);
-			$('.grid').data('grid').add_widget(src, config.size_x, config.size_y, config.col, config.row);
+			$('.grid').data('grid').add_widget(comp, config.size_x, config.size_y, config.col, config.row);
 		
 			if($(`[data-name=${mod}]`).data("script")){
 				$.getScript(`/js/_${mod}.js`, function () {
@@ -212,7 +217,7 @@ Veload.prototype.upload = function () {
 			});
 			self.unpop();
 		} else {
-			error("Error uploading to Strava");
+			self.error("Error uploading to Strava");
 		}
 	}).fail(function (err) {
 		console.log(err);
@@ -240,6 +245,7 @@ Veload.prototype.fullscreen = function (config) {
 Veload.prototype.unpop = function () {
 	$('body').removeClass('loading');
 	$('#modal').modal('hide');
+	$('.modal-backdrop').not('.loader').remove();
 }
 Veload.prototype.pop = function (cnf = {}, evt = {}) {
 	var self = this;
@@ -254,7 +260,9 @@ Veload.prototype.pop = function (cnf = {}, evt = {}) {
 		backdrop: 'static'
 	}, cnf);
 	const events = Object.assign({
-		cancelClick: function () { },
+		cancelClick: function (e) {
+			V.unpop();
+		 },
 		acceptClick: function () { }
 	}, evt);
 	console.log("loading modal");
@@ -263,6 +271,12 @@ Veload.prototype.pop = function (cnf = {}, evt = {}) {
 	$('#modal .btn-accept').on('click', events.acceptClick);
 	$('#modal').modal('show');
 }
+
+$('#modal-container').on('hidden.bs.modal','#modal',function(){
+	console.log("destroying modal");
+	$('#modal').modal('dispose').removeClass().addClass('modal fade');
+	$('body').removeClass('modal-open');
+});	
 Veload.prototype.getAvg = function (unit) {
 	var self = this;
 	return self.getDistance(unit) / (self.elapsed / 60 / 60);
@@ -279,12 +293,32 @@ Veload.prototype.getDistance = function (unit) {
 Veload.prototype.loading = function () {
 	$('body').addClass('loading');
 }
+
+Veload.prototype.setColors = function(){
+	var self = this;
+	$('.card-body,.navbar').css('background-color',self.opts.colors.MAINBG).css('color',self.opts.colors.MAINTXT);
+	$('.btn-outline-secondary').css({'color':self.opts.colors.DARK,'border-color':self.opts.colors.DARK});	
+	$('.btn-outline-primary').css({'color':self.opts.colors.DARKER,'border-color':self.opts.colors.DARKER});
+	$('.btn-primary,.btn-toggle.active').css({'background-color':self.opts.colors.DARKER});
+	$('.btn-outline-primary,.btn-outline-secondary').hover(function(){
+		$(this).css({'background-color':'rgba(0,0,0,.1)'});
+	},function(){
+		$(this).css({'background-color':''});
+	})
+
+	Chart.defaults.global.defaultColor = this.opts.colors.MAINTXT;		
+	var chart = $('.grid-item:has([data-chart])');
+	chart.each(function(_i,ch){
+		var c = $(ch).data('chart')
+		c.update();
+	})
+}
 Veload.prototype.charts = function () {
 	var self = this;
 	console.log('building charts');
 	var charts = $('[data-chart]');
 	charts.each(function (_ind, el) {
-		
+		console.log('initializing' + el);
 		var v = $(el);
 		var opts = _.cloneDeep(self.opts.chart);
 		var name = v.closest('[data-name]').data('name');
@@ -292,6 +326,13 @@ Veload.prototype.charts = function () {
 		console.log(`Building ${name}`);
 		opts.type = v.data('chart');
 		var chart = new Chart(v, opts);
+
+		//hacky workaround to render chart properly
+		chart.config.options.scales.xAxes[0].realtime.pause = false;
+		chart.update();
+		chart.config.options.scales.xAxes[0].realtime.pause = true;
+		chart.update()
+
 		v.closest(".grid-item").data('chart', chart);
 
 		$(document).on(`${v.data('listen')}.veload`, function () {

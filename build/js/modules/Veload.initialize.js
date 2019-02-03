@@ -21,11 +21,6 @@ Veload.prototype.loadInterface = function(){
 	}else{
 		$("body").removeClass("loading");			
 	}
-	$('#modal-container').on('hidden.bs.modal','#modal',function(){
-		console.log("destroying modal");
-		$('#modal').modal('dispose').removeClass().addClass('modal fade');
-		$('body').removeClass('modal-open');
-	});	
 
 	//wait until modules loaded before showing loaded
 	$(document).one('modulesLoaded.veload',function(){
@@ -36,18 +31,32 @@ Veload.prototype.loadInterface = function(){
 		//build up the charts
 		self.charts();	
 		$('[data-ride="carousel"]').carousel();	
+		self.setColors();
 	})
 	$(document).trigger('modulesLoading.veload');
 	
 	//enable each module
-	$.getJSON(self.opts.urls.remote.userLayout,function(modules){
-		var modules = _.keyBy(modules[0], 'name');
-		_.forEach(modules,function(obj,mod){
-			self.enableModule(mod,obj);
-		});
+	self.getUser(function(data){
+		console.log('loading modules');
+		if(data.layout){
+			var modules = _.keyBy(data.layout[0], 'name');
+			_.forEach(modules,function(obj,mod){
+				self.enableModule(mod,obj);
+			});
+		
+			//html is ready to play
+			self.loaded();
+		}else{
+			$.getJSON(self.opts.urls.remote.modules,function(modules){
+				_.forEach(modules,function(mod){
+					console.log(mod)
+					self.enableModule(mod);
+				});
 
-		//html is ready to play
-		self.loaded();
+				//html is ready to play
+				self.loaded();
+			})
+		}
 	})
 }
 Veload.prototype.loaded = function(){
@@ -64,7 +73,26 @@ Veload.prototype.loadProfile = function(){
 		$("#profile button").html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + self.athlete.profile +'" />');
 	});	
 }
-
+Veload.prototype.getUser = function(callback){
+	console.log('getting user data')
+	var self = this;
+	$.getJSON(self.opts.urls.remote.userAll,function(data){
+		var changed = self.status.circumference == data.circumference;
+		self.user = data;
+		self.opts.updateLocal(data.url);
+		$(document).trigger('remoteInfo.veload');
+		if(changed){
+			$.post(`${self.opts.urls.local.circ}?value=${data.circumference}`,function(){
+			}).fail(function(){
+				self.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor. ${self.opts.resetConnection}`);
+			})
+		}
+		$(document).trigger('userUpdated.veload');
+		if(callback){
+			callback(data);
+		}
+	})
+}
 //third thing loaded
 Veload.prototype.loadDash = function(){
 	var self = this;

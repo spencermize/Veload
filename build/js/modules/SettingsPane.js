@@ -1,7 +1,7 @@
 function SettingsPane() {
 	var src = $('#settings-temp').html();
 	V.loading();
-	$.getJSON(V.opts.urls.remote.userModules, function (data) {
+	$.getJSON(V.opts.urls.remote.modules, function (data) {
 		var opts = {
 			enabledMods: _.map(V.enabledMods, function (e) { return [e, _.startCase(e)] }),
 			allMods: _.map(data, function (e) { return [e, _.startCase(e)] }),
@@ -17,11 +17,17 @@ function SettingsPane() {
 			modalClass: "veload-settings"
 		}
 		var events = {
-
+			cancelClick: function (e) {
+				if(!$('#modal .is-invalid').length){
+					V.unpop();
+				}
+			},
 		}
-		V.unpop();
-		V.pop(popts,events);
-		V.poll();
+		V.getUser(function(data){
+			V.unpop();
+			V.pop(popts,events);
+			$(document).trigger('settingsShown.veload');
+		})
 		_.forEach(_.difference(data, V.enabledMods), function (el) {
 			$(`[data-name=${el}] .btn-toggle`).removeClass('active');
 		});

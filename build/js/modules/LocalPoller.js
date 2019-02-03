@@ -2,11 +2,11 @@ let LocalPoller = {
     poll: function() {
         $.getJSON(V.opts.urls.local.stats, function (data) {
             V.status = data;
-            $(document).trigger('connectionInfo.veload', data);
+            $(document).trigger('localInfo.veload');
         })
         .fail(function(){
             V.status = {};
-            $(document).trigger('connectionInfo.veload');
+            $(document).trigger('localInfo.veload');
         });
     },
 
@@ -14,7 +14,7 @@ let LocalPoller = {
         var hrCount = 0;
 
         return setInterval(function () {
-            if (V.currentConnection) {
+            if (V.status.status) {
                 $.getJSON(V.opts.urls.local.stats, function (data) {
                     //expect meters/second
                     var metSpeed = Math.max(new Number(data.speed),0);
@@ -57,7 +57,6 @@ let LocalPoller = {
                         $(document).trigger('hrUpdated.veload');
                     }
                     hrCount++;
-                    $(document).trigger('connectionInfo.veload', data);
                 })
                 
             }
@@ -67,10 +66,10 @@ let LocalPoller = {
         clearInterval(V.refresher);
     },
     startPolling: function(frequency){
-        V.poller = setInterval(function(){LocalPoller.poll()},frequency);
+        V.poll = setInterval(function(){LocalPoller.poll()},frequency);
     },
     stopPolling: function(){
-        clearInterval(V.poller);
+        clearInterval(V.poll);
     },
     handleEvents: function(){
         $(document).on("start.veload",function(){

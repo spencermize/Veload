@@ -1,11 +1,11 @@
 function ConnectionStatus(){
-    $(document).on("connectionInfo.veload",function(_e,status){
+    $(document).on("localInfo.veload",function(_e){
         //not connected
-        if(!status.status){
+        if(!V.status.status){
             if(!$('.connectionFailed').length){
                 var config = {
                     title: 'Error!',
-                    body: 'Please check that your sensor is connected in the veload monitor!',
+                    body: `<p>Please check that your sensor is connected in the veload monitor!</p>${V.opts.resetConnection}`,
                     accept: true,
                     close: false,
                     acceptText: 'Retry',
@@ -13,14 +13,15 @@ function ConnectionStatus(){
                 }
                 const events = {
                     acceptClick: function () {
-                        V.poll()
+                        V.poller.poll()
                     }
                 }
+                V.unpop();
                 V.pop(config, events);
             }
 
         }else{
-            self.currentConnection = status.status;
+            self.currentConnection = V.status.status;
             if($('.connectionFailed').length){
                 V.unpop();
             }

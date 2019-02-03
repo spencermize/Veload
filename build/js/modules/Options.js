@@ -1,29 +1,33 @@
-var places = {
-    local : {
-        url : "http://localhost:3001",
-        endpoints: [ "stats", "circ"],
-        combined: []
-    },
-    remote : {
-        url : "/api",
-        endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities", "user_layout", "user_modules","user_circ","user_url","user_units","photos","photos_random","weather"],
-        combined: []
-    }
-}
-var local = [];
-var remote = [];
-_.forEach(places, function (key, value) {
-	_.forEach(key.endpoints,function(val){
-        var k = val.replace("_", "/");
-        var l = _.camelCase(val);
-        places[value].combined[l] = `${key.url}/${k}`;
-    })
-});
-
 var Options = {
+    generateUrls: function(){
+        var self = this;
+        _.forEach(self.urlComponents, function (key, value) {
+            _.forEach(key.endpoints,function(val){
+                var k = val.replace("_", "/");
+                var l = _.camelCase(val);
+                self.urls[value][l] = `${key.url}/${k}`;
+            })
+        });
+    },
+    updateLocal: function(server,el){
+        this.urlComponents.local.url = server;
+        this.generateUrls()
+        $(document).trigger("urlsUpdated.veload");
+    },
+    urlComponents:{
+        local : {
+            url : "http://127.0.0.1:3001",
+            endpoints: [ "stats", "circ"]
+        },
+        remote : {
+            url : "/api",
+            endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities","modules","user_all", "user_layout","user_circ","user_url","user_units","user_circ","photos","photos_random","weather"]
+        }
+    },
+    resetConnection: `Trouble connecting? <a href="#" onclick="V.opts.updateLocal('http://127.0.0.1:3001')">Try resetting your connection settings!</a></p>`,
     urls: {
-        local : places.local.combined,
-        remote : places.remote.combined
+        local: [],
+        remote : []
     },
     UPDATEFREQ : 1000,
     MPHFORM : '0,000.00',
@@ -31,7 +35,9 @@ var Options = {
         GOOD : "#28a745",
         GOODBG : "#53F377",
         BAD : "#dc3545",
-        BADBG :  "#E27A84"
+        BADBG :  "#E27A84",
+        MAINBG : "rgba(255,255,255,.95)",
+        MAINTXT: "#000"
     },
     chart : {
         type: 'line',
@@ -59,11 +65,17 @@ var Options = {
                         delay: 2000,        // delay of 2000 ms, so upcoming values are known before plotting a line
                         pause: true,       // chart is  paused
                         ttl: 99999999999     // data will be automatically deleted as it disappears off the chart
+                    },
+                    gridLines: {
+                        drawOnChartArea: false
                     }
                 }],
                 yAxes: [{
                     ticks: {
                         beginAtZero: true
+                    },
+                    gridLines: {
+                        drawOnChartArea: false
                     }
                 }]
             },
@@ -100,5 +112,5 @@ var Options = {
         }
     }
 }
-
+Options.generateUrls();
 export {Options};
