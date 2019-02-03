@@ -4,5 +4,8 @@ instance_class: B2
 manual_scaling:
   instances: 1
 
-beta_settings:
-  cloud_sql_instances: veload:us-central1:veload=tcp:3306
+handlers:
+- url: /.*
+  secure: always
+  redirect_http_response_code: 301
+  script: auto
