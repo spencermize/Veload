@@ -1,6 +1,8 @@
 import {PhotoRefresher} from './PhotoRefresher.js';
 import {setColors} from './ColorControls.js';
+import './Grid.js';
 import _ from 'lodash';
+import { Charts } from './Charts.js';
 const annyang = require("annyang");
 
 // first thing loaded
@@ -31,7 +33,12 @@ Veload.prototype.loadInterface = function(){
 	
 	$(document).one('loaded.veload',function(){
 		//build up the charts
-		self.charts();	
+		
+		//I really want to use this sytax but I'm doing something wrong...
+		//import("./Charts.js").then(Charts=>{Charts()})
+
+		require('./Charts.js');
+		Charts();
 		$('[data-ride="carousel"]').carousel();	
 		setColors();
 	})
@@ -106,74 +113,6 @@ Veload.prototype.loadDash = function(){
 	$('[data-toggle="tooltip"]').tooltip();
 }
 
-Veload.prototype.initGrid = function(){
-	var self = this;
-	var gridSettings = {
-		widget_selector: '.grid-item',
-		widget_base_dimensions: self.getWidgetSize(),
-		widget_margins: [self.opts.grid.margX,self.opts.grid.margY],
-		draggable: {
-			stop: function(){
-				self.saveLayout()
-			},
-			handle: '.card-header'
-		},
-		shift_widgets_up: false,
-		resize: {
-			enabled: true,
-			stop: function (e, ui, $widget) {
-				self.saveLayout()
-				$(document).trigger(`gridItemResized.${$(e.target).closest('.grid-item').data('name')}`);
-			}
-		},
-		autogenerate_stylesheet: true,
-		min_cols: self.opts.grid.cols,
-		max_cols: self.opts.grid.cols,
-		min_rows: self.opts.grid.rows,
-		max_rows: self.opts.grid.rows,
-		max_size_x: 3
-	}
-	var g = $('.grid').gridster(gridSettings).data('gridster');
-	$('.grid').data('grid',g);
-	$(window).on("resize",function(){
-		self.resizeGrid();
-	});
-	$('.grid').on('mouseover', '.grid-item', (function(e){
-		var card = $(e.target).closest('.grid-item');
-		var time;
-		card.addClass('full');
-		clearTimeout(time);
-		card.on('mouseout',(function(){ 
-			clearTimeout(time);
-			time = setTimeout(function(){
-				$(e.target).closest('.grid-item').removeClass('full');
-			},2000);
-		}));
-	}));
-}
-
-Veload.prototype.resizeGrid = function(){
-	var ge = $('.grid');
-	var g = ge.data('grid');
-	//wait to let fullscreen transition happen (hacky)
-	setTimeout(function(){
-		$("body").toggleClass("fullscreen",window.innerHeight === screen.height);
-		g.options.widget_base_dimensions = V.getWidgetSize();
-		g.resize_responsive_layout();
-		$(document).trigger("gridResized.veload");
-	},500)
-}
-Veload.prototype.getAvailH = function(){
-	var currNav = document.fullscreenElement ? 0 : $('nav.navbar').height();
-	return $(window).height() - currNav -10;
-	
-}
-Veload.prototype.getWidgetSize = function(){
-	var availH = this.getAvailH() - (self.opts.grid.margY*(self.opts.grid.rows+1));
-	var w = ($(window).width()-(self.opts.grid.margX*(self.opts.grid.cols+1))) / self.opts.grid.cols;
-	var h = availH / self.opts.grid.rows;
-	return [w,h]
-}
 Veload.prototype.initTimers = function(){
 	var self = this;
 	self.timer = new Timer();

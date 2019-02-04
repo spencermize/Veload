@@ -48,7 +48,7 @@ module.exports = {
 			test: /\.js$/,
 			exclude: /node_modules/,
 			query: {
-				plugins: ['lodash'],
+				plugins: ['lodash','@babel/plugin-syntax-dynamic-import'],
 				presets: [['@babel/env', { 'targets': { 'node': 6 } }]]
 			}
 		}]

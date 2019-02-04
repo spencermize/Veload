@@ -14,7 +14,7 @@ function setColors(){
 	var chart = $('.grid-item:has([data-chart])');
 	chart.each(function(_i,ch){
 		var c = $(ch).data('chart')
-		c.update();
+		if(c){c.update();}
 	})
 }
 
