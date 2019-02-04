@@ -1,6 +1,8 @@
 
 import { TinyColor } from '@ctrl/tinycolor';
 import { mostReadable } from '@ctrl/tinycolor';
+import {setColors} from './ColorControls.js';
+
 function PhotoRefresher() {
 	var i;
 	$(document).on("pause.veload",function(f){
@@ -29,7 +31,7 @@ function PhotoRefresher() {
 		V.opts.colors.DARK = darkCol.toRgbString();		
 		V.opts.colors.DARKER = darkerCol.toRgbString();
 		
-		V.setColors();
+		setColors();
 	});
 }
 function updatePhoto(radius){

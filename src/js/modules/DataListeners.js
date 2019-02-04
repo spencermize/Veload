@@ -1,3 +1,4 @@
+import _ from 'lodash';
 function DataListeners(){
     $(document).on('click','[data-cmd]', function(e){
         let fnc = $(e.target).closest('[data-cmd]').data('cmd');
@@ -9,7 +10,7 @@ function DataListeners(){
         }
 
     });
-    $(document).on('blur change','[data-update]',function(e){
+    $(document).on('blur change mouseup','[data-update]',function(e){
         //handle direct bindings to url endpoint
         var el = $(e.target).closest('[data-update]');
         var fnc = el.data('update');
@@ -18,21 +19,26 @@ function DataListeners(){
         hosts.each(function(_i,h){
             var host = h.split(".")[0];
             var path = h.split(".")[1];
+            var val;
             load(el);
-            if(el.val().length){
-                $.post(`${V.opts.urls[host][path]}?value=${el.val()}`,function(data){
-                    if(data.status="success"){
-                        remHosts.push(h);
-                        if(hosts.length == remHosts.length){
-                            loadSuccess(el);
-                        }
-                    }else{
-                        loadFail(el);    
-                    }
-                }).fail(function(e){
-                    loadFail(el,h);
-                });
+            if (el.is('button')){
+                val = el.hasClass('active')
+            }else{
+                el.val()
             }
+
+            $.post(`${V.opts.urls[host][path]}?value=${val}`,function(data){
+                if(data.status="success"){
+                    remHosts.push(h);
+                    if(hosts.length == remHosts.length){
+                        loadSuccess(el);
+                    }
+                }else{
+                    loadFail(el);    
+                }
+            }).fail(function(e){
+                loadFail(el,h);
+            });
         })       
     });
     $(document).on('blur','[data-finish]',function(e){
@@ -53,16 +59,26 @@ function DataListeners(){
     })
     $(document).on("localInfo.veload",function(_e){
         _.forEach(V.status.sensors,function(value,key){
-            $(`[data-sensor="${key}"]`).toggleClass('connected',value)
+            $(`[data-sensor="${key}"]`).toggleClass("btn-primary",value).toggleClass("btn-outline-secondary",!value);
         });
 
     })
     $(document).on("settingsShown.veload",function(){
         _.forEach(V.status,function(value,key){
-            $(`[data-param="${key}"]:not(:focus)`).val(value);
+            var el = $(`[data-param="${key}"]:not(:focus)`);
+            if(el.is('button')){
+                el.toggleClass("active",value);
+            }else{
+                el.val(value);
+            }    
         });        
         _.forEach(V.user,function(value,key){
-            $(`[data-param="${key}"]:not(:focus)`).val(value);
+            var el = $(`[data-param="${key}"]:not(:focus)`);
+            if(el.is('button')){
+                el.toggleClass("active",value);
+            }else{
+                el.val(value);
+            }  
         });
     })
     $(document).on("urlsUpdated.veload",function(_e){

@@ -1,4 +1,6 @@
 import {PhotoRefresher} from './PhotoRefresher.js';
+import {setColors} from './ColorControls.js';
+import _ from 'lodash';
 const annyang = require("annyang");
 
 // first thing loaded
@@ -31,7 +33,7 @@ Veload.prototype.loadInterface = function(){
 		//build up the charts
 		self.charts();	
 		$('[data-ride="carousel"]').carousel();	
-		self.setColors();
+		setColors();
 	})
 	$(document).trigger('modulesLoading.veload');
 	
@@ -106,14 +108,10 @@ Veload.prototype.loadDash = function(){
 
 Veload.prototype.initGrid = function(){
 	var self = this;
-	var margX = 20;
-	var margY = 20;
-	var cols = 6;
-	var rows = 4;
 	var gridSettings = {
 		widget_selector: '.grid-item',
-		widget_base_dimensions: self.getWidgetSize(cols,rows,margX,margY),
-		widget_margins: [margX,margY],
+		widget_base_dimensions: self.getWidgetSize(),
+		widget_margins: [self.opts.grid.margX,self.opts.grid.margY],
 		draggable: {
 			stop: function(){
 				self.saveLayout()
@@ -129,17 +127,16 @@ Veload.prototype.initGrid = function(){
 			}
 		},
 		autogenerate_stylesheet: true,
-		min_cols: cols,
-		max_cols: cols,
-		min_rows: rows,
-		max_rows: rows,
+		min_cols: self.opts.grid.cols,
+		max_cols: self.opts.grid.cols,
+		min_rows: self.opts.grid.rows,
+		max_rows: self.opts.grid.rows,
 		max_size_x: 3
 	}
 	var g = $('.grid').gridster(gridSettings).data('gridster');
 	$('.grid').data('grid',g);
-	$(document).on("fullscreenchange",function(){
-		//TODO: doesn't work
-		$('.grid').data('grid').set_dom_grid_height($(window).height())
+	$(window).on("resize",function(){
+		self.resizeGrid();
 	});
 	$('.grid').on('mouseover', '.grid-item', (function(e){
 		var card = $(e.target).closest('.grid-item');
@@ -154,10 +151,27 @@ Veload.prototype.initGrid = function(){
 		}));
 	}));
 }
-Veload.prototype.getWidgetSize = function(cols,rows,margX,margY){
-	var availH = ($(window).height()-$('nav.navbar').height()-(margY*(rows+1))-20);
-	var w = ($(window).width()-(margX*(cols+1))) / cols;
-	var h = availH / rows;
+
+Veload.prototype.resizeGrid = function(){
+	var ge = $('.grid');
+	var g = ge.data('grid');
+	//wait to let fullscreen transition happen (hacky)
+	setTimeout(function(){
+		$("body").toggleClass("fullscreen",window.innerHeight === screen.height);
+		g.options.widget_base_dimensions = V.getWidgetSize();
+		g.resize_responsive_layout();
+		$(document).trigger("gridResized.veload");
+	},500)
+}
+Veload.prototype.getAvailH = function(){
+	var currNav = document.fullscreenElement ? 0 : $('nav.navbar').height();
+	return $(window).height() - currNav -10;
+	
+}
+Veload.prototype.getWidgetSize = function(){
+	var availH = this.getAvailH() - (self.opts.grid.margY*(self.opts.grid.rows+1));
+	var w = ($(window).width()-(self.opts.grid.margX*(self.opts.grid.cols+1))) / self.opts.grid.cols;
+	var h = availH / self.opts.grid.rows;
 	return [w,h]
 }
 Veload.prototype.initTimers = function(){

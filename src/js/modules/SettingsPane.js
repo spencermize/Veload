@@ -1,3 +1,4 @@
+import _ from 'lodash';
 function SettingsPane() {
 	var src = $('#settings-temp').html();
 	V.loading();
@@ -5,7 +6,7 @@ function SettingsPane() {
 		var opts = {
 			enabledMods: _.map(V.enabledMods, function (e) { return [e, _.startCase(e)] }),
 			allMods: _.map(data, function (e) { return [e, _.startCase(e)] }),
-			links: ["connection","visibility"]
+			links: ["bike","connection","modules"]
 		}
 		//console.log(opts);
 		var comp = Handlebars.compile(src);
@@ -28,6 +29,8 @@ function SettingsPane() {
 			V.pop(popts,events);
 			$(document).trigger('settingsShown.veload');
 		})
+
+		//match UI to server settings
 		_.forEach(_.difference(data, V.enabledMods), function (el) {
 			$(`[data-name=${el}] .btn-toggle`).removeClass('active');
 		});

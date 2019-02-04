@@ -187,27 +187,16 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 	}
 	switch (req.params.action) {
 		case 'user':
-			switch(req.params.sub){
-				case 'layout':
-					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						res.json(user.layout);
-					});
-					break;
-				case 'units':
-					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						res.json({"unit":user.units});
-					});
-					break;
-				case 'circ':
-					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						res.json({"circ":user.circumference});
-					});
-					break;
-				case 'all':
-					User.findOne({ attributes:['circumference','units','layout','url'], where: { username: req.session.user } }).then(function (user) {
-						res.json(user);
-					});			
-			}
+			User.findOne({attributes:['hr','cadence','speed','circumference','units','layout','url'], where: { username: req.session.user } }).then(function (user) {
+				if(req.params.sub=="all"){
+					res.json(user);
+				}else{
+					res.json(user[req.params.sub]);
+				}
+			}).error(function(error){
+				data = {"status" : "error", "msg":error};
+				res.json(data);
+			});
 			break;
 		case 'modules':
 			res.json(modules);
@@ -344,51 +333,22 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 			});
 			break;
 		case 'user':
-			switch(req.params.sub){
-				case 'layout' : 				
-					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						user.layout = req.body.layout;
-						user.save().then(function(user){
-							data = {"status" : "success"}
-							res.json(data);
-						});
-					}).error(function(){
-						data = {"status" : "error", "msg":"User not found"};
-						res.json(data);
-					});
-					break;
-				case 'circ' :
-					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						user.circumference = req.query.value;
-						user.save().then(function(user){
-							data = {"status" : "success"}
-							res.json(data);	
-						})
-					});
-					break;
-				case 'url' :
-					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						user.url = req.query.value;
-						user.save().then(function(user){
-							data = {"status" : "success"}
-							res.json(data);	
-						})
-					});				
-					break;
-				case 'units' :
-					User.findOne({ where: { username: req.session.user } }).then(function (user) {
-						user.units = req.query.value;
-						user.save().then(function(user){
-							data = {"status" : "success"}
-							res.json(data);	
-						})
-					});
-					break;
-				default : 
-					data = {"error":"Sorry, operation unsupported"};
-					res.json(data);	
-					break;
-			}
+			User.findOne({ where: { username: req.session.user } }).then(function (user) {		
+				if(req.body.value){
+					user[req.params.sub] = req.body.value;
+				}else if(req.query.value){
+					user[req.params.sub] = req.query.value;
+				}else{
+					throw new Error("no data found")
+				}
+				user.save().then(function(user){
+					data = {"status" : "success"}
+					res.json(data);
+				});
+			}).error(function(error){
+				data = {"status" : "error", "msg":error};
+				res.json(data);
+			});
 			break;
 		default : 
 			data = {"error":"Sorry, operation unsupported"};
@@ -459,6 +419,18 @@ function userModel(sequelize){
 		url: {
 			type: Sequelize.STRING,
 			defaultValue: "http://127.0.0.1:3001"
+		},
+		hr: {
+			type: Sequelize.BOOLEAN,
+			defaultValue: true
+		},
+		speed: {
+			type: Sequelize.BOOLEAN,
+			defaultValue: true
+		}, 
+		cadence: {
+			type: Sequelize.BOOLEAN,
+			defaultValue: true
 		}
 	});
 	return User;

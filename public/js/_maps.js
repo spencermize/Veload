@@ -35,7 +35,7 @@ V.updateMap = function(){
 		});
 		V.myIcon.setLatLng(_.last(V.points));
 	});
-	$(document).on('gridItemResized.maps',function(){
+	$(document).on('gridItemResized.maps,gridResized.veload',function(){
 		console.log('redrawing map');
 		V.getMap().invalidateSize();
 	});	

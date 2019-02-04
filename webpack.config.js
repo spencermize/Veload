@@ -10,30 +10,31 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'public/js')
-  },
-  watchOptions: {
-    ignored: /node_modules/
+		path: path.resolve(__dirname, 'public/js'),
+		publicPath: '/js/'		
   },
   node: {
-	fs: 'empty'
-  },
-  devtool: false,
+		fs: 'empty'
+	},
+	cache :false,
+  devtool: 'cheap-module-source-map',
   mode: 'production',
   optimization: {
-    minimizer: [new TerserPlugin({
-		include: /\/node_modules/,
-		sourceMap: false,
-		terserOptions:{
-			output: {
-				comments: false,
-				beautify: false
-			},
-			compress: {
-				drop_console: true
-			}
-		}
-	})]
+    minimizer: [
+			new TerserPlugin({
+				terserOptions:{
+					output: {
+						comments: false,
+						beautify: false
+					},
+					compress: {
+						drop_console: true
+					}
+				},
+				sourceMap: false,				
+			})
+		],
+		noEmitOnErrors: true,			
 	},  
 	//fix handlebars warnings
 	resolve: {
@@ -41,16 +42,26 @@ module.exports = {
 			handlebars: 'handlebars/dist/handlebars.min.js'
 		}
 	},	
+	module: {
+		rules: [{
+			loader: 'babel-loader',
+			test: /\.js$/,
+			exclude: /node_modules/,
+			query: {
+				plugins: ['lodash'],
+				presets: [['@babel/env', { 'targets': { 'node': 6 } }]]
+			}
+		}]
+	},	
 	plugins: [
-        // To strip all locales except “en”
-        new MomentLocalesPlugin(),
-		new BundleAnalyzerPlugin({
+    // To strip all locales except “en”
+    new MomentLocalesPlugin(),
+	/*	new BundleAnalyzerPlugin({
 			analyzerMode: 'static'
-		}),
+		}),*/
 		new webpack.ProvidePlugin({
 			'$': 'jquery',
-			'Handlebars': 'handlebars',
-			'_': 'lodash'
+			'Handlebars': 'handlebars'
 		})
     ]
 };

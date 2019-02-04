@@ -10,6 +10,11 @@
     "npm": "6.4.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "babel-loader": "^8.0.5",
+    "babel-plugin-lodash": "^3.3.4",
     "moment-locales-webpack-plugin": "^1.0.7",
     "nodemon": "*",
     "sass": "^1.16.1",
@@ -24,8 +29,8 @@
     "dev": "set NODE_ENV=development",
     "prod": "set NODE_ENV=production",
     "js:watch": "webpack -d --info-verbosity verbose -w",
-    "js:build": "webpack -d --info-verbosity verbose",
-    "css:watch": "sass srce/scss/main.scss public/css/style.css --watch",
+    "js:build": "webpack -d --info-verbosity verbose -p --mode production",
+    "css:watch": "sass src/scss/main.scss public/css/style.css --watch",
     "css:build": "sass src/scss/main.scss public/css/style.css --no-source-map --style=compressed",
     "css": "npm run css:watch",
     "app:watch": "nodemon app.js",
@@ -76,6 +81,7 @@
     "sequelize": "*",
     "spdy": "^4.0.0",
     "strava-v3": "*",
+    "terser": "^3.14.1",
     "yargs": "*"
   }
 }

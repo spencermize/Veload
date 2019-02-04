@@ -1,15 +1,14 @@
 'use strict';
 
-window.jQuery = $;
 window.$ = $;
-window._ = _;
+import _ from 'lodash';
 import moment from 'moment';
 import Chart from 'chart.js';
 import 'chartjs-plugin-streaming';
 import 'chartjs-plugin-zoom';
 import 'bootstrap';
 import '../../third_party/gridster/jquery.gridster.min.js';
-import L from 'leaflet';
+import * as L from 'leaflet'
 import numeral from 'numeral';
 import List from 'list.js';
 import omni from '@mapbox/leaflet-omnivore';
@@ -21,7 +20,6 @@ import {Point} from './Point.js';
 
 window.Handlebars = Handlebars;
 window.moment = moment;
-window.Chart = Chart;
 window.L = L;
 window.List = List;
 window.omni = omni;
@@ -120,7 +118,7 @@ Veload.prototype.saveLayout = function () {
 		e[index]["name"] = $(`.grid-item:nth-of-type(${index + 1})`).data('name');
 	});
 	data.push(e)
-	$.post(self.opts.urls.remote.userLayout, { layout: data }, function (data) {
+	$.post(self.opts.urls.remote.userLayout, { value: data }, function (data) {
 		console.log('layout saved');
 	});
 }
@@ -242,41 +240,6 @@ Veload.prototype.fullscreen = function (config) {
 	}
 }
 
-Veload.prototype.unpop = function () {
-	$('body').removeClass('loading');
-	$('#modal').modal('hide');
-	$('.modal-backdrop').not('.loader').remove();
-}
-Veload.prototype.pop = function (cnf = {}, evt = {}) {
-	var self = this;
-	const config = Object.assign({
-		title: 'Alert',
-		body: '',
-		accept: true,
-		close: true,
-		acceptText: 'Okay',
-		acceptClass: 'btn-primary',
-		modalClass: '',
-		backdrop: 'static'
-	}, cnf);
-	const events = Object.assign({
-		cancelClick: function (e) {
-			V.unpop();
-		 },
-		acceptClick: function () { }
-	}, evt);
-	console.log("loading modal");
-	$('#modal-container').html(self.cTemps.modal(config));
-	$('#modal .btn-cancel').on('click', events.cancelClick);
-	$('#modal .btn-accept').on('click', events.acceptClick);
-	$('#modal').modal('show');
-}
-
-$('#modal-container').on('hidden.bs.modal','#modal',function(){
-	console.log("destroying modal");
-	$('#modal').modal('dispose').removeClass().addClass('modal fade');
-	$('body').removeClass('modal-open');
-});	
 Veload.prototype.getAvg = function (unit) {
 	var self = this;
 	return self.getDistance(unit) / (self.elapsed / 60 / 60);
@@ -296,25 +259,6 @@ Veload.prototype.loading = function () {
 	$('body').addClass('loading');
 }
 
-Veload.prototype.setColors = function(){
-	var self = this;
-	$('.card-body,.navbar').css('background-color',self.opts.colors.MAINBG).css('color',self.opts.colors.MAINTXT);
-	$('.btn-outline-secondary').css({'color':self.opts.colors.DARK,'border-color':self.opts.colors.DARK});	
-	$('.btn-outline-primary').css({'color':self.opts.colors.DARKER,'border-color':self.opts.colors.DARKER});
-	$('.btn-primary,.btn-toggle.active').css({'background-color':self.opts.colors.DARKER,'border-color':self.opts.colors.DARKER});
-	$('.btn-outline-primary,.btn-outline-secondary').hover(function(){
-		$(this).css({'background-color':'rgba(0,0,0,.05)'});
-	},function(){
-		$(this).css({'background-color':''});
-	})
-
-	Chart.defaults.global.defaultColor = this.opts.colors.MAINTXT;		
-	var chart = $('.grid-item:has([data-chart])');
-	chart.each(function(_i,ch){
-		var c = $(ch).data('chart')
-		c.update();
-	})
-}
 Veload.prototype.charts = function () {
 	var self = this;
 	console.log('building charts');

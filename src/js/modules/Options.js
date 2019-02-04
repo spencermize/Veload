@@ -1,3 +1,4 @@
+import _ from 'lodash';
 var Options = {
     generateUrls: function(){
         var self = this;
@@ -21,7 +22,7 @@ var Options = {
         },
         remote : {
             url : "/api",
-            endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities","modules","user_all", "user_layout","user_circ","user_url","user_units","user_circ","photos","photos_random","weather"]
+            endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities","modules","user_all", "user_layout","user_hr","user_speed","user_cadence","user_circ","user_url","user_units","user_circ","photos","photos_random","weather"]
         }
     },
     resetConnection: `Trouble connecting? <a href="#" onclick="V.opts.updateLocal('http://127.0.0.1:3001')">Try resetting your connection settings!</a></p>`,
@@ -38,6 +39,12 @@ var Options = {
         BADBG :  "#E27A84",
         MAINBG : "rgba(255,255,255,.95)",
         MAINTXT: "#000"
+    },
+    grid: {
+        margX: 20,
+        margY: 20,
+        cols: 6,
+        rows: 4
     },
     chart : {
         type: 'line',

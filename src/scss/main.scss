@@ -29,9 +29,16 @@ body,p,.card-header{
 body{
   min-height: 100%;
 }
-body:fullscreen nav{
-	@extend .d-none;
+nav.navbar{
+	transition:all .5s;
+	overflow: hidden;
 }
+:fullscreen,.fullscreen{
+	nav.navbar{
+		height: 0;
+		padding: 0;
+	}
+} 
 .speech{
 	@extend .display-1;
 }
@@ -265,6 +272,19 @@ nav .pause,.playing .play,.stop{
 		.show.list-group-item{
 			@extend .d-block;
 		}
+	}
+}
+.connected-icon{
+	opacity: 0;
+	bottom: 20px;
+	right: 20px;
+	font-size: 48px;
+	color: $danger;		
+	transition: all .5s;
+}
+.disconnected{
+	.connected-icon{
+		@extend .blink;		
 	}
 }
 // Apply Mixin to different sizes & colors

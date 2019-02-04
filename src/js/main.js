@@ -7,11 +7,15 @@ if(!DEBUG){
     }
 }
 
+
+import _ from 'lodash';
+window._ = _;
+
 //init Veload Core
 import {Options} from './modules/Options.js';
 import {Veload} from './modules/Veload.js';
 import {HomePage} from './modules/HomePage.js';
-import HandlebarsHelpers from './modules/HandlebarsHelpers.js';
+import './modules/HandlebarsHelpers.js';
 import {LocalPoller} from './modules/LocalPoller.js';
 import {updatePhoto} from './modules/PhotoRefresher.js';
 import {SettingsPane} from './modules/SettingsPane.js';
@@ -26,6 +30,7 @@ $(function(){
 	window.V = V;	
 	V.poller = LocalPoller;
 	V.poller.handleEvents();
+	require('./modules/Modals.js');	
 	require('./modules/Veload.initialize.js');
 
 	DataListeners();
