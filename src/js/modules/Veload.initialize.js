@@ -10,38 +10,39 @@ Veload.prototype.loadInterface = function(){
 	var self = this;
 	// load required elements
 	console.log('loading interface...');
-	var elements = ['modal','footer','overlay'];
-	elements.forEach(function(templ){
-		var src = document.getElementById(`${templ}-temp`).innerHTML;
-		self.cTemps[templ] = Handlebars.compile(src);	
-	});	
+	var templates = $('[id$="-temp"]');
+	templates.each(function(_i,el){
+		var el = $(el);
+		self.cTemps[el.attr("id").split("-")[0]] = Handlebars.compile(el.html());	
+	})
 	
-	//ensure timers are ready to go so we can attach listeners;
-	self.initTimers();
-
 	if(window.location.pathname=="/dashboard"){
 		console.log('loading dash...');
+		//ensure timers are ready to go so we can attach listeners;
+		self.initTimers();
 		self.loadDash();
+	
+		//wait until modules loaded before showing loaded
+		$(document).one('modulesLoaded.veload',function(){
+			$("body").removeClass("loading");				
+		});	
+		
+		$(document).one('loaded.veload',function(){
+			//build up the charts
+			
+			//I really want to use this sytax but I'm doing something wrong...
+			//import("./Charts.js").then(Charts=>{Charts()})
+
+			require('./Charts.js');
+			Charts();
+			$('[data-ride="carousel"]').carousel();	
+			setColors();
+		})		
 	}else{
 		$("body").removeClass("loading");			
 	}
 
-	//wait until modules loaded before showing loaded
-	$(document).one('modulesLoaded.veload',function(){
-		$("body").removeClass("loading");				
-	});	
-	
-	$(document).one('loaded.veload',function(){
-		//build up the charts
-		
-		//I really want to use this sytax but I'm doing something wrong...
-		//import("./Charts.js").then(Charts=>{Charts()})
 
-		require('./Charts.js');
-		Charts();
-		$('[data-ride="carousel"]').carousel();	
-		setColors();
-	})
 	$(document).trigger('modulesLoading.veload');
 	
 	//enable each module
@@ -146,7 +147,8 @@ Veload.prototype.initVoice = function(){
 		annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
 			var config = {
 				message: userSaid,
-				title: "command recognized"
+				title: "command recognized",
+				class: "speech"
 			}
 			var over = $(self.cTemps['overlay'](config));
 			$('body').append(over);

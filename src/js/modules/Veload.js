@@ -59,15 +59,38 @@ Veload.prototype.listenForFinish = function (finishedEvent) {
 Veload.prototype.start = function () {
 	var self = this;
 	if(self.points.length){
-		$('body').addClass('playing stoppable');
-		$('body').removeClass('paused');
-		self.timer.start();
-		$(document).trigger("start.veload");
+		var buttons = $(self.cTemps['buttons']());		
+		var config = {
+			title: "waiting for sensors to connect",
+		}
+
+		var over = $(self.cTemps['overlay'](config));
+		over.find("div.content").html(buttons.html());
+		var b = $('body').append(over);
+
+		var connected = setInterval(function(){self.sensorsConnected(self)},3000);
+		$(document).on('sensorsConnected.veload',function(){
+			clearInterval(connected);
+			over.remove();
+			b.addClass('playing stoppable').removeClass('paused');
+		
+			self.timer.start();
+			$(document).trigger("start.veload");			
+		})
+
+
 	}else{
 		V.pickTrackGUI();
 	}
 }
-
+Veload.prototype.sensorsConnected = function(self){
+	var desired = [self.user.hr,self.user.cadence,self.user.speed];
+	var connected = [self.status.sensors.hr,self.status.sensors.cadence,self.status.sensors.speed];
+	if(_.isEqual(desired,connected)){
+		console.log('connected...');
+		$(document).trigger('sensorsConnected.veload');
+	}
+}
 Veload.prototype.pause = function () {
 	var self = this;
 	$('body').removeClass('playing');

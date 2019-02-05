@@ -1,4 +1,5 @@
-let LocalPoller = {
+import _ from 'lodash';
+var LocalPoller = {
     poll: function() {
         $.getJSON(V.opts.urls.local.stats, function (data) {
             V.status = data;

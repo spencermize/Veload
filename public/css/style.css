@@ -9739,12 +9739,12 @@ body {
 
 nav.navbar {
   transition: all 0.5s;
-  overflow: hidden;
 }
 
 :fullscreen nav.navbar, .fullscreen nav.navbar {
   height: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 .loading .loader {
