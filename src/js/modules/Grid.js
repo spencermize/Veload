@@ -36,7 +36,7 @@ Veload.prototype.enableModule = function (mod, cnf) {
 		}
 		//try to shrink for mobile
 		if($(window).width()<1000){
-			var mob = Object.cloneDeep(def);
+			var mob = _.cloneDeep(def);
 		}
 		const config = Object.assign(def, cnf, mob);
 		var name = mod + "-module";
@@ -83,7 +83,7 @@ Veload.prototype.initGrid = function(){
 	var gridSettings = {
 		widget_selector: '.grid-item',
 		widget_base_dimensions: self.getWidgetSize(),
-		widget_margins: [self.opts.grid.margX,self.opts.grid.margY],
+		widget_margins: self.getWidgetMargins(),
 		draggable: {
 			stop: function(){
 				self.saveLayout()
@@ -93,7 +93,7 @@ Veload.prototype.initGrid = function(){
 		shift_widgets_up: false,
 		resize: {
 			enabled: true,
-			stop: function (e, ui, $widget) {
+			stop: function (e) {
 				self.saveLayout()
 				$(document).trigger(`gridItemResized.${$(e.target).closest('.grid-item').data('name')}`);
 			}
@@ -140,8 +140,27 @@ Veload.prototype.getAvailH = function(){
 	return $(window).height() - currNav -10;
 	
 }
+Veload.prototype.getWidgetMargins = function(){
+	return [self.opts.grid.margX,self.opts.grid.margY];
+}
 Veload.prototype.getWidgetSize = function(){
 	var availH = this.getAvailH() - (self.opts.grid.margY*(self.opts.grid.rows+1));
+	if($(window).width()<1000){
+		self.opts.grid.margX = 5;
+		self.opts.grid.cols = 3;
+	}
+	if($(window).width()<500){
+		self.opts.grid.margX = 5;
+		self.opts.grid.cols = 2;
+	}
+	if($(window).height()<800){
+		self.opts.grid.margY = 5;
+        self.opts.grid.rows = 2;
+	}
+	if($(window).height()<500){
+		self.opts.grid.margY = 5;
+        self.opts.grid.rows = 2;
+	}	
 	var w = ($(window).width()-(self.opts.grid.margX*(self.opts.grid.cols+1))) / self.opts.grid.cols;
 	var h = availH / self.opts.grid.rows;
 	return [w,h]

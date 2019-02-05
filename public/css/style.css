@@ -2726,7 +2726,7 @@ fieldset:disabled a.btn {
   pointer-events: none;
 }
 
-.btn-lg, .btn-group-lg > .btn {
+.btn-lg, .bigButtons .btn, .btn-group-lg > .btn {
   padding: 0.5rem 1rem;
   font-size: 1.25rem;
   line-height: 1.5;
@@ -3086,7 +3086,7 @@ input[type=button].btn-block {
   padding-left: 0.375rem;
 }
 
-.btn-lg + .dropdown-toggle-split, .btn-group-lg > .btn + .dropdown-toggle-split {
+.btn-lg + .dropdown-toggle-split, .bigButtons .btn + .dropdown-toggle-split, .btn-group-lg > .btn + .dropdown-toggle-split {
   padding-right: 0.75rem;
   padding-left: 0.75rem;
 }
@@ -9836,6 +9836,13 @@ footer, .grid-item, .navbar {
   background: 0;
   border: 0;
 }
+.bigButtons .btn {
+  padding: 0rem 3rem;
+  font-size: 3.5rem;
+  line-height: 3;
+  border-radius: 0.7rem;
+}
+
 nav .pause, .playing .play, .stop {
   display: none;
 }
@@ -10062,7 +10069,7 @@ nav .pause, .playing .play, .stop {
 .btn-toggle.active {
   background-color: #007bff;
 }
-.btn-toggle.btn-lg, .btn-group-lg > .btn-toggle.btn {
+.btn-toggle.btn-lg, .btn-group-lg > .btn-toggle.btn, .bigButtons .btn-toggle.btn {
   margin: 0 5rem;
   padding: 0;
   position: relative;
@@ -10071,10 +10078,10 @@ nav .pause, .playing .play, .stop {
   width: 5rem;
   border-radius: 2.5rem;
 }
-.btn-toggle.btn-lg:focus, .btn-group-lg > .btn-toggle.btn:focus, .btn-toggle.btn-lg:focus.active, .btn-toggle.btn-lg.focus, .btn-group-lg > .btn-toggle.focus.btn, .btn-toggle.btn-lg.focus.active {
+.btn-toggle.btn-lg:focus, .btn-group-lg > .btn-toggle.btn:focus, .bigButtons .btn-toggle.btn:focus, .btn-toggle.btn-lg:focus.active, .btn-toggle.btn-lg.focus, .btn-group-lg > .btn-toggle.focus.btn, .bigButtons .btn-toggle.focus.btn, .btn-toggle.btn-lg.focus.active {
   outline: none;
 }
-.btn-toggle.btn-lg:before, .btn-group-lg > .btn-toggle.btn:before, .btn-toggle.btn-lg:after, .btn-group-lg > .btn-toggle.btn:after {
+.btn-toggle.btn-lg:before, .btn-group-lg > .btn-toggle.btn:before, .bigButtons .btn-toggle.btn:before, .btn-toggle.btn-lg:after, .btn-group-lg > .btn-toggle.btn:after, .bigButtons .btn-toggle.btn:after {
   line-height: 2.5rem;
   width: 5rem;
   text-align: center;
@@ -10086,16 +10093,16 @@ nav .pause, .playing .play, .stop {
   bottom: 0;
   transition: opacity 0.25s;
 }
-.btn-toggle.btn-lg:before, .btn-group-lg > .btn-toggle.btn:before {
+.btn-toggle.btn-lg:before, .btn-group-lg > .btn-toggle.btn:before, .bigButtons .btn-toggle.btn:before {
   content: "Off";
   left: -5rem;
 }
-.btn-toggle.btn-lg:after, .btn-group-lg > .btn-toggle.btn:after {
+.btn-toggle.btn-lg:after, .btn-group-lg > .btn-toggle.btn:after, .bigButtons .btn-toggle.btn:after {
   content: "On";
   right: -5rem;
   opacity: 0.5;
 }
-.btn-toggle.btn-lg > .handle, .btn-group-lg > .btn-toggle.btn > .handle {
+.btn-toggle.btn-lg > .handle, .btn-group-lg > .btn-toggle.btn > .handle, .bigButtons .btn-toggle.btn > .handle {
   position: absolute;
   top: 0.3125rem;
   left: 0.3125rem;
@@ -10105,40 +10112,40 @@ nav .pause, .playing .play, .stop {
   background: #fff;
   transition: left 0.25s;
 }
-.btn-toggle.btn-lg.active, .btn-group-lg > .btn-toggle.active.btn {
+.btn-toggle.btn-lg.active, .btn-group-lg > .btn-toggle.active.btn, .bigButtons .btn-toggle.active.btn {
   transition: background-color 0.25s;
 }
-.btn-toggle.btn-lg.active > .handle, .btn-group-lg > .btn-toggle.active.btn > .handle {
+.btn-toggle.btn-lg.active > .handle, .btn-group-lg > .btn-toggle.active.btn > .handle, .bigButtons .btn-toggle.active.btn > .handle {
   left: 2.8125rem;
   transition: left 0.25s;
 }
-.btn-toggle.btn-lg.active:before, .btn-group-lg > .btn-toggle.active.btn:before {
+.btn-toggle.btn-lg.active:before, .btn-group-lg > .btn-toggle.active.btn:before, .bigButtons .btn-toggle.active.btn:before {
   opacity: 0.5;
 }
-.btn-toggle.btn-lg.active:after, .btn-group-lg > .btn-toggle.active.btn:after {
+.btn-toggle.btn-lg.active:after, .btn-group-lg > .btn-toggle.active.btn:after, .bigButtons .btn-toggle.active.btn:after {
   opacity: 1;
 }
-.btn-toggle.btn-lg.btn-sm:before, .btn-group-lg > .btn-toggle.btn-sm.btn:before, .btn-group-sm > .btn-toggle.btn-lg.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.btn:before, .btn-toggle.btn-lg.btn-sm:after, .btn-group-lg > .btn-toggle.btn-sm.btn:after, .btn-group-sm > .btn-toggle.btn-lg.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.btn:after {
+.btn-toggle.btn-lg.btn-sm:before, .btn-group-lg > .btn-toggle.btn-sm.btn:before, .bigButtons .btn-toggle.btn-sm.btn:before, .btn-group-sm > .btn-toggle.btn-lg.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.btn:before, .bigButtons .btn-group-sm > .btn-toggle.btn:before, .btn-toggle.btn-lg.btn-sm:after, .btn-group-lg > .btn-toggle.btn-sm.btn:after, .bigButtons .btn-toggle.btn-sm.btn:after, .btn-group-sm > .btn-toggle.btn-lg.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.btn:after, .bigButtons .btn-group-sm > .btn-toggle.btn:after {
   line-height: 2.5rem;
   color: #fff;
   letter-spacing: 0.75px;
   left: 0.6875rem;
   width: 3.875rem;
 }
-.btn-toggle.btn-lg.btn-sm:before, .btn-group-lg > .btn-toggle.btn-sm.btn:before, .btn-group-sm > .btn-toggle.btn-lg.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.btn:before {
+.btn-toggle.btn-lg.btn-sm:before, .btn-group-lg > .btn-toggle.btn-sm.btn:before, .bigButtons .btn-toggle.btn-sm.btn:before, .btn-group-sm > .btn-toggle.btn-lg.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.btn:before, .bigButtons .btn-group-sm > .btn-toggle.btn:before {
   text-align: right;
 }
-.btn-toggle.btn-lg.btn-sm:after, .btn-group-lg > .btn-toggle.btn-sm.btn:after, .btn-group-sm > .btn-toggle.btn-lg.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.btn:after {
+.btn-toggle.btn-lg.btn-sm:after, .btn-group-lg > .btn-toggle.btn-sm.btn:after, .bigButtons .btn-toggle.btn-sm.btn:after, .btn-group-sm > .btn-toggle.btn-lg.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.btn:after, .bigButtons .btn-group-sm > .btn-toggle.btn:after {
   text-align: left;
   opacity: 0;
 }
-.btn-toggle.btn-lg.btn-sm.active:before, .btn-group-lg > .btn-toggle.btn-sm.active.btn:before, .btn-group-sm > .btn-toggle.btn-lg.active.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.active.btn:before {
+.btn-toggle.btn-lg.btn-sm.active:before, .btn-group-lg > .btn-toggle.btn-sm.active.btn:before, .bigButtons .btn-toggle.btn-sm.active.btn:before, .btn-group-sm > .btn-toggle.btn-lg.active.btn:before, .btn-group-sm.btn-group-lg > .btn-toggle.active.btn:before, .bigButtons .btn-group-sm > .btn-toggle.active.btn:before {
   opacity: 0;
 }
-.btn-toggle.btn-lg.btn-sm.active:after, .btn-group-lg > .btn-toggle.btn-sm.active.btn:after, .btn-group-sm > .btn-toggle.btn-lg.active.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.active.btn:after {
+.btn-toggle.btn-lg.btn-sm.active:after, .btn-group-lg > .btn-toggle.btn-sm.active.btn:after, .bigButtons .btn-toggle.btn-sm.active.btn:after, .btn-group-sm > .btn-toggle.btn-lg.active.btn:after, .btn-group-sm.btn-group-lg > .btn-toggle.active.btn:after, .bigButtons .btn-group-sm > .btn-toggle.active.btn:after {
   opacity: 1;
 }
-.btn-toggle.btn-lg.btn-xs:before, .btn-group-lg > .btn-toggle.btn-xs.btn:before, .btn-toggle.btn-lg.btn-xs:after, .btn-group-lg > .btn-toggle.btn-xs.btn:after {
+.btn-toggle.btn-lg.btn-xs:before, .btn-group-lg > .btn-toggle.btn-xs.btn:before, .bigButtons .btn-toggle.btn-xs.btn:before, .btn-toggle.btn-lg.btn-xs:after, .btn-group-lg > .btn-toggle.btn-xs.btn:after, .bigButtons .btn-toggle.btn-xs.btn:after {
   display: none;
 }
 .btn-toggle.btn-sm, .btn-group-sm > .btn-toggle.btn {
@@ -10341,7 +10348,7 @@ nav .pause, .playing .play, .stop {
   color: white;
   margin-top: 10vh;
 }
-.over .cover .btn-lg, .over .cover .btn-group-lg > .btn {
+.over .cover .btn-lg, .over .cover .btn-group-lg > .btn, .over .cover .bigButtons .btn, .bigButtons .over .cover .btn {
   padding: 0.75rem 1.25rem;
 }
 .over .cover-container {

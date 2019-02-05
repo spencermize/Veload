@@ -137,6 +137,13 @@ footer,.grid-item,.navbar{
 		}
 	}
 }
+.bigButtons .btn{
+	@extend .btn-lg;
+	padding: 0rem 3rem;
+    font-size: 3.5rem;
+    line-height: 3;
+    border-radius: 0.7rem;
+}
 nav .pause,.playing .play,.stop{
 	display: none;
 }

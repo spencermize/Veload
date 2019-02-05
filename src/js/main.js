@@ -30,7 +30,8 @@ $(function(){
 	window.V = V;	
 	V.poller = LocalPoller;
 	V.poller.handleEvents();
-	require('./modules/Modals.js');	
+	require('./modules/Modals.js');
+	require('./modules/RideListeners.js');
 	require('./modules/Veload.initialize.js');
 
 	DataListeners();

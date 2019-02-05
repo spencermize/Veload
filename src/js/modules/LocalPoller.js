@@ -41,6 +41,9 @@ var LocalPoller = {
                             distance = distance - V.rTrail[0].distance;
                             //then, ditch the old waypoint
                             V.rTrail.shift();
+                            if(V.rTrail.length == 0){
+                                $(document).trigger('routeCompleted.veload');
+                            }
                         }
 
                         V.rTrail[0].distance = V.rTrail[0].distance - distance;

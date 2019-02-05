@@ -58,17 +58,19 @@ Veload.prototype.listenForFinish = function (finishedEvent) {
 }
 Veload.prototype.start = function () {
 	var self = this;
-	if(self.points.length){
+	if(!self.points.length){
 		var buttons = $(self.cTemps['buttons']());		
 		var config = {
 			title: "waiting for sensors to connect",
+			overClass: "bigButtons",
+			content: buttons.html()
 		}
 
 		var over = $(self.cTemps['overlay'](config));
-		over.find("div.content").html(buttons.html());
+	//	over.find("div.content").html(buttons.html());
 		var b = $('body').append(over);
 
-		var connected = setInterval(function(){self.sensorsConnected(self)},3000);
+		var connected = setInterval(function(){self.sensorsConnected(self)},1000);
 		$(document).on('sensorsConnected.veload',function(){
 			clearInterval(connected);
 			over.remove();
@@ -77,8 +79,6 @@ Veload.prototype.start = function () {
 			self.timer.start();
 			$(document).trigger("start.veload");			
 		})
-
-
 	}else{
 		V.pickTrackGUI();
 	}
