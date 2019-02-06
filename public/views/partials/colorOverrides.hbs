@@ -4,35 +4,38 @@
             background-color:\{{MAINBG}};
             color:\{{MAINTXT}};
         }
-        .btn-outline-secondary,.pagination .page{
-            color:\{{DARK}};
-            border-color:\{{DARK}};
-        }	
-        .nav-pills .nav-link,.grid .card .card-header{
+        .nav-pills .nav-link,.grid .card .card-header *{
             color:\{{DARKER}};
         }
         .nav-pills .nav-link.active,.btn-primary{
             background-color:\{{DARKER}};
             color:#fff;
         }
-        .btn-toggle.active,.pagination .active .page{
+        body .btn-toggle.active,.pagination .active .page{
             background-color:\{{DARKER}};
             border-color:\{{DARKER}};
         }
-        .btn-outline-secondary.active{
-            background-color: rgba(179;58;58;1);
-            border-color:rgba(179;58;58;1);
+        body .btn-outline-secondary,.pagination .page{
+            color:\{{DARK}};
+            border-color:\{{DARK}};
+        }	        
+        body .btn-outline-secondary.active{
+            background-color: rgba(179,58,58,1);
+            border-color:rgba(179,58,58,1);
             color:#fff;
         }
-        .btn-outline-primary{
+        body .btn-outline-primary{
             color: \{{DARKER}};
             border-color:\{{DARKER}};
         }	
-        .btn-primary.active{
-            border-color:\{{DARKER}}
+        body .btn-primary.active{
+            border-color:\{{DARKER}};
+            background-color:\{{DARKER}};
         }
-        .btn-outline-primary:hover;.btn-outline-secondary:hover{
-            background-color:rgba(0;0;0;.02)
+        body .btn-outline-primary:hover,body .btn-outline-secondary:hover,body .btn-outline-primary:active,body .btn-outline-secondary:active{
+            background-color:\{{DARK}};
+            border-color: \{{DARK}};
+            color: \{{DARKER}};
         }
     </style>
 </script>

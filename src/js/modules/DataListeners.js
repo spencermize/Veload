@@ -11,37 +11,48 @@ function DataListeners(){
         }
 
     });
-    $(document).on('blur change mouseup','[data-update]',function(e){
-        //handle direct bindings to url endpoint
-        var el = $(e.target).closest('[data-update]');
-        var fnc = el.data('update');
-        var hosts = $(fnc.split(","))
-        var remHosts = []
-        hosts.each(function(_i,h){
-            var host = h.split(".")[0];
-            var path = h.split(".")[1];
-            var val;
-            load(el);
-            if (el.is('button')){
-                val = el.hasClass('active')
-            }else{
-                el.val()
-            }
+    $(document).on('blur','[type="text"][data-update]',function(e){
+       sendUpdates(e)
+    }); 
+    $(document).on('click','button[data-update]',function(e){
+        sendUpdates(e)
+     });    
+     $(document).on('change','select[data-update]',function(e){
+        sendUpdates(e)
+     });       
 
-            $.post(`${V.opts.urls[host][path]}?value=${val}`,function(data){
-                if(data.status="success"){
-                    remHosts.push(h);
-                    if(hosts.length == remHosts.length){
-                        loadSuccess(el);
-                    }
-                }else{
-                    loadFail(el);    
-                }
-            }).fail(function(e){
-                loadFail(el,h);
-            });
-        })       
-    });
+    function sendUpdates(e){
+       //handle direct bindings to url endpoint
+       var el = $(e.target).closest('[data-update]');
+       var fnc = el.data('update');
+       var hosts = $(fnc.split(","));
+       var remHosts = [];
+       var val;       
+       load(el);
+       if (el.is('button')){
+           val = el.hasClass('active')
+       }else{
+           val = el.val()
+       }       
+       hosts.each(function(_i,h){
+           var host = h.split(".")[0];
+           var path = h.split(".")[1];
+
+           $.post(`${V.opts.urls[host][path]}?value=${val}`,function(data){
+               if(data.status="success"){
+                   remHosts.push(h);
+                   if(hosts.length == remHosts.length){
+                       loadSuccess(el);
+                   }
+               }else{
+                   loadFail(el);    
+               }
+           }).fail(function(e){
+               loadFail(el,h);
+           });
+       }) 
+    }
+
     $(document).on('blur','[data-finish]',function(e){
         //handle finishing functions
         var el = $(e.target).closest('[data-finish]');        

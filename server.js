@@ -188,7 +188,7 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 	}
 	switch (req.params.action) {
 		case 'user':
-			User.findOne({attributes:['hr','cadence','speed','circumference','units','layout','url'], where: { username: req.session.user } }).then(function (user) {
+			User.findOne({attributes:['hr','cadence','speed','circumference','units','layout','url','modes'], where: { username: req.session.user } }).then(function (user) {
 				if(req.params.sub=="all"){
 					res.json(user);
 				}else{
@@ -432,6 +432,10 @@ function userModel(sequelize){
 		cadence: {
 			type: Sequelize.BOOLEAN,
 			defaultValue: true
+		},
+		modes:{
+			type: Sequelize.TINYINT,
+			defaultValue: 5
 		}
 	});
 	return User;
