@@ -4,5 +4,5 @@ $(document).on('routeCompleted.veload',function(){
         title: "ride completed!"
     }
 
-    var over = $(self.cTemps['overlay'](config));
+    V.pop(config);
 });

@@ -19,6 +19,7 @@ html {
 h1,h2,h3,h4,h5,h6{
 	font-family: 'Work Sans', sans-serif;
 	font-weight: 900;
+	color: $secondary;
 }
 h5{
 	text-transform: capitalize;
@@ -40,7 +41,7 @@ nav.navbar{
 	}
 } 
 .speech{
-	@extend .display-1;
+	@extend .display-3;
 }
 .loader,.settings{
 	@extend .d-none;
@@ -326,6 +327,9 @@ nav .pause,.playing .play,.stop{
 	top: 0;
 	.centered{
 		width: 30vw;
+	}
+	.top{
+		top: 20vh;
 	}
 }
 .overlay-backdrop{

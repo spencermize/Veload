@@ -8,14 +8,16 @@ var PhotosUncached = {
     },
     getPhotos: async function(lat,lon,rad){
         const axios = require('axios');
-        var tags = ["beautiful","sunset","sunrise","architecture","landscape","building","outdoors","trail","travel","-car"].join(",");
+        var tags = ["sunset","sunrise","architecture","landscape","building","outdoors","park","trees","nature","trail","travel","-car","-baby","-hospital"].join(",");
         var sort = 'relevance';
         var text = '';
         const mode = 'any';
         const format = 'json';
         const perpage = 50;
         const q = `https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=${config.flickr}&text=${text}&tag_mode=${mode}&sort=${sort}&format=${format}&extras=url_k,url_h&per_page=${perpage}&nojsoncallback=1&tags=${tags}&content_type=1&lat=${lat}&lon=${lon}&radius=${rad}`;
+        console.log(q)
         var response = await axios(q);
+        console.log(response)
         var url = "";
         var data = response.data
         if (data.photos.total > 0) {

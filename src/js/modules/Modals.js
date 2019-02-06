@@ -1,3 +1,4 @@
+import {setColors} from './ColorControls.js';
 Veload.prototype.unpop = function () {
 	$('body').removeClass('loading');
 	$('#modal').modal('hide');
@@ -26,7 +27,9 @@ Veload.prototype.pop = function (cnf = {}, evt = {}) {
 	$('#modal .btn-cancel').on('click', events.cancelClick);
 	$('#modal .btn-accept').on('click', events.acceptClick);
     $('#modal').modal('show');
-	$('[data-toggle=tooltip]').tooltip()
+	$('[data-tooltip=tooltip]').tooltip()
+	setColors();
+
 }
 
 $('#modal-container').on('hidden.bs.modal','#modal',function(){

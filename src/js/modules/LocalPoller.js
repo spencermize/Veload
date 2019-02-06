@@ -18,47 +18,57 @@ var LocalPoller = {
             if (V.status.status) {
                 $.getJSON(V.opts.urls.local.stats, function (data) {
                     //expect meters/second
-                    var metSpeed = Math.max(new Number(data.speed),0);
-
-                    // m/s -> mph (TODO: get rid of magic numbers)
-                    var speed = metSpeed * 2.23694;
+                    var speed = Number(Math.max(new Number(data.speed),0)).toFixed(4);
 
                     // speed point * (time since last update -> seconds)
-                    var last = _.last(V.points)
-                    var distance = metSpeed * (moment().diff(moment(last.time)) / 1000);
+                    // if this is the first loop, there will only be one partial point (from the map initialization). kill that point and put a full one in.
+                    var last = null;
+                    if(V.points.length>1){
+                        last = _.last(V.points);
+                    }else{
+                        last = new Point(V.rTrail[1].latlng.lat, V.rTrail[1].latlng.lng,moment().format(), hr, cad, speed)
+                        V.points[0] = last;
+                    }
 
-                    var cad = data.cadence;
-                    var hr = data.hr;
+                    //covered this many meters
+                    var distance = speed * (moment().diff(moment(last.time)) / 1000);
+
+                    var cad = Number(data.cadence).toFixed(2);
+                    var hr = Number(data.hr).toFixed(0);
                                         
                    // console.log("traveled " + distance);
                     if (distance && V.rTrail.length) {
-                        while (distance > V.rTrail[0].distance) {
+                        while (distance >= V.rTrail[0].distance && V.rTrail.length>1) {
                            // console.log("Change up!");
                             //change direction
                             //first, just bump us to the next waypoint
                             V.points.push(new Point(V.rTrail[1].latlng.lat, V.rTrail[1].latlng.lng,moment().format(), hr, cad, speed));
+                            $(document).trigger('locationUpdated.veload');
                             //then, set the distance remaining after we get to the new waypoint
                             distance = distance - V.rTrail[0].distance;
                             //then, ditch the old waypoint
                             V.rTrail.shift();
-                            if(V.rTrail.length == 0){
-                                $(document).trigger('routeCompleted.veload');
-                            }
                         }
-
-                        V.rTrail[0].distance = V.rTrail[0].distance - distance;
                       //  console.log(V.rTrail[0].distance + " remaining until waypoint");
-                        var newLoc = geolib.computeDestinationPoint(last, distance, V.rTrail[0].bearing);
+                        V.rTrail[0].distance = V.rTrail[0].distance - distance;
+                    
+                        var newLoc = geolib.computeDestinationPoint(_.last(V.points), distance, V.rTrail[0].bearing);
                         var point = new Point(newLoc.latitude, newLoc.longitude, moment().format(), hr, cad, speed);
                        // console.log(point);
                         V.points.push(point);
-                    } else {
-                        if (V.points.length) {
-                            V.points.push(new Point(last.lat, last.lng, moment().format(), last.hr, 0, 0));
-                        }
+                        if(V.rTrail.length==1 && V.rTrail[0].distance<=0){
+                            //nothing left, we're done!
+                            $(document).trigger('routeCompleted.veload');
+                        }                        
+                        $(document).trigger('locationUpdated.veload');
                     }
-                    $(document).trigger('locationUpdated.veload');
-                    if (hrCount % 15 == 0) {
+                    if(cad>0){
+                        $(document).trigger('cadenceUpdated.veload');
+                    }
+                    if(speed>0){
+                        $(document).trigger('speedUpdated.veload');
+                    }
+                    if (hrCount % 5 == 0 && hr>0) {
                         $(document).trigger('hrUpdated.veload');
                     }
                     hrCount++;

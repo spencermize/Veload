@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { setColors } from './ColorControls';
 function DataListeners(){
     $(document).on('click','[data-cmd]', function(e){
         let fnc = $(e.target).closest('[data-cmd]').data('cmd');
@@ -61,7 +62,7 @@ function DataListeners(){
         _.forEach(V.status.sensors,function(value,key){
             $(`[data-sensor="${key}"]`).toggleClass("btn-primary",value).toggleClass("btn-outline-secondary",!value);
         });
-
+        setColors();
     })
     $(document).on("settingsShown.veload",function(){
         _.forEach(V.status,function(value,key){
@@ -80,6 +81,7 @@ function DataListeners(){
                 el.val(value);
             }  
         });
+        setColors();
     })
     $(document).on("urlsUpdated.veload",function(_e){
         $.post(`${V.opts.urls.remote.userUrl}?value=${V.opts.urlComponents.local.url}`,function(){

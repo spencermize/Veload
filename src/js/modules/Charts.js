@@ -23,11 +23,19 @@ function Charts(){
 		$(document).on(`${v.data('listen')}.veload`, function () {
 			if (V.points.length) {
 				var point = _.last(V.points);
-				console.log(`updating ${name} with x: ${moment(point.time).valueOf()} and y: ${point[param]} `);
-				chart.data.datasets[0].data.push({ x: moment(point.time).valueOf(), y: point[param] });
-				chart.data.datasets[0].pointBackgroundColor.push(V.GOOD);
-				chart.data.datasets[0].backgroundColor = V.GOODBG;
-				chart.update({ preservation: true });
+				var p = "";
+				if(param=="speed" && V.user.units=="miles"){
+					p = V.opts.toBarbarianph(point[param]);
+				}else if(param=="speed" && V.user.units=="kilometers"){
+					p = V.opts.toKph(point[param]);
+				}else{
+					p = point[param]
+				}
+				//console.log(`updating ${name} with x: ${moment(point.time).valueOf()} and y: ${point[param]} `);
+				chart.data.datasets[0].data.push({ x: moment(point.time).valueOf(), y: p });
+				chart.data.datasets[0].pointBackgroundColor.push(V.opts.colors.GOOD);
+				chart.data.datasets[0].backgroundColor = V.opts.colors.GOODBG;
+				chart.update();
 			}
 		});	
 		$(document).on('start.veload',function(){

@@ -2,17 +2,18 @@ console.log("trying to load map...");
 	
 function Maps(){
 	$(document).one(`modulesLoaded.veload`,function(e){
-		V.createMap();
-		V.updateMap();
+		init();
 	});
 	$(document).trigger("initialized.maps");
 //	if (!(this instanceof Maps)) return new Maps(opts);
 }
-
+function init(){
+	V.createMap();
+	V.updateMap();	
+}
 V.getMap = function(){
 	return $('.map').data("map");
 }
-
 V.createMap = function(){
 	console.log('create map');
 	var el = $('.map');
@@ -29,16 +30,21 @@ V.createMap = function(){
 
 V.updateMap = function(){
 	$(document).on('locationUpdated.veload',function(){
-		V.getMap().flyTo(_.last(V.points),18,{
-			//animate: true,
-			//duration: .25 // in seconds
+		var l = V.points[V.points.length - 1]
+		V.getMap().flyTo(l,16,{
+			animate: true,
+			duration: .5 // in seconds
 		});
-		V.myIcon.setLatLng(_.last(V.points));
+		V.myIcon.setLatLng(l);
 	});
 	$(document).on('gridItemResized.maps,gridResized.veload',function(){
 		console.log('redrawing map');
 		V.getMap().invalidateSize();
-	});	
+	});
+	$(document).on('clear.veload',function(){
+		V.getMap().remove();
+		init();
+	});
 }
 
 V.loadGPX = function(url){
@@ -58,14 +64,16 @@ V.loadGPX = function(url){
 			var b = geolib.getBearing(sl,fl);
 			V.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
 		}
-		V.points.push(new Point(V.rTrail[0].latlng.lat,V.rTrail[0].latlng.lng));
+		var l = new Point(V.rTrail[0].latlng.lat,V.rTrail[0].latlng.lng)
+		V.points.push(l);
 
 		var pulsingIcon = L.icon.pulse({
 			iconSize:[20,20],
 			color: V.opts.colors.GOOD,
 			fillColor: V.opts.colors.GOOD
 		});
-		V.myIcon = L.marker([_.last(V.points).lat,_.last(V.points).lng],{icon: pulsingIcon,opacity:.8}).addTo(V.getMap());
+		V.myIcon = L.marker([l.lat,l.lng],{icon: pulsingIcon,opacity:.8}).addTo(V.getMap());
+		$(document).trigger("trackLoaded.veload");
 	}).on('error',function(e){
 		V.error(e);
 	}).addTo(V.getMap());		
@@ -102,6 +110,7 @@ V.pickTrackGUI = function(){
 			var list = new List("searchme",options);
 			list.clear();
 
+			//add each item to modal
 			data.forEach(function(el){
 				if(el.map.summary_polyline){
 					var type;

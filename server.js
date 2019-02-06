@@ -20,13 +20,14 @@ require('./src/js/modules/HbsHelpers.js');
 
 //webapp
 const express = require('express');
-const compression = require('compression')
-const responseTime = require('response-time')
+const favicon = require('serve-favicon');
+const compression = require('compression');
+const responseTime = require('response-time');
 const session = require('express-session');
 const app = express();
 
 app.use(responseTime());
-
+app.use(favicon(appRoot + '/public/favicon.ico'))
 
 if(config.env !== "development"){
 	// include and initialize the rollbar library with your access token
@@ -164,8 +165,8 @@ app.get('/icons/:img',function(req,res,next){
 app.get('/photos/:img',function(req,res){
 	try{
 		if(req.params.img.indexOf("jpg")>-1){
-			if(fs.existsSync(`${os.tmpdir()}/${req.params.img}`)){
-				res.sendFile(`${os.tmpdir()}/${req.params.img}`);
+			if(fs.existsSync(`${os.tmpdir()}/backgrounds/${req.params.img}`)){
+				res.sendFile(`${os.tmpdir()}/backgrounds/${req.params.img}`);
 			}else{
 				res.sendFile(`${__dirname}/public/img/backgrounds/${req.params.img}`);
 			}
@@ -181,7 +182,7 @@ app.get('/photos/:img',function(req,res){
 app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava], function(req,res,next){
 	let data = "";
 	let strava = res.locals.strava;
-	let p = {'access_token':res.locals.token};
+	let p = {'access_token':res.locals.token,'per_page':100};
 	if(req.params.id){
 		p = Object.assign({id:req.params.id},p)
 	}

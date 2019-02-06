@@ -2,16 +2,17 @@
 import { TinyColor } from '@ctrl/tinycolor';
 import { mostReadable } from '@ctrl/tinycolor';
 import {setColors} from './ColorControls.js';
+import _ from 'lodash';
 
 function PhotoRefresher() {
-	var i;
+	V.photoRefresher = "";
 	$(document).on("pause.veload",function(f){
-		clearInterval(i);
+		clearInterval(V.photoRefresher);
 	});
 
 	$(document).on("start.veload",function(){
 		var radius = 1;
-		i = setInterval(function () {
+		V.photoRefresher = setInterval(function () {
 			radius = updatePhoto(radius);
 		}, 15000);
 
@@ -38,7 +39,7 @@ function updatePhoto(radius){
 	var url;
 	if(V.points.length){
 		var l = _.last(V.points);
-		url = `${V.opts.urls.remote.photos}?lat=${l.lat}&lon=${l.lng}&radius=${radius}`;
+		url = `${V.opts.urls.remote.photos}/${l.lat}/${l.lng}/${radius}/public`;
 	}else{
 		url = `${V.opts.urls.remote.photosRandom}/public`;
 	}

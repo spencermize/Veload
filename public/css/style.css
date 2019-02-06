@@ -382,7 +382,7 @@ h6, .h6 {
   font-weight: 300;
 }
 
-.display-1, .speech {
+.display-1 {
   font-size: 6rem;
   font-weight: 300;
   line-height: 1.2;
@@ -394,7 +394,7 @@ h6, .h6 {
   line-height: 1.2;
 }
 
-.display-3 {
+.display-3, .speech {
   font-size: 4.5rem;
   font-weight: 300;
   line-height: 1.2;
@@ -9723,6 +9723,7 @@ html {
 h1, h2, h3, h4, h5, h6 {
   font-family: "Work Sans", sans-serif;
   font-weight: 900;
+  color: #6c757d;
 }
 
 h5 {
@@ -10328,6 +10329,9 @@ nav .pause, .playing .play, .stop {
 }
 .overlay .centered {
   width: 30vw;
+}
+.overlay .top {
+  top: 20vh;
 }
 
 .overlay-backdrop {

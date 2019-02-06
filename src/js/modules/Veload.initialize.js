@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Charts } from './Charts.js';
 const annyang = require("annyang");
 
+V.setColors = setColors;
 // first thing loaded
 Veload.prototype.loadInterface = function(){
 	var self = this;
@@ -106,12 +107,12 @@ Veload.prototype.getUser = function(callback){
 //third thing loaded
 Veload.prototype.loadDash = function(){
 	var self = this;
-	self.initVoice();
+	V.initVoice();
 	V.poller.poll();
 	V.poller.startPolling(3000);
 	PhotoRefresher();
 	self.initGrid();
-	$('[data-toggle="tooltip"]').tooltip();
+	$('[data-tooltip="tooltip"],[data-toggle="tooltip"]').tooltip();
 }
 
 Veload.prototype.initTimers = function(){
@@ -144,11 +145,21 @@ Veload.prototype.initVoice = function(){
 		// Add our commands to annyang
 		annyang.addCommands(commands);
 
+		annyang.addCommands({
+			'select item :num' : {
+				callback: function(num){
+					$(`#modal li:eq(${num-1}) [data-cmd]`).click();
+				},
+				regexp: /^select item ([0-9])$/
+			}
+		})
+
 		annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
 			var config = {
 				message: userSaid,
 				title: "command recognized",
-				class: "speech"
+				class: "speech",
+				mainClass: "top"
 			}
 			var over = $(self.cTemps['overlay'](config));
 			$('body').append(over);
@@ -156,6 +167,12 @@ Veload.prototype.initVoice = function(){
 				over.remove();
 			},2000);
 		});
+		annyang.addCallback('error',function(err){
+			if(err.error != "no-speech"){
+				V.error("The speech engine has crashed - do you have another Veload tab open?")
+				console.log(err);
+			}
+		})
 
 		// Start listening.
 		annyang.start({ autoRestart: true });

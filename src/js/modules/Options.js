@@ -32,6 +32,18 @@ var Options = {
     },
     UPDATEFREQ : 1000,
     NUMFORM : '0,000.00',
+    toBarbarianph : function(mps){
+        return mps * 2.23694;
+    },
+    toKph : function(mps){
+        return mps * 3.6;
+    },
+    toBarbarian: function(m){
+        return m / 1609.344;
+    },
+    toK: function(m){
+        return m / 1000;
+    },
     colors: {
         GOOD : "#28a745",
         GOODBG : "#53F377",

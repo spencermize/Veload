@@ -58,19 +58,16 @@ Veload.prototype.listenForFinish = function (finishedEvent) {
 }
 Veload.prototype.start = function () {
 	var self = this;
-	if(!self.points.length){
-		var buttons = $(self.cTemps['buttons']());		
+	if(self.points.length){
 		var config = {
 			title: "waiting for sensors to connect",
 			overClass: "bigButtons",
-			content: buttons.html()
+			content: self.cTemps['buttons']()
 		}
-
 		var over = $(self.cTemps['overlay'](config));
-	//	over.find("div.content").html(buttons.html());
 		var b = $('body').append(over);
 
-		var connected = setInterval(function(){self.sensorsConnected(self)},1000);
+		var connected = setInterval(function(){self.sensorsConnected(self)},500);
 		$(document).on('sensorsConnected.veload',function(){
 			clearInterval(connected);
 			over.remove();
@@ -81,6 +78,9 @@ Veload.prototype.start = function () {
 		})
 	}else{
 		V.pickTrackGUI();
+		$(document).one("trackLoaded.veload",function(){
+			V.start();
+		})
 	}
 }
 Veload.prototype.sensorsConnected = function(self){
@@ -187,17 +187,24 @@ Veload.prototype.fullscreen = function (config) {
 
 Veload.prototype.getAvg = function (unit) {
 	var self = this;
-	return self.getDistance(unit) / (self.elapsed / 60 / 60);
+	if(V.points.length>=2){
+		var d = self.getDistance(unit) 
+		var t = moment(_.last(V.points).time).diff(moment(V.points[1].time)) / 1000 / 3600;
+		return d / t
+	}else{
+		return 0;
+	}
+
 }
 Veload.prototype.getDistance = function (unit) {
 	var self = this;
 	var dm = geolib.getPathLength(self.points);
 	if (unit == "miles") {
-		return dm / 1609.344;
+		return V.opts.toBarbarian(dm);
 	} else if (unit == "meters") {
 		return dm;
 	} else if (unit == "kilometers"){
-		return dm / 1000;
+		return V.opts.toK(dm);
 	}
 }
 Veload.prototype.loading = function () {
