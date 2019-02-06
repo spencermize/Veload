@@ -13,6 +13,7 @@ window._ = _;
 
 //init Veload Core
 import {Options} from './modules/Options.js';
+import {Goals} from './modules/Goals.js';
 import {Veload} from './modules/Veload.js';
 import {HomePage} from './modules/HomePage.js';
 import './modules/HandlebarsHelpers.js';
@@ -33,7 +34,6 @@ $(function(){
 	require('./modules/RideListeners.js');
 	require('./modules/Veload.initialize.js');
 	require('./modules/SettingsPane.js');
-	require('./modules/Goals.js');
 
 	DataListeners();
 	if(window.location.pathname=="/" || window.location.pathname=="/about"){
@@ -42,6 +42,7 @@ $(function(){
 	}else{
 		V.loadInterface();
 		V.loadProfile();
+		V.Goals = Goals;
 		ConnectionStatus();
 	}
 	updatePhoto();

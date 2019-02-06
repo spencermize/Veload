@@ -1,14 +1,18 @@
 <script id="goals-temp" type="text/x-handlebars-template">
 <select class="form-control variable mb-3">
 	<option data-min="50" data-max="250" data-unit="bpm" data-decimal="0">Heartrate</option>
-	<option>Speed</option>
-	<option>Cadence</option>
+	<option data-min="2" data-max="40" data-unit="\{{units}} / hour" data-decimal="1">Speed</option>
+	<option data-min="2" data-max="150" data-unit="" data-decimal="0">Cadence</option>
 	<option>Power</option>
 </select>
-<div class="goals-container">
+<div class="goals-container mb-3">
 	<div class="goals-grid">
-		<div class="item"><div class="item-content"><div class="closer" data-cmd='removeGoal'>x</div></div></div>
+		
 	</div>
 </div>
-<button class="btn btn-primary" data-cmd="addGoal">Add</button>
+<button class="btn btn-primary" data-cmd="Goals.addGoal">Add Goal</button>
+<button class="btn btn-primary" data-cmd="addTime">Add Time</button>
+<div class="goal-item-template d-none">
+	<div class="item" data-toggle="tooltip"><div class="item-content"><div class="closer" data-cmd='Goals.removeGoal'>x</div></div></div>
+</div>
 </script>

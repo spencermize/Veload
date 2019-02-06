@@ -4,9 +4,14 @@ function DataListeners(){
     $(document).on('click','[data-cmd]', function(e){
         let fnc = $(e.target).closest('[data-cmd]').data('cmd');
         console.log(fnc);
-        if(V[fnc]){
-            V[fnc]($(e.target));
-        }else if(fnc){
+        var fncs = fnc.split(".");
+        var one = fncs[0];
+        var two = fncs[1] || 0;
+        if(fncs.length == 1 && V[fnc]){
+            V[fncs[0]]($(e.target));
+        }else if(fncs.length == 2 && V[one][two] ){
+            V[one][two]($(e.target));
+        }else{
             console.log("couldn't find fnc");
         }
 

@@ -10395,16 +10395,12 @@ nav .pause, .playing .play, .stop {
   border-top: 1px solid green;
   position: absolute;
   display: block;
-  min-height: 50px;
-  min-width: 20px;
+  height: 10vh;
+  min-height: 10px;
+  min-width: 10px;
 }
 .goals-container .goals-grid .item-content {
   position: relative;
-  margin-top: -50px;
-  max-height: 50px;
-  overflow-x: hidden;
-  overflow-y: show;
-  white-space: nowrap;
 }
 .goals-container .goals-grid .resizing {
   background: blue;
@@ -10412,8 +10408,12 @@ nav .pause, .playing .play, .stop {
 }
 .goals-container .goals-grid .closer {
   position: absolute;
-  top: 10px;
+  top: 0px;
   right: 10px;
+  cursor: pointer;
+}
+.goals-container .goals-grid .closer:hover {
+  font-weight: 800;
 }
 
 /*# sourceMappingURL=style.css.map */
