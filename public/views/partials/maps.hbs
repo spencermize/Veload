@@ -17,17 +17,17 @@ p-0
 			<div class='row mb-3'>
 				<div class='col-lg-6'><input class='search form-control' placeholder='Filter...'/></div>
 				<div class='col-lg-3'><button class='btn btn-outline-secondary sort' data-sort='name'>Name <i class='fas fa-sort'></i></button></div>
-				<div class='col-lg-3s'><button class='btn btn-outline-secondary sort' data-sort='timestamp'>Date <i class='fas fa-sort'></i></button></div>
+				<div class='col-lg-3'><button class='btn btn-outline-secondary sort' data-sort='timestamp'>Date <i class='fas fa-sort'></i></button></div>
 			</div>
 			<ul class='list list-group'>
 				<li class='list-group-item list-group-item-action flex-column align-items-start'>
-					<div class="d-flex w-100 justify-content-between">
-						<div>
-							<h5 class='name'></h5>
+					<div class="row">
+						<div class="col-9">
+							<h5 class="name truncate"></h5>
 							<p class="mb-1 description"></p>
 						</div>
-						<div>
-							<small class='days'></small>						
+						<div class="col-3 text-right">
+							<small class="days align-top"></small>						
 							<button class="btn btn-outline-primary d-block mr-0 ml-auto" data-cmd="loadTrack"><i class="fas fa-cloud-download-alt"></i></button>
 						</div>
 					</div>

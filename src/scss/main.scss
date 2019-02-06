@@ -17,8 +17,8 @@ html {
 }
 
 h1,h2,h3,h4,h5,h6{
-	font-family: 'Work Sans', sans-serif;
-	font-weight: 900;
+	font-family: 'Poppins', sans-serif;
+	font-weight: 800;
 	color: $secondary;
 }
 h5{
@@ -245,7 +245,6 @@ nav .pause,.playing .play,.stop{
 			overflow: hidden;
 			color: #eee;
 			border: 0;
-			text-shadow: 0.05em 0 $secondary, 0 0.05em $secondary, -0.05em 0 $secondary, 0 -0.05em $secondary, -0.05em -0.05em $secondary, -0.05em 0.05em $secondary, 0.05em -0.05em $secondary, 0.05em 0.05em $secondary
 		}
 		.card-body{
 			transition: all .5s;
@@ -373,3 +372,13 @@ nav .pause,.playing .play,.stop{
 	}
 	  
 }
+.truncate {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+  }
+.searcher{
+	small{
+		font-size:70%;
+	}
+  }

@@ -9721,8 +9721,8 @@ html {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Work Sans", sans-serif;
-  font-weight: 900;
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
   color: #6c757d;
 }
 
@@ -9949,7 +9949,6 @@ nav .pause, .playing .play, .stop {
   overflow: hidden;
   color: #eee;
   border: 0;
-  text-shadow: 0.05em 0 #6c757d, 0 0.05em #6c757d, -0.05em 0 #6c757d, 0 -0.05em #6c757d, -0.05em -0.05em #6c757d, -0.05em 0.05em #6c757d, 0.05em -0.05em #6c757d, 0.05em 0.05em #6c757d;
 }
 .grid .card .card-body {
   transition: all 0.5s;
@@ -10369,6 +10368,16 @@ nav .pause, .playing .play, .stop {
 }
 .over ol li {
   margin-bottom: 15px;
+}
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.searcher small {
+  font-size: 70%;
 }
 
 /*# sourceMappingURL=style.css.map */
