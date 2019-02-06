@@ -10380,4 +10380,40 @@ nav .pause, .playing .play, .stop {
   font-size: 70%;
 }
 
+.goals-container {
+  height: 60vh;
+  width: 100%;
+  background: pink;
+  position: relative;
+}
+.goals-container .goals-grid {
+  position: absolute;
+  bottom: 0;
+}
+.goals-container .goals-grid .item {
+  background: yellow;
+  border-top: 1px solid green;
+  position: absolute;
+  display: block;
+  min-height: 50px;
+  min-width: 20px;
+}
+.goals-container .goals-grid .item-content {
+  position: relative;
+  margin-top: -50px;
+  max-height: 50px;
+  overflow-x: hidden;
+  overflow-y: show;
+  white-space: nowrap;
+}
+.goals-container .goals-grid .resizing {
+  background: blue;
+  z-index: 5;
+}
+.goals-container .goals-grid .closer {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
 /*# sourceMappingURL=style.css.map */

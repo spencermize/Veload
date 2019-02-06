@@ -1,6 +1,6 @@
 import _ from 'lodash';
+V.SettingsPane = SettingsPane;
 function SettingsPane() {
-	var src = $('#settings-temp').html();
 	V.loading();
 	$.getJSON(V.opts.urls.remote.modules, function (data) {
 		var opts = {
@@ -9,8 +9,7 @@ function SettingsPane() {
 			links: ["bike","connection","modules"]
 		}
 		//console.log(opts);
-		var comp = Handlebars.compile(src);
-		comp = comp(opts);
+		var comp = self.cTemps.settings(opts)
 		var popts = {
 			title: "Veload Settings",
 			body: comp,

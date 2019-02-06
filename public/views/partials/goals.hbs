@@ -1,31 +1,14 @@
-{{#partial "script"}}
-true
-{{/partial}}
-
-{{#partial "bodyContent" }}
-	<div class="input-group mb-3">
-		<div class="input-group-prepend">
-			<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">Speed</span>
-			<div class="dropdown-menu">
-				<a class="dropdown-item" href="#">Speed</a>
-				<a class="dropdown-item" href="#">Cadence</a>
-			</div>
-		</div>
-		<input class="form-control col-lg-4" type="text" value="15" id="desiredSpeed"></input>
-		<div class="input-group-append">
-			<span class="input-group-text">mph</span>
-		</div>
-		<span class="mx-4 input-group-text bg-dark text-white"> for </span>
-		<input class="form-control col-lg-4" type="text" value="5"></input>
-		<div class="input-group-append">
-			<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">Minutes</span>
-			<div class="dropdown-menu">
-				<a class="dropdown-item" href="#">Minutes</a>
-				<a class="dropdown-item" href="#">Seconds</a>
-			</div>
-		</div>						
-		<button class="btn btn-outline-secondary create mx-3" data-cmd="createRoute"><i class="fas fa-plus"></i></button>
+<script id="goals-temp" type="text/x-handlebars-template">
+<select class="form-control variable mb-3">
+	<option data-min="50" data-max="250" data-unit="bpm" data-decimal="0">Heartrate</option>
+	<option>Speed</option>
+	<option>Cadence</option>
+	<option>Power</option>
+</select>
+<div class="goals-container">
+	<div class="goals-grid">
+		<div class="item"><div class="item-content"><div class="closer" data-cmd='removeGoal'>x</div></div></div>
 	</div>
-{{/partial}}
-
-{{> module}}
+</div>
+<button class="btn btn-primary" data-cmd="addGoal">Add</button>
+</script>

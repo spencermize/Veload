@@ -18,7 +18,6 @@ import {HomePage} from './modules/HomePage.js';
 import './modules/HandlebarsHelpers.js';
 import {LocalPoller} from './modules/LocalPoller.js';
 import {updatePhoto} from './modules/PhotoRefresher.js';
-import {SettingsPane} from './modules/SettingsPane.js';
 import {ConnectionStatus} from './modules/ConnectionStatus.js';
 import {DataListeners} from './modules/DataListeners.js';
 
@@ -33,13 +32,14 @@ $(function(){
 	require('./modules/Modals.js');
 	require('./modules/RideListeners.js');
 	require('./modules/Veload.initialize.js');
+	require('./modules/SettingsPane.js');
+	require('./modules/Goals.js');
 
 	DataListeners();
 	if(window.location.pathname=="/" || window.location.pathname=="/about"){
 		HomePage();
 		$("body").removeClass("loading");
 	}else{
-		V.SettingsPane = SettingsPane;
 		V.loadInterface();
 		V.loadProfile();
 		ConnectionStatus();
