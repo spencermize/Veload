@@ -1,17 +1,18 @@
 <script id="colorOverrides-temp" type="text/x-handlebars-template">
     <style id="color-overrides">
-        .card-body,.navbar{
+        .card-body,.navbar,.goals-container{
             background-color:\{{MAINBG}};
             color:\{{MAINTXT}};
         }
         .nav-pills .nav-link,.grid .card .card-header *{
             color:\{{DARKER}};
         }
-        .nav-pills .nav-link.active,.btn-primary{
+        .nav-pills .nav-link.active,.btn-primary:hover{
             background-color:\{{DARKER}};
+            border-color: \{{DARKER}};
             color:#fff;
         }
-        body .btn-toggle.active,.pagination .active .page{
+        body .btn-toggle.active,.pagination .active .page,.goals-container .resizing,body .btn-primary.active{
             background-color:\{{DARKER}};
             border-color:\{{DARKER}};
         }
@@ -24,18 +25,21 @@
             border-color:rgba(179,58,58,1);
             color:#fff;
         }
-        body .btn-outline-primary{
+        body .btn-outline-primary,.clicker .control:hover{
             color: \{{DARKER}};
             border-color:\{{DARKER}};
-        }	
-        body .btn-primary.active{
-            border-color:\{{DARKER}};
-            background-color:\{{DARKER}};
         }
-        body .btn-outline-primary:hover,body .btn-outline-secondary:hover,body .btn-outline-primary:active,body .btn-outline-secondary:active{
+        .goals-container .item{
+            background-color: \{{DARK}};
+            border-color:\{{DARKER}};
+        }
+        body .btn-outline-primary:hover,body .btn-outline-secondary:hover,body .btn-outline-primary:active,body .btn-outline-secondary:active,.btn-primary{
             background-color:\{{DARK}};
             border-color: \{{DARK}};
             color: \{{DARKER}};
+        }
+        .btn-primary{
+            color: #fff;
         }
     </style>
 </script>

@@ -13,6 +13,13 @@
 <button class="btn btn-primary" data-cmd="Goals.addGoal">Add Goal</button>
 <button class="btn btn-primary" data-cmd="addTime">Add Time</button>
 <div class="goal-item-template d-none">
-	<div class="item" data-toggle="tooltip"><div class="item-content"><div class="closer" data-cmd='Goals.removeGoal'>x</div></div></div>
+	<div class="item" data-toggle="tooltip">
+		<div class="item-content">
+			<div class="clicker">
+				<div class="closer control mr-4" data-cmd='Goals.removeGoal'><i class="fas fa-times-circle"></i></div>
+				<div class="cloner control" data-cmd='Goals.cloneGoal'><i class="fas fa-clone"></i></div>
+			</div>
+		</div>
+	</div>
 </div>
 </script>

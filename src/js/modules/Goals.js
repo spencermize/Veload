@@ -22,7 +22,7 @@ Goals.show = function(){
 		var fullGrid = $('.goals-container');
 		var availY = fullGrid.height();
 		var availX = fullGrid.width();
-		var vari,max,min,unit,increment,minutes,totalX;
+		var vari,max,min,unit,increment,minutes,totalX,bBox,minLimit;
 
 		var grid = new Muuri('.goals-grid', {
 			layout: {
@@ -46,39 +46,46 @@ Goals.show = function(){
 					right: true
 				},
 				restrictEdges: {
-					restriction: '.goals-container'
+					restriction: $('.goals-container')[0]
 				},
+				inertia: false,
 				snap: {
 					endOnly: true
 				}
 			})
 			.on('resizestart', function () {
 				vari = $('.veload-goals .variable').find(":selected");
+				bBox = $('.goals-container')[0].getBoundingClientRect();
 				max = vari.data("max");
 				min = vari.data("min");
 				unit = vari.data("unit");
+				minLimit = $('.item').css("min-height").replace(/\D+/,"");
 				increment = 1;
 				minutes = 60;
 				totalX = (60 / increment) * minutes;
 			})
 			.on('resizemove', function (e) {
 				var target = $(e.target);
-				var targetContent = target.find(".item-content");
-				var percentY = e.rect.height / availY;
-				var percentX = e.rect.width / availX;
-				var absY = Number(((max - min) * percentY) + min).toFixed(vari.data("decimal"));
-				var absX = Number((totalX * percentX) / 60).toFixed(2);
-				var absXMinutes = Math.ceil(absX) > 0 ? Math.ceil(absX) + " min" : "1 min";
-				//var absXSeconds = (Math.round((absX % 1 * 60) / 15) * 15) + " seconds";
-				// update the element's style
-				var transform = target[0].style.transform.replace(/(translateY\()(-?\d+(?=px))/, `$1-${Math.floor(e.rect.height)}`);
 
-				target.css({ "width": e.rect.width + 'px', "height": e.rect.height + 'px', 'transform': transform }).addClass('resizing');
-				var msg = `${absY} ${unit} for ${absXMinutes}`
-				targetContent.closest(".item").attr("title", msg);
-				target.tooltip({animation:false});
-				target.tooltip('hide');
-				target.attr('data-original-title', msg).tooltip("show");
+				if(e.rect.height>minLimit && e.clientY>bBox.top && e.clientX<bBox.right){
+					var targetContent = target.find(".item-content");
+					var percentY = e.rect.height / availY;
+					var percentX = e.rect.width / availX;
+					var absY = Number(((max - min) * percentY) + min).toFixed(vari.data("decimal"));
+					var absX = Number((totalX * percentX) / 60).toFixed(2);
+					var absXMinutes = Math.ceil(absX) > 0 ? Math.ceil(absX) + " min" : "1 min";
+					//var absXSeconds = (Math.round((absX % 1 * 60) / 15) * 15) + " seconds";
+					// update the element's style
+					var transform = target[0].style.transform.replace(/(translateY\()(-?\d+(?=px))/, `$1-${Math.floor(e.rect.height)}`);
+	
+					target.css({ "width": e.rect.width + 'px', "height": e.rect.height + 'px', 'transform': transform }).addClass('resizing');
+					var msg = `${absY} ${unit} for ${absXMinutes}`
+					targetContent.closest(".item").attr("title", msg).data("met",absY);
+					target.tooltip({animation:false});
+					target.tooltip('hide');
+					target.attr('data-original-title', msg).tooltip("show");
+				}
+
 
 				if (e.dx != 0 && e.dy === 0) {
 					Goals.refresh(target[0]);
@@ -94,13 +101,18 @@ Goals.removeGoal = function(e){
 	$(e).closest(".item").remove();
 	this.refresh();
 }
-Goals.addGoal = function(first){
+Goals.addGoal = function(vari){
 	var temp =$('.goal-item-template').clone().removeClass('d-none').children()
-	if(first===true){
+	if(vari===true){
 		temp.find('.closer').addClass("d-none");
+	}else if($(vari).hasClass('.item')){
+		temp = vari;
 	}
 	$('.goals-container').data('grid').add(temp[0])
 
+}
+Goals.cloneGoal = function(e){
+	this.addGoal($(e).clone())
 }
 Goals.refresh = function(item){
 	var g = $('.goals-container').data('grid');

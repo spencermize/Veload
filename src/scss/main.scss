@@ -391,31 +391,31 @@ nav .pause,.playing .play,.stop{
 		position: absolute;
 		bottom: 0;
 		.item{
-			background: yellow;
-			border-top: 1px solid green;
 			position: absolute;
 			display: block;
 			height: 10vh;
 			min-height: 10px;
 			min-width: 10px;
-		}		
+			width: 10vh;
+			border-width: .2rem .05rem 0 .05rem;
+			border-style: solid;
+			border-bottom: 0;
+		}
 		.item-content {
 			position: relative;
 		}
 		.resizing{
-			background: blue;
 			z-index:5;
 		}
-		.closer{
+		.control{
 			position: absolute;
-			top: 0px;
-			right: 10px;
+			top: 0;
+			right: 5px;
 			cursor: pointer;
-			&:hover{
-				font-weight: 800;
+			*{
+				color: #fff;
 			}
 		}
-
 	}
 
 }
