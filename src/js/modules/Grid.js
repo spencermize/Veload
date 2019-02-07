@@ -5,6 +5,7 @@ Veload.prototype.moduleToggle = function (e) {
 	if (e.closest('.btn-toggle').hasClass("active")) {
 		self.enableModule(el);
 		self.loaded();
+		self.saveLayout();
 	} else {
 		self.disableModule(el);
 	}
@@ -50,8 +51,9 @@ Veload.prototype.enableModule = function (mod, cnf) {
 			console.log("waiting for " + finishedEvent);
 			self.listenForFinish(finishedEvent);
 			$('.grid').data('grid').add_widget(comp, config.size_x, config.size_y, config.col, config.row);
-		
-			if($(`[data-name=${mod}]`).data("script")){
+			console.log($(comp));
+			console.log($(comp).data("script"))
+			if($(comp).data("script") && !window[_.upperFirst(mod)]){
 				$.getScript(`/js/_${mod}.js`, function () {
 					//call constructor if necessary
 					console.log(_.upperFirst(mod));
@@ -59,7 +61,11 @@ Veload.prototype.enableModule = function (mod, cnf) {
 						window[_.upperFirst(mod)]();
 					}
 				})
-			}		
+			}else if($(comp).data("script")){
+				//script already loaded
+				console.log("script was already loaded")
+				window[_.upperFirst(mod)]();
+			}	
 		}else{
 			V.disableModule(name);
 		}

@@ -26,6 +26,9 @@ Veload.prototype.pop = function (cnf = {}, evt = {}) {
 	$('#modal-container').html(self.cTemps.modal(config));
 	$('#modal .btn-cancel').on('click', events.cancelClick);
 	$('#modal .btn-accept').on('click', events.acceptClick);
+	if(config.width){
+		$('.modal-dialog').css('max-width',config.width);
+	}
     $('#modal').modal('show');
 	$('[data-tooltip=tooltip]').tooltip()
 	setColors();

@@ -42,7 +42,7 @@ $(function(){
 	}else{
 		V.loadInterface();
 		V.loadProfile();
-		V.Goals = Goals;
+		V.Goals = new Goals();
 		ConnectionStatus();
 	}
 	updatePhoto();

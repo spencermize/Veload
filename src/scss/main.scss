@@ -8,18 +8,17 @@ html {
     overflow-x: hidden;
 }
 ::-webkit-scrollbar {
-    width: 0px;  /* remove scrollbar space */
+	width: 0px;  /* remove scrollbar space */
     background: transparent;  /* optional: just make scrollbar invisible */
-}
-/* optional: show position indicator in red */
-::-webkit-scrollbar-thumb {
-    background: #FF0000;
 }
 
 h1,h2,h3,h4,h5,h6{
 	font-family: 'Poppins', sans-serif;
 	font-weight: 800;
 	color: $secondary;
+}
+h1{
+	color: #fff;
 }
 h5{
 	text-transform: capitalize;
@@ -384,23 +383,19 @@ nav .pause,.playing .play,.stop{
   }
 .goals-container{
 	height: 60vh;
-	width: 100%;
-	background: pink;
+	width: 97%;
+	overflow: hidden;
+	overflow-x: auto;
 	position: relative;
+	border-bottom: 1px solid $gray-500;
+	border-left: 1px solid $gray-500;
+	&::-webkit-scrollbar {
+		transition: .5s all;
+		height: 10px;
+	}
 	.goals-grid{
 		position: absolute;
 		bottom: 0;
-		.item{
-			position: absolute;
-			display: block;
-			height: 10vh;
-			min-height: 10px;
-			min-width: 10px;
-			width: 10vh;
-			border-width: .2rem .05rem 0 .05rem;
-			border-style: solid;
-			border-bottom: 0;
-		}
 		.item-content {
 			position: relative;
 		}
@@ -417,5 +412,23 @@ nav .pause,.playing .play,.stop{
 			}
 		}
 	}
-
+}
+.goals-container,.goal-item-template{
+	.item{
+		position: absolute;
+		display: block;
+		height: 10vh;
+		min-height: 30px;
+		min-width: 10px;
+		width: 10vh;
+		border-width: .2rem .05rem 0 .05rem;
+		border-style: solid;
+		border-bottom: 0;
+	}
+	.item:last-of-type{
+		margin-right: 20vw;
+	}
+}
+.goal-item-template{
+	opacity: 0;
 }

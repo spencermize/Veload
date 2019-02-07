@@ -28,13 +28,11 @@ Veload.prototype.loadInterface = function(){
 			$("body").removeClass("loading");				
 		});	
 		
-		$(document).one('loaded.veload',function(){
+		$(document).on('loaded.veload',function(){
 			//build up the charts
 			
 			//I really want to use this sytax but I'm doing something wrong...
 			//import("./Charts.js").then(Charts=>{Charts()})
-
-			require('./Charts.js');
 			Charts();
 			$('[data-ride="carousel"]').carousel();	
 			setColors();

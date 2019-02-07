@@ -1,7 +1,7 @@
 import _ from 'lodash';
 function Charts(){
 	console.log('building charts');
-	var charts = $('[data-chart]');
+	var charts = $('[data-chart]').not(".initialized");
 	charts.each(function (_ind, el) {
 		console.log('initializing' + el);
 		var v = $(el);
@@ -50,6 +50,7 @@ function Charts(){
 			});
 		});		
 		console.log(`initialized.${name}`)
+		v.addClass("initialized");
 		$(document).trigger(`initialized.${name}`);					
 	});
 	$(document).on('clear.veload', function () {

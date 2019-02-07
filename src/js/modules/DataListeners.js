@@ -80,25 +80,7 @@ function DataListeners(){
         });
         setColors();
     })
-    $(document).on("settingsShown.veload",function(){
-        _.forEach(V.status,function(value,key){
-            var el = $(`[data-param="${key}"]:not(:focus)`);
-            if(el.is('button')){
-                el.toggleClass("active",value);
-            }else{
-                el.val(value);
-            }    
-        });        
-        _.forEach(V.user,function(value,key){
-            var el = $(`[data-param="${key}"]:not(:focus)`);
-            if(el.is('button')){
-                el.toggleClass("active",value);
-            }else{
-                el.val(value);
-            }  
-        });
-        setColors();
-    })
+
     $(document).on("urlsUpdated.veload",function(_e){
         $.post(`${V.opts.urls.remote.userUrl}?value=${V.opts.urlComponents.local.url}`,function(){
 

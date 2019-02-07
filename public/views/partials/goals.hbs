@@ -1,23 +1,31 @@
 <script id="goals-temp" type="text/x-handlebars-template">
-<select class="form-control variable mb-3">
-	<option data-min="50" data-max="250" data-unit="bpm" data-decimal="0">Heartrate</option>
-	<option data-min="2" data-max="40" data-unit="\{{units}} / hour" data-decimal="1">Speed</option>
-	<option data-min="2" data-max="150" data-unit="" data-decimal="0">Cadence</option>
-	<option>Power</option>
-</select>
-<div class="goals-container mb-3">
-	<div class="goals-grid">
-		
+<div class="container-fluid">
+	<div class="form-row">
+		<select class="form-control variable mb-3 col">
+			<option data-min="50" data-max="250" data-unit="bpm" data-type="hr" data-decimal="0">Heartrate</option>
+			<option data-min="2" data-max="40" data-unit="\{{units}} / hour" data-type="speed" data-decimal="1">Speed</option>
+			<option data-min="2" data-max="150" data-unit="" data-decimal="0" data-type="cadence">Cadence</option>
+			<option>Power</option>
+		</select>
+		<select class="form-control length-units mb-3 col">
+			<option data-type="\{{units}}" data-increment=".25" data-min=".25" data-decimal="2" data-max="50">Distance</option>
+			<option data-type="minutes" data-increment="1" data-min="1" data-decimal="0" data-max="60">Time</option>	
+		</select>
 	</div>
-</div>
-<button class="btn btn-primary" data-cmd="Goals.addGoal">Add Goal</button>
-<button class="btn btn-primary" data-cmd="addTime">Add Time</button>
-<div class="goal-item-template d-none">
-	<div class="item" data-toggle="tooltip">
-		<div class="item-content">
-			<div class="clicker">
-				<div class="closer control mr-4" data-cmd='Goals.removeGoal'><i class="fas fa-times-circle"></i></div>
-				<div class="cloner control" data-cmd='Goals.cloneGoal'><i class="fas fa-clone"></i></div>
+	<div class="goals-container mb-3">
+		<div class="goals-grid">
+			
+		</div>
+	</div>
+	<button class="btn btn-primary" data-cmd="Goals.addGoal">Add Goal</button>
+	<div class="length-display">Length: <span></span></div>
+	<div class="goal-item-template">
+		<div class="item" data-toggle="tooltip">
+			<div class="item-content">
+				<div class="clicker">
+					<div class="closer control mr-4" data-cmd='Goals.removeGoal'><i class="fas fa-times-circle"></i></div>
+					<div class="cloner control" data-cmd='Goals.cloneGoal'><i class="fas fa-clone"></i></div>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { setColors } from './ColorControls';
 V.SettingsPane = SettingsPane;
 function SettingsPane() {
 	V.loading();
@@ -30,9 +31,30 @@ function SettingsPane() {
 		})
 
 		//match UI to server settings
-		_.forEach(_.difference(data, V.enabledMods), function (el) {
-			$(`[data-name=${el}] .btn-toggle`).removeClass('active');
-		});
+		$(document).one("settingsShown.veload",function(){
+			_.forEach(_.difference(data, V.enabledMods), function (el) {
+				console.log("disabled: " + el)
+				$(`[data-name=${el}] .btn-toggle`).removeClass('active');
+			});
+			_.forEach(V.status,function(value,key){
+				var el = $(`[data-param="${key}"]:not(:focus)`);
+				if(el.is('button')){
+					el.toggleClass("active",value);
+				}else{
+					el.val(value);
+				}    
+			});        
+			_.forEach(V.user,function(value,key){
+				var el = $(`[data-param="${key}"]:not(:focus)`);
+				if(el.is('button')){
+					el.toggleClass("active",value);
+				}else{
+					el.val(value);
+				}  
+			});
+			setColors();			
+		})
+
 	})
 }
 
