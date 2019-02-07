@@ -19,3 +19,7 @@ addons:
       - g++-4.8
 after_deploy:
 - script: bash deploy/rollbar.sh $rollbar_key
+
+branches:
+  only:
+  - master
