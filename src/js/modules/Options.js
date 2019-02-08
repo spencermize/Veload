@@ -22,7 +22,7 @@ var Options = {
         },
         remote : {
             url : "/api",
-            endpoints: ["publish", "athlete", "workoutTemplate","athlete_routes", "athlete_activities","modules","user_all", "user_layout","user_hr","user_speed","user_modes","user_cadence","user_circ","user_url","user_units","user_circ","photos","photos_random","weather"]
+            endpoints: ["publish", "athlete", "workoutTemplate","athlete_routes", "athlete_activities","modules","user_all","user_workoutTemplates","user_layout","user_hr","user_speed","user_modes","user_cadence","user_circ","user_url","user_units","user_circ","photos","photos_random","weather"]
         }
     },
     resetConnection: `Trouble connecting? <a href="#" onclick="V.opts.updateLocal('http://127.0.0.1:3001')">Try resetting your connection settings!</a></p>`,
@@ -43,6 +43,12 @@ var Options = {
     },
     toK: function(m){
         return m / 1000;
+    },
+    toM: function(km){
+        return km * 1000;
+    },
+    toMFromBarb : function(mi){
+        return mi * 1609.34;
     },
     colors: {
         GOOD : "#28a745",

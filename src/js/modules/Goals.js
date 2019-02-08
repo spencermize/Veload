@@ -10,32 +10,90 @@ function Goals(opts){
 Goals.prototype.show = function(){
 	V.loading();
 	var self = this;
-	var comp = V.cTemps.goals(V.user);
+	var comp = V.cTemps.workoutBuilder(V.user);
 	var popts = {
 		title: "Workout Builder",
 		body: comp,
 		accept: true,
+		acceptText: 'Save Workout Template',
 		modalClass: "veload-goals",
-		width: $(comp).find('.carousel-item.active').data("max-width")
+		width: $(comp).find('.carousel-item.active').attr("data-max-width")
 	}
 	var events = {
 		acceptClick: function(){
-			console.log(self.serialize());
+			self.save();
 		}
 	}
 	V.unpop();
 	V.pop(popts,events)
+	$('[data-slide=prev]').addClass("d-none");
 	$('#workout-builder').on('slide.bs.carousel', function (e) {
-		$('#modal .modal-dialog').css("max-width",$(e.relatedTarget).data("max-width"));
+		$('#modal .modal-dialog').css("max-width",$(e.relatedTarget).attr("data-max-width"));
+		
+		//handle button visibility
+		console.log(e.to)
+		console.log($(comp).find('.carousel-item').length)
+		$('[data-slide],.btn-accept').removeClass('d-none');
+		if(e.to == $(comp).find('.carousel-item').length - 1){
+			$('[data-slide=next]').addClass("d-none");
+		}
+		if(e.to == 0){
+			$('[data-slide=prev],.btn-accept').addClass("d-none");
+		}
 	})
 	$('#workout-builder').on('slid.bs.carousel', function (e) {
 		if($('#modal .carousel-item.active .goals-container').length){
 			self.initGoalBuilder();
 		}
 	})
+	
 
 }
+Goals.prototype.select = function(){
+	V.loading();
+	var self = this;
+	$.getJSON(V.opts.urls.remote.userWorkoutTemplates,function(data){
+		data.forEach(function(workout){ // each workout template
+			var arr = [];
+			var spark = [];
+			var totalX = 0;
+			var maxY = 0;	
+			workout.data.forEach(function(dat){ // goal elements
+				var l = Number(dat.length);
+				var v = Number(dat.value);
+				arr.push([l,v]);
+				totalX += l;
+				if(v>maxY){maxY=v}
+			})
+			arr.forEach(function(sp,i){
+				var w = (sp[0] / totalX)*100;
+				var h = (sp[1] / maxY)*100;
+				spark.push([w,h]);
+			});
+			workout.spark = spark;
 
+			if(workout.lengthType=="distance"){
+				workout.lengthType = V.user.units;
+				if(V.user.units == "miles"){
+					workout.length = Math.round(V.opts.toBarbarian(workout.length));
+				}else{
+					workout.length = V.opts.toK(workout.length);
+				}
+			}
+		})
+		var comp = V.cTemps.workoutSelector(data);
+		var popts = {
+			title: "Workout Selector",
+			body: comp,
+			accept: false,
+			modalClass: "veload-goals",
+			width: "60vw"
+		}
+		V.unpop();
+		V.pop(popts)	
+	})
+
+}
 Goals.prototype.initGoalBuilder = function(){
 	var self = this;
 	self.itemCreated = false;
@@ -59,9 +117,7 @@ Goals.prototype.initGoalBuilder = function(){
 
 	self.inter = interact('.item', {
 		context: document.querySelector('.goals-grid')
-	})
-
-		.resizable({
+	}).resizable({
 			edges: {
 				top: true,
 				left: false,
@@ -84,7 +140,6 @@ Goals.prototype.initGoalBuilder = function(){
 				})
 				self.updateTooltip(target,msg)
 			}
-			console.log('updating')
 			$('.length-display span').text(self.getLength());
 
 			if (e.dx != 0 && e.dy === 0) {
@@ -102,7 +157,7 @@ Goals.prototype.getLength = function(){
 		$('.goals-grid .item').each(function(_i,el){
 			var e = $(el).find(".item-content");
 			l += Number(e.attr("data-metric-length")) || 0;
-			type = e.data("metric-length-type");
+			type = e.attr("data-metric-length-type");
 		})
 		return `${l} ${type}`;
 	}else{
@@ -110,44 +165,84 @@ Goals.prototype.getLength = function(){
 	}
 }
 Goals.prototype.serialize = function(){
-	var ser = [];
-	this.grid.getItems().forEach(function(el){
-		console.log(el.getElement())
-		var e = $(el.getElement()).find(".item-content");
-		ser.push({
-			value : e.data("metric-value"),
-			type : e.data("metric-type"),
-			length : e.data("metric-length"),
-			lengthType : e.data("metric-length-type")
-		})
-	})
-	var post = {
-		"value" : ser,
-		"title" : $('.workout-title').val(),
-		"type" : ser[0].type
-	}
-	$.post(V.opts.urls.remote.workoutTemplate,post,function(data){
-		console.log(data);
+	var items = $('.goals-grid .item');
+	var ser = {
+		value : [],
+		len: 0,
+		title : $('.workout-title').val(),
+		type : "",
+		lType : ""
+	};
+	items.each(function(_i,el){
+		console.log(el)
+		var e = $(el).find('.item-content');
+		var lType = e.attr("data-metric-length-type");
+		var l = e.attr("data-metric-length");
+		var type = e.attr("data-metric-type");
+		if(lType=="miles"){
+			l = V.opts.toMFromBarb(l);
+			lType = "distance"
+		}else if(lType=="kilometers"){
+			l = V.opts.toM(l);
+			lType = "distance"
+		}
+		ser.value[_i] ={
+			value : e.attr("data-metric-value"),
+			type : type,
+			length : l,
+			lengthType : lType
+		}
+		console.log(ser.value)
+		ser.type = type;
+		ser.lType = lType;
+		ser.len += Number(l);
 	})
 	return ser;
+}
+Goals.prototype.deleteWorkoutTemplate = function(e){
+	$.ajax({
+		dataType: "json",
+		method: "delete",
+		url: `${V.opts.urls.remote.userWorkoutTemplates}/${e.data("id")}`,
+		success: function(data){
+			if(data.status == "success"){
+				e.closest(".col-3").remove()
+			}
+			
+		}
+	})
+}
+Goals.prototype.save = function(){
+	var title = $('.workout-title');
+	if(title.val().length){
+		V.loading()
+		var ser = this.serialize();
+		$.post(V.opts.urls.remote.workoutTemplate,ser,function(data){
+			V.unpop();
+			V.pop({title: "Success!",body:"Workout template saved.",accept:false})
+		})
+	}else{
+		title.addClass("is-invalid");
+	}
+
 }
 Goals.prototype.getResizeParams = function(){
 	var vari = $('.veload-goals .variable :checked').closest("[data-type]");
 	var lengthUnit = $('.veload-goals .length-units :checked').closest("[data-type]");
-	var lUnitMax = lengthUnit.data("max");
-	var increment = lengthUnit.data("increment");
+	var lUnitMax = lengthUnit.attr("data-max");
+	var increment = lengthUnit.attr("data-increment");
 	return {
-		decimal : vari.data("decimal"),
+		decimal : vari.attr("data-decimal"),
 		bBox : $('.goals-container')[0].getBoundingClientRect(),
-		max : vari.data("max"),
-		min : vari.data("min"),
-		unit : vari.data("unit"),
-		lUnit : lengthUnit.data("type"),
-		lUnitMin : lengthUnit.data("min"),
+		max : vari.attr("data-max"),
+		min : vari.attr("data-min"),
+		unit : vari.attr("data-unit"),
+		lUnit : lengthUnit.attr("data-type"),
+		lUnitMin : lengthUnit.attr("data-min"),
 		lUnitMax : lUnitMax,
-		lUnitDecimal: lengthUnit.data("decimal"),
+		lUnitDecimal: lengthUnit.attr("data-decimal"),
 		increment : increment,
-		type : vari.data("type"),
+		type : vari.attr("data-type"),
 		totalX : (lUnitMax / increment) * lUnitMax
 	}
 }
@@ -190,8 +285,6 @@ Goals.prototype.updateTooltip = function(target,msg,reset){
 		t.attr('data-original-title', msg);
 		t.tooltip("show");	
 	}
-	
-
 }
 Goals.prototype.removeGoal = function(e){
 	$(e).closest(".item").remove();
@@ -210,13 +303,13 @@ Goals.prototype.addGoal = function(vari){
 	}else if($(vari).hasClass('item')){
 		console.log("looks like we're cloning!")
 		nw = $(vari); //clone
-
+		nw.find(".closer").removeClass("d-none");
 		this.updateTooltip(nw,msg,true);
 			
 	}else if(false){
 		var size = this.paramsToSize({
-			absY: nw.data("metric-value"),
-			absX: nw.data("metric.length")
+			absY: nw.attr("data-metric-value"),
+			absX: nw.attr("data-metric.length")
 		})
 		console.log(size)
 		w = size[0];
@@ -236,7 +329,7 @@ Goals.prototype.addGoal = function(vari){
 	this.grid.add(nw[0]);
 
 	//check to make sure the sizing is proper
-	if(!nw.find(".item-content").data("metric-value")){
+	if(!nw.find(".item-content").attr("data-metric-value")){
 		console.log(nw)
 		var msg = this.sizeGoal({
 			width: 	nw.width(),

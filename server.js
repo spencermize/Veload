@@ -190,9 +190,13 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 	}
 	switch (req.params.action) {
 		case 'user':
-			User.findOne({attributes:['hr','cadence','speed','circumference','units','layout','url','modes'], where: { username: req.session.user } }).then(function (user) {
+			User.findOne({attributes:['hr','cadence','speed','circumference','units','layout','url','modes','id'], where: { username: req.session.user } }).then(function (user) {
 				if(req.params.sub=="all"){
 					res.json(user);
+				}else if(req.params.sub=="workoutTemplates"){
+					user.getWorkoutTemplates().then(workoutTemplates =>{
+						res.json(workoutTemplates);
+					});
 				}else{
 					res.json(user[req.params.sub]);
 				}
@@ -200,6 +204,9 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 				data = {"status" : "error", "msg":error};
 				res.json(data);
 			});
+			break;
+		case 'workoutTemplate':			
+
 			break;
 		case 'modules':
 			res.json(modules);
@@ -359,9 +366,11 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 					WorkoutTemplate.create({
 						data : req.body.value,
 						title : req.body.title,
-						type : req.body.type
+						type : req.body.type,
+						length : req.body.len,
+						lengthType : req.body.lType
 					}).then(function(workoutTemplate) {
-						user.setWorkoutTemplates(workoutTemplate).then(function(){
+						user.addWorkoutTemplates(workoutTemplate).then(function(){
 							data = {"status" : "success"}
 							res.json(data);
 						});
@@ -380,7 +389,25 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 			break;
 	}
 });
-
+app.delete('/api/:action/:sub([a-zA-Z]{0,})?/:id([0-9]{0,})?',[sessionChecker,getStrava],function(req,res,next){
+	switch (req.params.action) {
+		case 'user':
+			switch (req.params.sub) {
+				case 'workoutTemplates':
+					User.findOne({ where: { username: req.session.user } }).then(function (user) {	
+						user.removeWorkoutTemplates(req.params.id);
+						data = {"status" : "success"}
+						res.json(data);						
+					})
+				break;
+			}
+			break;
+		default : 
+			data = {"error":"Sorry, operation unsupported"};
+			res.json(data);	
+			break;		
+	}
+});
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -467,8 +494,9 @@ function workoutTemplateModel(sequelize){
 	var Workout = sequelize.define('WorkoutTemplate', {
 		title: Sequelize.STRING,
 		data: Sequelize.JSON,
-		length: Sequelize.TINYINT,
-		type: Sequelize.STRING,
+		length: Sequelize.BIGINT,
+		type: Sequelize.ENUM("speed","hr","cadence"),
+		lengthType: Sequelize.ENUM("distance","minutes"),
 		public: {
 			type: Sequelize.BOOLEAN,
 			defaultValue: false

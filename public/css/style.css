@@ -10439,7 +10439,14 @@ nav .pause, .playing .play, .stop {
   margin-right: 20vw;
 }
 
-.goal-item-template {
+#workout-selector .spark {
+  height: 12vh;
+}
+#workout-selector .spark div {
+  border-width: 1px;
+  border-style: solid;
+}
+#workout-selector .goal-item-template {
   opacity: 0;
 }
 

@@ -439,6 +439,15 @@ nav .pause,.playing .play,.stop{
 		margin-right: 20vw;
 	}
 }
-.goal-item-template{
-	opacity: 0;
+#workout-selector{
+	.spark{
+		height: 12vh;
+		div{
+			border-width: 1px;
+			border-style: solid;
+		}
+	} 
+	.goal-item-template{
+		opacity: 0;
+	}
 }
