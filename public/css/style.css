@@ -9824,6 +9824,10 @@ footer, .grid-item, .navbar {
   text-transform: capitalize;
 }
 
+.modal-dialog {
+  transition: all 0.5s !important;
+}
+
 .modal-open .blurrer {
   transform-origin: 50%;
   transform: scale(1.3);
@@ -9838,8 +9842,8 @@ footer, .grid-item, .navbar {
 }
 .bigButtons .btn {
   padding: 0rem 3rem;
-  font-size: 3.5rem;
-  line-height: 3;
+  font-size: 2.5rem;
+  line-height: 2.5;
   border-radius: 0.7rem;
 }
 
@@ -10380,7 +10384,7 @@ nav .pause, .playing .play, .stop {
 }
 
 .goals-container {
-  height: 60vh;
+  height: 55vh;
   width: 97%;
   overflow: hidden;
   overflow-x: auto;
@@ -10410,6 +10414,14 @@ nav .pause, .playing .play, .stop {
 }
 .goals-container .goals-grid .control * {
   color: #fff;
+}
+
+#modal .carousel {
+  min-height: 50vh;
+}
+#modal .carousel .carousel-item {
+  background-color: #fff;
+  height: 60vh;
 }
 
 .goals-container .item, .goal-item-template .item {

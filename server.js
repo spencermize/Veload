@@ -62,6 +62,8 @@ app.use(compression())
 const Sequelize = require('sequelize');
 const sequelize = dbConnect();
 const User = userModel(sequelize);
+const WorkoutTemplate = workoutTemplateModel(sequelize);
+buildAssociations();
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const myStore = new SequelizeStore({
     db: sequelize
@@ -351,6 +353,27 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 				res.json(data);
 			});
 			break;
+		case 'workoutTemplate':
+			User.findOne({ where: { username: req.session.user } }).then(function (user) {	
+				if(req.body.value){
+					WorkoutTemplate.create({
+						data : req.body.value,
+						title : req.body.title,
+						type : req.body.type
+					}).then(function(workoutTemplate) {
+						user.setWorkoutTemplates(workoutTemplate).then(function(){
+							data = {"status" : "success"}
+							res.json(data);
+						});
+					})
+				}else{
+					throw new Error("no data found")
+				}
+			}).error(function(error){
+				data = {"status" : "error", "msg":error};
+				res.json(data);
+			});	
+			break;	
 		default : 
 			data = {"error":"Sorry, operation unsupported"};
 			res.json(data);	
@@ -439,6 +462,22 @@ function userModel(sequelize){
 		}
 	});
 	return User;
+}
+function workoutTemplateModel(sequelize){
+	var Workout = sequelize.define('WorkoutTemplate', {
+		title: Sequelize.STRING,
+		data: Sequelize.JSON,
+		length: Sequelize.TINYINT,
+		type: Sequelize.STRING,
+		public: {
+			type: Sequelize.BOOLEAN,
+			defaultValue: false
+		}
+	});
+	return Workout;
+}
+function buildAssociations(){
+	User.hasMany(WorkoutTemplate, {as:'WorkoutTemplates'});
 }
 function getStrava(req,res,next){
 	User.findOne({ where: { refresh_token: req.session.refresh_token, username: req.session.user } }).then(function (user) {

@@ -22,7 +22,7 @@ var Options = {
         },
         remote : {
             url : "/api",
-            endpoints: ["publish", "athlete", "athlete_routes", "athlete_activities","modules","user_all", "user_layout","user_hr","user_speed","user_modes","user_cadence","user_circ","user_url","user_units","user_circ","photos","photos_random","weather"]
+            endpoints: ["publish", "athlete", "workoutTemplate","athlete_routes", "athlete_activities","modules","user_all", "user_layout","user_hr","user_speed","user_modes","user_cadence","user_circ","user_url","user_units","user_circ","photos","photos_random","weather"]
         }
     },
     resetConnection: `Trouble connecting? <a href="#" onclick="V.opts.updateLocal('http://127.0.0.1:3001')">Try resetting your connection settings!</a></p>`,

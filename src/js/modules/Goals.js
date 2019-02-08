@@ -12,82 +12,88 @@ Goals.prototype.show = function(){
 	var self = this;
 	var comp = V.cTemps.goals(V.user);
 	var popts = {
-		title: "Goal Builder",
+		title: "Workout Builder",
 		body: comp,
 		accept: true,
 		modalClass: "veload-goals",
-		width: '80vw'
+		width: $(comp).find('.carousel-item.active').data("max-width")
 	}
 	var events = {
 		acceptClick: function(){
 			console.log(self.serialize());
 		}
 	}
-	self.itemCreated = false;
 	V.unpop();
 	V.pop(popts,events)
+	$('#workout-builder').on('slide.bs.carousel', function (e) {
+		$('#modal .modal-dialog').css("max-width",$(e.relatedTarget).data("max-width"));
+	})
+	$('#workout-builder').on('slid.bs.carousel', function (e) {
+		if($('#modal .carousel-item.active .goals-container').length){
+			self.initGoalBuilder();
+		}
+	})
 
-	$('#modal-container').one('shown.bs.modal', '#modal', function () {
-		self.fullGrid = $('.goals-container');
-		self.minLimit = $('.item').css("min-height").replace(/\D+/,"");
-		self.availY = self.fullGrid.height() - self.minLimit;
-		self.availX = self.fullGrid.width();
-		$('.goal-item-template').addClass('d-none');
-		self.grid = new Muuri('.goals-grid', {
-			layout: {
-				horizontal: true,
-				alignBottom: true,
-				rounding: true
-			}
-		});
-		self.fullGrid.data('grid',self.grid);
-		self.addGoal(true);
+}
 
-		self.inter = interact('.item', {
-			context: document.querySelector('.goals-grid')
-		})
-
-			.resizable({
-				edges: {
-					top: true,
-					left: false,
-					bottom: false,
-					right: true
-				},
-				restrictEdges: {
-					restriction: $('.goals-container')[0]
-				},
-				inertia: false,
-				snap: {
-					endOnly: true
-				}
-			})
-			.on('resizestart', function () {
-				self.r = self.getResizeParams();
-				self.itemCreated = true;
-			})
-			.on('resizemove', function (e) {
-				var target = $(e.target);
-				if(e.rect.height>self.minLimit && e.clientY>self.r.bBox.top && e.clientX<self.r.bBox.right){
-					var msg = self.sizeGoal({
-						width: 	e.rect.width,
-						height: e.rect.height,
-						target: e.target
-					})
-					self.updateTooltip(target,msg)
-				}
-				console.log('updating')
-				$('.length-display span').text(self.getLength());
-
-				if (e.dx != 0 && e.dy === 0) {
-					self.refresh(target[0]);
-				}
-			}).on('resizeend', function (e) {
-				$(e.target).removeClass('resizing');
-				self.refresh(e.target);
-			})
-
+Goals.prototype.initGoalBuilder = function(){
+	var self = this;
+	self.itemCreated = false;
+	self.fullGrid = $('.goals-container');
+	self.minLimit = $('.item').css("min-height").replace(/\D+/,"");
+	self.availY = self.fullGrid.height() - self.minLimit;
+	self.availX = self.fullGrid.width();
+	$('.goal-item-template').addClass('d-none');
+	if(self.grid){
+		self.grid.destroy(true);
+	}
+	self.grid = new Muuri('.goals-grid', {
+		layout: {
+			horizontal: true,
+			alignBottom: true,
+			rounding: true
+		}
 	});
+	self.fullGrid.data('grid',self.grid);
+	self.addGoal(true);
+
+	self.inter = interact('.item', {
+		context: document.querySelector('.goals-grid')
+	})
+
+		.resizable({
+			edges: {
+				top: true,
+				left: false,
+				bottom: false,
+				right: true
+			},
+			inertia: false
+		})
+		.on('resizestart', function () {
+			self.r = self.getResizeParams();
+			self.itemCreated = true;
+		})
+		.on('resizemove', function (e) {
+			var target = $(e.target);
+			if(e.rect.height>self.minLimit && e.clientY>self.r.bBox.top && e.clientX<self.r.bBox.right){
+				var msg = self.sizeGoal({
+					width: 	e.rect.width,
+					height: e.rect.height,
+					target: e.target
+				})
+				self.updateTooltip(target,msg)
+			}
+			console.log('updating')
+			$('.length-display span').text(self.getLength());
+
+			if (e.dx != 0 && e.dy === 0) {
+				self.refresh(target[0]);
+			}
+		}).on('resizeend', function (e) {
+			$(e.target).removeClass('resizing');
+			self.refresh(e.target);
+		})
 }
 Goals.prototype.getLength = function(){
 	if(this.itemCreated){
@@ -115,11 +121,19 @@ Goals.prototype.serialize = function(){
 			lengthType : e.data("metric-length-type")
 		})
 	})
+	var post = {
+		"value" : ser,
+		"title" : $('.workout-title').val(),
+		"type" : ser[0].type
+	}
+	$.post(V.opts.urls.remote.workoutTemplate,post,function(data){
+		console.log(data);
+	})
 	return ser;
 }
 Goals.prototype.getResizeParams = function(){
-	var vari = $('.veload-goals .variable').find(":selected");
-	var lengthUnit = $('.veload-goals .length-units').find(":selected");
+	var vari = $('.veload-goals .variable :checked').closest("[data-type]");
+	var lengthUnit = $('.veload-goals .length-units :checked').closest("[data-type]");
 	var lUnitMax = lengthUnit.data("max");
 	var increment = lengthUnit.data("increment");
 	return {
