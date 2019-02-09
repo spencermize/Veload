@@ -31,9 +31,8 @@ V.createMap = function(){
 V.updateMap = function(){
 	$(document).on('locationUpdated.veload',function(){
 		var l = V.points[V.points.length - 1]
-		V.getMap().panTo(l,16,{
-			animate: true,
-			duration: .25 // in seconds
+		V.getMap().flyTo(l,16,{
+			animate: false
 		});
 		V.myIcon.setLatLng(l);
 	});
@@ -60,7 +59,7 @@ V.loadGPX = function(url){
 			var f = route[coord+1];
 			var sl = {lat: s[1], lng: s[0]};
 			var fl = {lat: f[1], lng: f[0]};
-			var d = geolib.getDistance(sl,fl,1,1);
+			var d = geolib.getDistance(sl,fl,1,15);
 			var b = geolib.getBearing(sl,fl);
 			V.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
 		}

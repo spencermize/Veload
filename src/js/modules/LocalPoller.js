@@ -18,7 +18,7 @@ var LocalPoller = {
             if (V.status.status) {
                 $.getJSON(V.opts.urls.local.stats, function (data) {
                     //expect meters/second
-                    var speed = Number(Math.max(new Number(data.speed),0)).toFixed(4);
+                    var speed = Number(Math.max(new Number(data.speed),0)).toFixed(6);
 
                     // speed point * (time since last update -> seconds)
                     // if this is the first loop, there will only be one partial point (from the map initialization). kill that point and put a full one in.
@@ -26,15 +26,15 @@ var LocalPoller = {
                     if(V.points.length>1){
                         last = _.last(V.points);
                     }else{
-                        last = new Point(V.rTrail[1].latlng.lat, V.rTrail[1].latlng.lng,moment().format(), hr, cad, speed)
+                        last = new Point(V.rTrail[0].latlng.lat, V.rTrail[0].latlng.lng,moment().format(), hr, cad, speed)
                         V.points[0] = last;
                     }
 
                     //covered this many meters
                     var distance = speed * (moment().diff(moment(last.time)) / 1000);
 
-                    var cad = Number(data.cadence).toFixed(2);
-                    var hr = Number(data.hr).toFixed(0);
+                    var cad = Math.round(data.cadence);
+                    var hr = Math.round(data.hr);
                                         
                    // console.log("traveled " + distance);
                     if (distance && V.rTrail.length) {
@@ -43,11 +43,11 @@ var LocalPoller = {
                             //change direction
                             //first, just bump us to the next waypoint
                             V.points.push(new Point(V.rTrail[1].latlng.lat, V.rTrail[1].latlng.lng,moment().format(), hr, cad, speed));
-                            $(document).trigger('locationUpdated.veload');
                             //then, set the distance remaining after we get to the new waypoint
                             distance = distance - V.rTrail[0].distance;
                             //then, ditch the old waypoint
-                            V.rTrail.shift();
+                            V.rTrailPopped = V.rTrail.shift();
+                            _.last(V.rTrailPopped.time = moment().format())
                         }
                       //  console.log(V.rTrail[0].distance + " remaining until waypoint");
                         V.rTrail[0].distance = V.rTrail[0].distance - distance;

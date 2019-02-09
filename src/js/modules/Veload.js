@@ -29,7 +29,7 @@ window.geolib = geolib;
 window.Timer = Timer;
 window.Point = Point;
 
-["rTrail", "cTemps", "enabledMods", "modLoadQueue", "points"].forEach(function (e) {
+["rTrail", "cTemps", "enabledMods", "modLoadQueue", "points", "rTrailPopped"].forEach(function (e) {
 	Veload.prototype[e] = [];
 });
 
@@ -189,7 +189,7 @@ Veload.prototype.getAvg = function (unit) {
 	var self = this;
 	if(V.points.length>=2){
 		var d = self.getDistance(unit) 
-		var t = moment(_.last(V.points).time).diff(moment(V.points[1].time)) / 1000 / 3600;
+		var t = moment(_.last(V.points).time).diff(moment(V.points[0].time)) / 1000 / 3600;
 		return d / t
 	}else{
 		return 0;

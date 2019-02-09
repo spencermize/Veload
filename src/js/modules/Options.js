@@ -30,7 +30,7 @@ var Options = {
         local: [],
         remote : []
     },
-    UPDATEFREQ : 1000,
+    UPDATEFREQ : 2000,
     NUMFORM : '0,000.00',
     toBarbarianph : function(mps){
         return mps * 2.23694;
