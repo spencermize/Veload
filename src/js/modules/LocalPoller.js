@@ -41,10 +41,12 @@ var LocalPoller = {
                         while (distance >= V.rTrail[0].distance && V.rTrail.length>1) {
                            // console.log("Change up!");
                             //change direction
-                            //first, just bump us to the next waypoint
-                            V.points.push(new Point(V.rTrail[1].latlng.lat, V.rTrail[1].latlng.lng,moment().format(), hr, cad, speed));
-                            //then, set the distance remaining after we get to the new waypoint
+                            //set the distance remaining after we get to the new waypoint
                             distance = distance - V.rTrail[0].distance;
+
+                            //bump us to the next waypoint
+                            V.points.push(new Point(V.rTrail[0].latlng.lat, V.rTrail[0].latlng.lng,moment().format(), hr, cad, speed));
+
                             //then, ditch the old waypoint
                             V.rTrailPopped = V.rTrail.shift();
                             _.last(V.rTrailPopped.time = moment().format())

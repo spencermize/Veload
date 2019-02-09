@@ -33,7 +33,7 @@ window.Point = Point;
 	Veload.prototype[e] = [];
 });
 
-["user","status","athlete", "refresher", "desiredSpeed", "elapsed", "$grid", "myIcon", "photos"].forEach(function (e) {
+["user","status","athlete", "refresher", "$grid", "myIcon", "photos"].forEach(function (e) {
 	Veload.prototype[e] = "";
 });
 
@@ -200,11 +200,11 @@ Veload.prototype.getDistance = function (unit) {
 	var self = this;
 	var dm = geolib.getPathLength(self.points);
 	if (unit == "miles") {
-		return V.opts.toBarbarian(dm);
+		return geolib.convertUnit("mi",dm,8);
 	} else if (unit == "meters") {
 		return dm;
 	} else if (unit == "kilometers"){
-		return V.opts.toK(dm);
+		return geolib.convertUnit("km",dm,8);
 	}
 }
 Veload.prototype.loading = function () {
