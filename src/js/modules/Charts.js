@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import './Gauge.js'
 function Charts(){
 	console.log('building charts');
 	var charts = $('[data-chart]').not(".initialized");

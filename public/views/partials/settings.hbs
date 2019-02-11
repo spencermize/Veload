@@ -45,6 +45,31 @@
 						<div class="col-lg-5">\{{value.[1]}}</div><div class="col-lg-3">{{> toggle }}</div>
 					</div>
 				\{{/each}}
+				<div class="row mt-3 pt-3 border-top custom-creator">
+					<div class="col">
+						<select class="form-control chart-type">
+							<option selected>Add module...</option>
+							<option data-multiple-capable="true">Line Chart</option>
+							<option data-multiple-capable="false">Gauge Chart</option>
+						</select>						
+					</div>
+					<div class="col">
+						<select class="form-control parameter-type">
+							<option selected>Select parameter</option>
+							<option>Heartrate</option>
+							<option>Cadence</option>
+							<option>Speed</option>
+						</select>						
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col">
+						<input type="text" class="form-control">
+					</div>
+					<div class="col">
+						<button class="btn btn-primary"><i class="fas fa-plus-square"></i></button>
+					</div>
+				</div>				
 			</div>			
 		</div>
 	</div>

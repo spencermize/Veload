@@ -21,6 +21,7 @@ import {LocalPoller} from './modules/LocalPoller.js';
 import {updatePhoto} from './modules/PhotoRefresher.js';
 import {ConnectionStatus} from './modules/ConnectionStatus.js';
 import {DataListeners} from './modules/DataListeners.js';
+import {SettingsPane} from './modules/SettingsPane.js';
 
 window.Veload = Veload;
 
@@ -33,7 +34,6 @@ $(function(){
 	require('./modules/Modals.js');
 	require('./modules/RideListeners.js');
 	require('./modules/Veload.initialize.js');
-	require('./modules/SettingsPane.js');
 
 	DataListeners();
 	if(window.location.pathname=="/" || window.location.pathname=="/about"){
@@ -43,6 +43,7 @@ $(function(){
 		V.loadInterface();
 		V.loadProfile();
 		V.Goals = new Goals();
+		V.SettingsPane = new SettingsPane();
 		ConnectionStatus();
 	}
 	updatePhoto();
