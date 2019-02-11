@@ -54,6 +54,7 @@ V.loadGPX = function(url){
 		var route = om.toGeoJSON().features[0].geometry.coordinates;
 		var gpx = e.target
 		V.getMap().fitBounds(gpx.getBounds());
+		console.log(route);
 		for(coord = 0; coord<route.length-1;coord++){
 			var s = route[coord];
 			var f = route[coord+1];

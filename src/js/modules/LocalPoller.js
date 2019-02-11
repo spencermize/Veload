@@ -22,10 +22,8 @@ var LocalPoller = {
 
                     // speed point * (time since last update -> seconds)
                     // if this is the first loop, there will only be one partial point (from the map initialization). kill that point and put a full one in.
-                    var last = null;
-                    if(V.points.length>1){
-                        last = _.last(V.points);
-                    }else{
+                    var last = _.last(V.points)
+                    if(!last.time){
                         last = new Point(V.rTrail[0].latlng.lat, V.rTrail[0].latlng.lng,moment().format(), hr, cad, speed)
                         V.points[0] = last;
                     }
@@ -46,10 +44,11 @@ var LocalPoller = {
 
                             //bump us to the next waypoint
                             V.points.push(new Point(V.rTrail[0].latlng.lat, V.rTrail[0].latlng.lng,moment().format(), hr, cad, speed));
+                            $(document).trigger('locationUpdated.veload');
 
                             //then, ditch the old waypoint
-                            V.rTrailPopped = V.rTrail.shift();
-                            _.last(V.rTrailPopped.time = moment().format())
+                            V.rTrailPopped.push(V.rTrail.shift());
+                            _.last(V.rTrailPopped).time = moment().format(); 
                         }
                       //  console.log(V.rTrail[0].distance + " remaining until waypoint");
                         V.rTrail[0].distance = V.rTrail[0].distance - distance;
