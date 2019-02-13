@@ -3,9 +3,6 @@
 window.$ = $;
 import _ from 'lodash';
 import moment from 'moment';
-import Chart from 'chart.js';
-import 'chartjs-plugin-streaming';
-import 'chartjs-plugin-zoom';
 import 'bootstrap';
 import '../../third_party/gridster/jquery.gridster.min.js';
 import * as L from 'leaflet'

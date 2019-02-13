@@ -70,7 +70,7 @@ const myStore = new SequelizeStore({
 })
 init(sequelize,args.reset);
 
-const modules = ['rideInfo','speedGraph','maps','cadenceGraph','heartrateGraph'];
+const modules = ['rideInfo','speedGraph','maps','cadenceGraph','heartrateGraph','customChart'];
 // view engine setup
 app.set('view engine', 'hbs');
 app.set('views',  __dirname + '/public/views/');
@@ -87,7 +87,7 @@ console.log("startUp");
 app.use(express.static('public',{index:false}));
 // initialize express-session to allow us track the logged-in user across sessions.
 app.use(session({
-	secret: 'craycray',
+	secret: config.secret,
 	resave: false,
 	saveUninitialized: false,
 	cookie: {

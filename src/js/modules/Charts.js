@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import 'chartjs-plugin-streaming';
+import 'chartjs-plugin-zoom';
 import './Gauge.js'
 function Charts(){
 	console.log('building charts');
@@ -8,7 +10,8 @@ function Charts(){
 		var v = $(el);
 		var opts = _.cloneDeep(V.opts.chart);
 		var name = v.closest('[data-name]').data('name');
-		var param = v.data('param');
+		var params = v.data('param').split(",");
+		var listen = v.data('listen').split(",");
 		console.log(`Building ${name}`);
 		opts.type = v.data('chart');
 		var chart = new Chart(v, opts);
@@ -20,25 +23,33 @@ function Charts(){
 		chart.update()
 
 		v.closest(".grid-item").data('chart', chart);
-
-		$(document).on(`${v.data('listen')}.veload`, function () {
-			if (V.points.length) {
-				var point = _.last(V.points);
-				var p = "";
-				if(param=="speed" && V.user.units=="miles"){
-					p = V.opts.toBarbarianph(point[param]);
-				}else if(param=="speed" && V.user.units=="kilometers"){
-					p = V.opts.toKph(point[param]);
-				}else{
-					p = point[param]
+		params.forEach(function(param,i){
+			if(typeof chart.data.datasets[i] == "undefined"){
+				console.log("generating datasets...");
+				chart.data.datasets[i] = _.cloneDeep(V.opts.chart.data.datasets[0]);
+			}			
+			console.log(`setting up ${listen[i]}.veload for ${param}`)
+			$(document).on(`${listen[i]}.veload`, function () {
+				if (V.points.length) {
+					var point = _.last(V.points);
+					var p = "";
+					if(param=="speed" && V.user.units=="miles"){
+						p = V.opts.toBarbarianph(point[param]);
+					}else if(param=="speed" && V.user.units=="kilometers"){
+						p = V.opts.toKph(point[param]);
+					}else{
+						p = point[param]
+					}
+					//console.log(`updating ${name} with x: ${moment(point.time).valueOf()} and y: ${point[param]} `);
+					console.log(`${i}: ${p}`)
+					chart.data.datasets[i].data.push({ x: moment(point.time).valueOf(), y: p });
+					chart.data.datasets[i].pointBackgroundColor.push(V.opts.colors.GOOD);
+					//chart.data.datasets[i].backgroundColor = V.opts.colors.GOODBG;
+					chart.update();
 				}
-				//console.log(`updating ${name} with x: ${moment(point.time).valueOf()} and y: ${point[param]} `);
-				chart.data.datasets[0].data.push({ x: moment(point.time).valueOf(), y: p });
-				chart.data.datasets[0].pointBackgroundColor.push(V.opts.colors.GOOD);
-				chart.data.datasets[0].backgroundColor = V.opts.colors.GOODBG;
-				chart.update();
-			}
-		});	
+			});	
+		})
+
 		$(document).on('start.veload',function(){
 			_.forEach(chart.config.options.scales.xAxes,function(c,index){
 				chart.config.options.scales.xAxes[index].realtime.pause = false;

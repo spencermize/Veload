@@ -48,9 +48,8 @@ Veload.prototype.loadInterface = function(){
 	self.getUser(function(data){
 		console.log('loading modules');
 		if(data.layout){
-			var modules = _.keyBy(data.layout[0], 'name');
-			_.forEach(modules,function(obj,mod){
-				self.enableModule(mod,obj);
+			_.forEach(data.layout[0],function(obj){
+				self.enableModule(obj.name,obj);
 			});
 		
 			//html is ready to play

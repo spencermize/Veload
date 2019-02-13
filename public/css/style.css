@@ -9902,6 +9902,10 @@ nav .pause, .playing .play, .stop {
   margin: -100% 0 0 -100%;
 }
 
+.playing .playing-hidden {
+  display: none;
+}
+
 .pagination .page {
   cursor: pointer;
   position: relative;

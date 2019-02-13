@@ -35,18 +35,14 @@ var LocalPoller = {
                     }
 
                     //covered this many meters
-                    console.log(`${(moment().diff(moment(last.time)) / 1000)} since the last update`)
                     var distance = speed * (moment().diff(moment(last.time)) / 1000);
-                    console.log(`in which we traveled: ${distance}`)
 
-
-                   // console.log("traveled " + distance);
                     if (distance && V.rTrail.length) {
                         while (distance >= V.rTrail[0].distance) {
                             //set the distance remaining after we get to the new waypoint
                             distance = distance - V.rTrail[0].distance;
                             tempLoc = V.rTrail.shift();
-                            V.rTrailPopped.push(new Point(tempLoc.latlng.lat, tempLoc.latlng.lng, moment(), hr, cad, speed,false));
+                            V.rTrailPopped.push(new Point(tempLoc.latlng.lat, tempLoc.latlng.lng, moment(), hr, cad, speed,false)); // this is the real trail
                         }
                         if(V.rTrail.length==0){
                             //nothing left, we're done!
@@ -54,7 +50,7 @@ var LocalPoller = {
                         }else{
                             V.rTrail[0].distance = V.rTrail[0].distance - distance;
                     
-                            //this is the estimated trail, for mapping purposes
+                            //this is the estimated trail, for mapping / graphing purposes
                             if(tempLoc){ //we pushed a real point, recalibrate
                                 point = _.last(V.rTrailPopped);
                             }else{ //we didn't pass a real point so just estimate for the map
@@ -68,7 +64,7 @@ var LocalPoller = {
                         }                        
                     }
                     if(cad>0){
-                        $(document).trigger('cadenceUpdated.veload');
+                        $(document).trigger('cadUpdated.veload');
                     }
                     if(speed>0){
                         $(document).trigger('speedUpdated.veload');

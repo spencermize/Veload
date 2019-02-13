@@ -119,6 +119,7 @@ V.pickTrackGUI = function(){
 				if(el.map.summary_polyline){
 					var type;
 					var dist = numeral(geolib.convertUnit('mi',el.distance)).format(Veload.MPHFORM);
+					var desc;
 					if(el.type == "Run" || el.type == "Bike"){
 						var avg = numeral(el.average_speed).format(Veload.MPHFORM)
 						type = "activities";

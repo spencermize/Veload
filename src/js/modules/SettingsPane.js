@@ -9,6 +9,10 @@ function SettingsPane(opts){
 SettingsPane.prototype.show = function(){
 		V.loading();
 		$.getJSON(V.opts.urls.remote.modules, function (data) {
+			_.remove(data,function(el){
+				console.log(el);
+				return el == "customChart";
+			})			
 			var opts = {
 				enabledMods: _.map(V.enabledMods, function (e) { return [e, _.startCase(e)] }),
 				allMods: _.map(data, function (e) { return [e, _.startCase(e)] }),
@@ -37,6 +41,7 @@ SettingsPane.prototype.show = function(){
 
 			//match UI to server settings
 			$(document).one("settingsShown.veload",function(){
+				console.log(_.difference(data, V.enabledMods))
 				_.forEach(_.difference(data, V.enabledMods), function (el) {
 					console.log("disabled: " + el)
 					$(`[data-name=${el}] .btn-toggle`).removeClass('active');
@@ -65,5 +70,26 @@ SettingsPane.prototype.show = function(){
 
 		})
 	}
+
+SettingsPane.prototype.addCustomModule = function(el){
+	V.unpop();
+	V.loading();
+	var e = $(el).closest(".custom-creator");
+	var title = e.find(".title").val();
+	var param = e.find(".parameter-type").val().join(",");
+	var listen = e.find(".parameter-type").val().join("Updated,") + "Updated";
+	var config = {
+		param: param,
+		type: e.find(".chart-type :selected").val(),
+		listen: listen,
+		title : _.startCase(title)
+	}
+	$(document).one("initialized.customChart",function(){
+		var id = "customChart";
+		V.saveLayout();
+		V.unpop();
+	})
+	V.enableModule("customChart",config)	
+}
 
 export {SettingsPane};

@@ -1,20 +1,25 @@
 import _ from 'lodash';
 Veload.prototype.moduleToggle = function (e) {
 	var e = $(e);
-	var el = e.closest('[data-name]').data("name");
+	var el = e.closest('[data-name]');
 	if (e.closest('.btn-toggle').hasClass("active")) {
-		self.enableModule(el);
-		self.loaded();
+		self.enableModule(el.data("name"));
 		self.saveLayout();
 	} else {
 		self.disableModule(el);
 	}
 }
 Veload.prototype.disableModule = function (mod) {
-	var el = $(`.grid-item[data-name=${mod}]`);
+	var self = this;
+	if(mod.hasClass("grid-item")){
+		var el = mod;
+	}else{
+		var el = $(`.grid-item[data-name=${mod.data("name")}]`);
+	}
+	
 	if(el.length){
 		el.fadeOut(400, function () {
-			_.pull(self.enabledMods, mod);
+			_.pull(self.enabledMods, mod.data("name"));
 			$('.grid').data('grid').remove_widget(el);
 			self.saveLayout();
 		})
@@ -44,15 +49,13 @@ Veload.prototype.enableModule = function (mod, cnf) {
 		var el = document.getElementById(name);
 		if(el){
 			var src = el.innerHTML;
-			var comp = Handlebars.compile(src)();
+			var comp = Handlebars.compile(src)(config);
 
 			var finishedEvent = `initialized.${mod}`;
 
 			console.log("waiting for " + finishedEvent);
 			self.listenForFinish(finishedEvent);
 			$('.grid').data('grid').add_widget(comp, config.size_x, config.size_y, config.col, config.row);
-			console.log($(comp));
-			console.log($(comp).data("script"))
 			if($(comp).data("script") && !window[_.upperFirst(mod)]){
 				$.getScript(`/js/_${mod}.js`, function () {
 					//call constructor if necessary
@@ -65,7 +68,8 @@ Veload.prototype.enableModule = function (mod, cnf) {
 				//script already loaded
 				console.log("script was already loaded")
 				window[_.upperFirst(mod)]();
-			}	
+			}
+		this.loaded();				
 		}else{
 			V.disableModule(name);
 		}
@@ -77,7 +81,12 @@ Veload.prototype.saveLayout = function () {
 	var e = $('.grid').data('grid');
 	e = e.serialize();
 	_.forEach(e, function (el, index) {
-		e[index]["name"] = $(`.grid-item:nth-of-type(${index + 1})`).data('name');
+		var dom = $(`.grid-item:nth-of-type(${index + 1})`)
+		e[index]["name"] = dom.data('name');
+		e[index]["title"] = _.trim(dom.data('title'));		
+		e[index]["type"] = dom.find("[data-chart]").data('chart');
+		e[index]["param"] = dom.find("[data-param]").data('param');
+		e[index]["listen"] = dom.find("[data-listen]").data('listen');
 	});
 	data.push(e)
 	$.post(self.opts.urls.remote.userLayout, { value: data }, function (data) {

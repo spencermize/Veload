@@ -1,10 +1,10 @@
 <script id="{{this}}-module" type="text/x-handlebars-template">	
-	<div class="grid-item position-absolute {{#blk "cardClass"}}{{/blk}}" data-name="{{this}}" data-script="{{#blk "script"}}{{/blk}}">
+	<div class="grid-item position-absolute {{#blk "cardClass"}}{{/blk}}" data-name="{{this}}" data-title="{{#blk "cardTitle1"}}{{{startCase this}}}{{/blk}}" data-script="{{#blk "script"}}{{/blk}}">
 		<div class="grid-item-content">
 			<div class="card bg-transparent">
 				<div class="card-header">
-					<h6 class="float-left ml-2 mt-1">
-						{{{startCase this}}}
+					<h6 class="float-left ml-2 mt-1 card-title">
+						{{#blk "cardTitle2"}}{{{startCase this}}}{{/blk}}
 					</h6>
 					<div class="float-right mr-2" data-cmd="moduleToggle">
 						{{> toggle }}
