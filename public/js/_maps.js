@@ -53,6 +53,8 @@ V.loadGPX = function(url){
 	om.on('ready', function(e) {
 		var route = om.toGeoJSON().features[0].geometry.coordinates;
 		var gpx = e.target
+		var distance = 0;
+		var bearing = 0;
 		V.getMap().fitBounds(gpx.getBounds());
 		console.log(route);
 		for(coord = 0; coord<route.length-1;coord++){
@@ -60,9 +62,11 @@ V.loadGPX = function(url){
 			var f = route[coord+1];
 			var sl = {lat: s[1], lng: s[0]};
 			var fl = {lat: f[1], lng: f[0]};
-			var d = geolib.getDistance(sl,fl,1,15);
-			var b = geolib.getBearing(sl,fl);
-			V.rTrail.push({distance: d, bearing: b, latlng: {lat:sl.lat,lng:sl.lng}});
+			V.rTrail.push({distance: distance, bearing: bearing, latlng: {lat:sl.lat,lng:sl.lng}});
+
+			//distance remaining from previous waypoint. first waypoint should be zero
+			distance = geolib.getDistance(sl,fl,1,15);
+			bearing = geolib.getBearing(sl,fl);
 		}
 		var l = new Point(V.rTrail[0].latlng.lat,V.rTrail[0].latlng.lng)
 		V.points.push(l);

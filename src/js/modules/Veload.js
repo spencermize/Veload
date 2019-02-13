@@ -134,6 +134,7 @@ Veload.prototype.clear = function () {
 	const events = {
 		acceptClick: function () {
 			self.points = [];
+			self.rTrailPopped = []
 			self.timer.reset();
 			$("body").removeClass('stoppable');
 			self.unpop();
@@ -146,7 +147,10 @@ Veload.prototype.clear = function () {
 Veload.prototype.upload = function () {
 	var self = this;
 	$('.modal-footer').loader(36, 36, true);
-	$.post(self.opts.urls.remote.publish, { points: self.points }, function (data) {
+	self.rTrailPopped.forEach(function(val,i){
+		self.rTrailPopped[i].time = moment.format(val.time);
+	});
+	$.post(self.opts.urls.remote.publish, { points: self.rTrailPopped }, function (data) {
 		if (data.id) {
 			var config = {
 				title: "Congrats!",
@@ -187,9 +191,9 @@ Veload.prototype.fullscreen = function (config) {
 
 Veload.prototype.getAvg = function (unit) {
 	var self = this;
-	if(V.points.length>=2){
+	if(self.rTrailPopped.length>=2){
 		var d = self.getDistance(unit) 
-		var t = moment(_.last(V.points).time).diff(moment(V.points[0].time)) / 1000 / 3600;
+		var t = moment(_.last(self.rTrailPopped).time).diff(moment(self.rTrailPopped[0].time)) / 1000 / 3600;
 		return d / t
 	}else{
 		return 0;
@@ -198,7 +202,7 @@ Veload.prototype.getAvg = function (unit) {
 }
 Veload.prototype.getDistance = function (unit) {
 	var self = this;
-	var dm = geolib.getPathLength(self.points);
+	var dm = geolib.getPathLength(self.rTrailPopped);
 	if (unit == "miles") {
 		return geolib.convertUnit("mi",dm,8);
 	} else if (unit == "meters") {

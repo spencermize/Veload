@@ -19,49 +19,53 @@ var LocalPoller = {
                 $.getJSON(V.opts.urls.local.stats, function (data) {
                     //expect meters/second
                     var speed = Number(Math.max(new Number(data.speed),0)).toFixed(6);
+                    var cad = Math.round(data.cadence);
+                    var hr = Math.round(data.hr); 
+                    var tempLoc = false;
+                    var newLoc = false;
+                    var point = false;                                       
 
                     // speed point * (time since last update -> seconds)
                     // if this is the first loop, there will only be one partial point (from the map initialization). kill that point and put a full one in.
                     var last = _.last(V.points)
                     if(!last.time){
-                        last = new Point(V.rTrail[0].latlng.lat, V.rTrail[0].latlng.lng,moment().format(), hr, cad, speed)
-                        V.points[0] = last;
+                        tempLoc = V.rTrail.shift();
+                        V.rTrailPopped.push(new Point(tempLoc.latlng.lat, tempLoc.latlng.lng, moment(), hr, cad, speed,false));
+                        V.points[0] = V.rTrailPopped[0];
                     }
 
                     //covered this many meters
+                    console.log(`${(moment().diff(moment(last.time)) / 1000)} since the last update`)
                     var distance = speed * (moment().diff(moment(last.time)) / 1000);
+                    console.log(`in which we traveled: ${distance}`)
 
-                    var cad = Math.round(data.cadence);
-                    var hr = Math.round(data.hr);
-                                        
+
                    // console.log("traveled " + distance);
                     if (distance && V.rTrail.length) {
-                        while (distance >= V.rTrail[0].distance && V.rTrail.length>1) {
-                           // console.log("Change up!");
-                            //change direction
+                        while (distance >= V.rTrail[0].distance) {
                             //set the distance remaining after we get to the new waypoint
                             distance = distance - V.rTrail[0].distance;
-
-                            //bump us to the next waypoint
-                            V.points.push(new Point(V.rTrail[0].latlng.lat, V.rTrail[0].latlng.lng,moment().format(), hr, cad, speed));
-                            $(document).trigger('locationUpdated.veload');
-
-                            //then, ditch the old waypoint
-                            V.rTrailPopped.push(V.rTrail.shift());
-                            _.last(V.rTrailPopped).time = moment().format(); 
+                            tempLoc = V.rTrail.shift();
+                            V.rTrailPopped.push(new Point(tempLoc.latlng.lat, tempLoc.latlng.lng, moment(), hr, cad, speed,false));
                         }
-                      //  console.log(V.rTrail[0].distance + " remaining until waypoint");
-                        V.rTrail[0].distance = V.rTrail[0].distance - distance;
-                    
-                        var newLoc = geolib.computeDestinationPoint(_.last(V.points), distance, V.rTrail[0].bearing);
-                        var point = new Point(newLoc.latitude, newLoc.longitude, moment().format(), hr, cad, speed);
-                       // console.log(point);
-                        V.points.push(point);
-                        if(V.rTrail.length==1 && V.rTrail[0].distance<=0){
+                        if(V.rTrail.length==0){
                             //nothing left, we're done!
                             $(document).trigger('routeCompleted.veload');
+                        }else{
+                            V.rTrail[0].distance = V.rTrail[0].distance - distance;
+                    
+                            //this is the estimated trail, for mapping purposes
+                            if(tempLoc){ //we pushed a real point, recalibrate
+                                point = _.last(V.rTrailPopped);
+                            }else{ //we didn't pass a real point so just estimate for the map
+                                newLoc = geolib.computeDestinationPoint(_.last(V.points), distance, V.rTrail[0].bearing);   
+                                point = new Point(newLoc.latitude, newLoc.longitude, moment(), hr, cad, speed,true);
+                            }
+                            V.points.push(point);
+                            console.log(`${V.getDistance('miles')} miles total`)
+                            console.log(`${V.getDistance('meters')} meters total`)
+                            $(document).trigger('locationUpdated.veload');
                         }                        
-                        $(document).trigger('locationUpdated.veload');
                     }
                     if(cad>0){
                         $(document).trigger('cadenceUpdated.veload');

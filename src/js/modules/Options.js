@@ -89,7 +89,7 @@ var Options = {
                         duration: 1000*60,    // data in the past 1m will be displayed
                         delay: 2000,        // delay of 2000 ms, so upcoming values are known before plotting a line
                         pause: true,       // chart is  paused
-                        ttl: 99999999999     // data will be automatically deleted as it disappears off the chart
+                        ttl: 99999999999     // data will not be automatically deleted as it disappears off the chart
                     },
                     gridLines: {
                         drawOnChartArea: false
@@ -106,7 +106,7 @@ var Options = {
             },
             plugins: {
                 streaming: {            // per-chart option
-                    frameRate: 30       // chart is drawn 30 times every second
+                    frameRate: 20       // chart is drawn 30 times every second
                 }
             },
             legend: {
