@@ -25,7 +25,7 @@ V.rideRoller = function(){
     $("#distance").html(`${Number(V.getDistance(V.user.units)).toFixed(2)}<br />${V.user.units}`);
     $("#avgSpeed").html(`${Number(V.getAvg(V.user.units)).toFixed(2)}<br />${per}`);
   })
-  $(document).on('cadenceUpdated.veload', function () {
+  $(document).on('cadUpdated.veload', function () {
     var point = V.points[V.points.length-1];
     $("#currCadence").text(Number(point.cad).toFixed(0));
   })

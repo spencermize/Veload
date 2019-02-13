@@ -145,7 +145,7 @@ Veload.prototype.upload = function () {
 	var self = this;
 	$('.modal-footer').loader(36, 36, true);
 	self.rTrailPopped.forEach(function(val,i){
-		self.rTrailPopped[i].time = moment.format(val.time);
+		self.rTrailPopped[i].time = moment(val.time).format();
 	});
 	$.post(self.opts.urls.remote.publish, { points: self.rTrailPopped }, function (data) {
 		if (data.id) {
