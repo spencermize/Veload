@@ -2,7 +2,24 @@ import _ from 'lodash';
 import { setColors } from './ColorControls';
 function DataListeners(){
     $(document).on('click','[data-cmd]', function(e){
-        let fnc = $(e.target).closest('[data-cmd]').data('cmd');
+        buttonCmd(e)
+    });
+    $(document).on('submit','form:has([data-submit])',function(e){
+        e.preventDefault();
+        buttonCmd(e)
+    })
+    $(document).on('blur','[type="text"][data-update]',function(e){
+       sendUpdates(e)
+    }); 
+    $(document).on('click','button[data-update]',function(e){
+        sendUpdates(e)
+     });    
+     $(document).on('change','select[data-update]',function(e){
+        sendUpdates(e)
+     });       
+
+     function buttonCmd(e){
+        var fnc = $(e.target).closest('[data-cmd]').data('cmd') ? $(e.target).closest('[data-cmd]').data('cmd') : $(e.target).closest('form').find('[data-submit]').data('submit');
         console.log(fnc);
         var fncs = fnc.split(".");
         var one = fncs[0];
@@ -14,17 +31,7 @@ function DataListeners(){
         }else{
             console.log("couldn't find fnc");
         }
-
-    });
-    $(document).on('blur','[type="text"][data-update]',function(e){
-       sendUpdates(e)
-    }); 
-    $(document).on('click','button[data-update]',function(e){
-        sendUpdates(e)
-     });    
-     $(document).on('change','select[data-update]',function(e){
-        sendUpdates(e)
-     });       
+     }
 
     function sendUpdates(e){
        //handle direct bindings to url endpoint

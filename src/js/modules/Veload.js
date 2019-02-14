@@ -6,7 +6,6 @@ import moment from 'moment';
 import 'bootstrap';
 import '../../third_party/gridster/jquery.gridster.min.js';
 import * as L from 'leaflet'
-import numeral from 'numeral';
 import List from 'list.js';
 import omni from '@mapbox/leaflet-omnivore';
 import ico from '@ansur/leaflet-pulse-icon';
@@ -20,7 +19,6 @@ window.moment = moment;
 window.L = L;
 window.List = List;
 window.omni = omni;
-window.numeral = numeral;
 window.ico = ico;
 window.geolib = geolib;
 window.Timer = Timer;

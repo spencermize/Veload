@@ -4,7 +4,21 @@ import 'chartjs-plugin-zoom';
 import './Gauge.js'
 function Charts(){
 	console.log('building charts');
-	var charts = $('[data-chart]').not(".initialized");
+	initializeLineCharts();
+	
+	$(document).on('clear.veload', function () {
+		var chart = $('.grid-item:has([data-chart])');
+		chart.each(function(_i,ch){
+			var v = $(ch).data('chart')		
+			v.data.datasets[0].data = [];
+			v.data.datasets[0].pointBackgroundColor = [];
+			v.update();
+		})
+	});
+}
+
+function initializeLineCharts(){
+	var charts = $('[data-chart=line]').not(".initialized");
 	charts.each(function (_ind, el) {
 		console.log('initializing' + el);
 		var v = $(el);
@@ -65,15 +79,5 @@ function Charts(){
 		v.addClass("initialized");
 		$(document).trigger(`initialized.${name}`);					
 	});
-	$(document).on('clear.veload', function () {
-		var chart = $('.grid-item:has([data-chart])');
-		chart.each(function(_i,ch){
-			var v = $(ch).data('chart')		
-			v.data.datasets[0].data = [];
-			v.data.datasets[0].pointBackgroundColor = [];
-			v.update();
-		})
-	});
 }
-
 export {Charts};

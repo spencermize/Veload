@@ -268,6 +268,41 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 				});
 			});
 			break;
+		case 'rwgpsRouteSearch' :
+			User.findOne({attributes:['units'], where: { username: req.session.user } }).then(function (user) {
+				(async () => {
+					if(user.units=="miles"){
+						req.query.distance = req.query.distance * 1.609;
+					}
+					var apikey = config.ridewithgps;
+					var str = encodeURI(`search[limit]=50&search[start_location]=${req.query.keywords}&search[start_distance]=${req.query.distance}&apikey=${apikey}`);
+					var api = `https://ridewithgps.com/find/search.json?${str}`;
+					console.log(api)
+					var response = await axios(api);
+					res.json(response.data);
+				})()		
+			});
+			break;
+		case 'rwgpsRouteGPX' :
+			(async () => {
+				var api = `https://ridewithgps.com/${req.params.sub}/${req.params.id}.json`;
+				var response = await axios(api);
+				const createGpx = require('gps-to-gpx').default;
+				var reso = [];
+				response.data.track_points.forEach(function(dat){
+					reso.push({
+						"latitude": dat.y,
+						"longitude": dat.x,
+						"elevation": dat.e
+					})
+				})
+				const ops = {
+					"activityName" : response.data.name
+				}
+				const gpx = createGpx(reso,ops);
+				res.send(gpx)
+			})()
+			break;	
 	}
 });
 app.get('/api/:action/:sub1?/:sub2?/:sub3?/public',function(req,res){

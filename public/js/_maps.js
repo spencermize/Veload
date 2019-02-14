@@ -47,7 +47,8 @@ V.updateMap = function(){
 }
 
 V.loadGPX = function(url){
-	var V = this;
+	V.unpop();
+	V.loading();
 	var om = omni.gpx(url);
 	V.points = [];
 	om.on('ready', function(e) {
@@ -56,7 +57,6 @@ V.loadGPX = function(url){
 		var distance = 0;
 		var bearing = 0;
 		V.getMap().fitBounds(gpx.getBounds());
-		console.log(route);
 		for(coord = 0; coord<route.length-1;coord++){
 			var s = route[coord];
 			var f = route[coord+1];
@@ -77,6 +77,7 @@ V.loadGPX = function(url){
 			fillColor: V.opts.colors.GOOD
 		});
 		V.myIcon = L.marker([l.lat,l.lng],{icon: pulsingIcon,opacity:.8}).addTo(V.getMap());
+		V.unpop();
 		$(document).trigger("trackLoaded.veload");
 	}).on('error',function(e){
 		V.error(e);
@@ -84,11 +85,63 @@ V.loadGPX = function(url){
 }
 V.loadTrack = function(e){
 	V.loadGPX(e.closest("[data-ref]").data("ref"));
-	V.unpop();
 }
 V.pickTrackGUI = function(){
+	var config = {
+		title: 'Route Selection',
+		accept: false,
+		body: $('[data-name="maps"] .StravaOrRide').html()
+	}
+	V.unpop();
+	V.pop(config);	
+}
+V.gpsLoader = function(){
+	var options = V.listOptions()
+	V.unpop();
+	var html = $('.rwgpsSearch').html() + $('[data-name="maps"] .search-wrap').html()
+	V.pop(V.listModalOptions(html));
+	$('#modal .searcher').attr("id","searchme");
+	var list = new List("searchme",options);
+	$('#modal').data("list",list);
+	list.clear();	
+
+}
+V.gpsSearch = function(){
+	var kw = $('#modal .gpsSearchKeywords');
+	var di = $('#modal .gpsSearchDistance');
+	var keywords = kw.val();
+	var distance = di.val();
+
+	kw.toggleClass("is-invalid",!keywords.length);
+	di.toggleClass("is-invalid",!distance.length);
+
+	if(keywords.length && distance.length){
+		var list = $('#modal').data("list");		
+		list.clear();
+		$('#searchme .list').loader();
+		$.getJSON(`${V.opts.urls.remote.rwgpsRouteSearch}?keywords=${keywords}&distance=${distance}`,function(routes){
+			$('#searchme .list').empty();
+			routes.results.forEach(function(e){
+				var el = e[e.type];
+				el.distance = el.distance / 1000;
+				if(V.user.units=="miles"){
+					el.distance = el.distance / 1.609;
+				}
+				list.add({
+					name: el.name,
+					timestamp: el.created_at,
+					days: moment(el.created_at).fromNow(), 
+					description:`${el.short_location} - ${Number(el.distance).toFixed(2)} ${V.user.units}`, 
+					ref:`/api/rwgpsRouteGPX/${el.id}/${e.type}s`
+				});
+			})
+		})
+	}
+
+}
+V.listOptions = function(){
 	var item = $('[data-module="map"] .search-wrap ul.list').cleanWhitespace().html();
-	var options = {
+	return {
 		valueNames: [
 			'name',
 			'days',
@@ -99,17 +152,22 @@ V.pickTrackGUI = function(){
 		page: 5,
 		pagination: true
 	}
+}
+V.listModalOptions = function(body){
+	return {
+		title: 'Route Selection',
+		accept: false,
+		body: body
+	}
+}
+V.stravaLoader = function(){
+	var options = V.listOptions()
 	V.loading();
 	$.getJSON(V.opts.urls.remote.athleteRoutes,function(routes){
 		$.getJSON(V.opts.urls.remote.athleteActivities,function(activities){
 			var data = routes.concat(activities);
-				var config = {
-				title: 'Please choose a Strava Route or Activity',
-				accept: false,
-				body: $('[data-name="maps"] .search-wrap').html()
-			}
 			V.unpop();
-			V.pop(config);
+			V.pop(V.listModalOptions($('[data-name="maps"] .search-wrap').html()));
 			$('#modal .searcher').attr("id","searchme");
 			var list = new List("searchme",options);
 			list.clear();
@@ -118,10 +176,10 @@ V.pickTrackGUI = function(){
 			data.forEach(function(el){
 				if(el.map.summary_polyline){
 					var type;
-					var dist = numeral(geolib.convertUnit('mi',el.distance)).format(Veload.MPHFORM);
+					var dist = Number(geolib.convertUnit('mi',el.distance)).toFixed(2);
 					var desc;
 					if(el.type == "Run" || el.type == "Bike"){
-						var avg = numeral(el.average_speed).format(Veload.MPHFORM)
+						var avg = Number(el.average_speed).toFixed(2)
 						type = "activities";
 						created = el.start_date;
 						desc = `You averaged ${avg} mph and traveled ${dist} miles.`;
