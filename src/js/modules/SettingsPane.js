@@ -10,7 +10,6 @@ SettingsPane.prototype.show = function(){
 		V.loading();
 		$.getJSON(V.opts.urls.remote.modules, function (data) {
 			_.remove(data,function(el){
-				console.log(el);
 				return el == "customChart";
 			})			
 			var opts = {
@@ -43,7 +42,6 @@ SettingsPane.prototype.show = function(){
 			$(document).one("settingsShown.veload",function(){
 				console.log(_.difference(data, V.enabledMods))
 				_.forEach(_.difference(data, V.enabledMods), function (el) {
-					console.log("disabled: " + el)
 					$(`[data-name=${el}] .btn-toggle`).removeClass('active');
 				});
 				_.forEach(V.status,function(value,key){
@@ -76,8 +74,10 @@ SettingsPane.prototype.addCustomModule = function(el){
 	V.loading();
 	var e = $(el).closest(".custom-creator");
 	var title = e.find(".title").val();
-	var param = e.find(".parameter-type").val().join(",");
-	var listen = e.find(".parameter-type").val().join("Updated,") + "Updated";
+	var p = e.find(".parameter-type").val();
+	var param = Array.isArray(p) ? p.join(",") : p;
+	var listen = Array.isArray(p) ? p.join("Updated,"): p;
+	listen += "Updated";
 	var config = {
 		param: param,
 		type: e.find(".chart-type :selected").val(),

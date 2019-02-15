@@ -13,7 +13,7 @@ var LocalPoller = {
 
     startUpdating: function() {
         var hrCount = 0;
-
+        var paused = false;
         return setInterval(function () {
             if (V.status.status) {
                 $.getJSON(V.opts.urls.local.stats, function (data) {
@@ -35,7 +35,13 @@ var LocalPoller = {
                     }
 
                     //covered this many meters
-                    var distance = speed * (moment().diff(moment(last.time)) / 1000);
+                    if(!paused){
+                        var distance = speed * (moment().diff(moment(last.time)) / 1000);
+                    }else if(speed>0 && paused){
+                        var distance = 0;
+                        paused = false;
+                    }
+                    
 
                     if (distance && V.rTrail.length) {
                         while (distance >= V.rTrail[0].distance) {
@@ -62,6 +68,9 @@ var LocalPoller = {
                             console.log(`${V.getDistance('meters')} meters total`)
                             $(document).trigger('locationUpdated.veload');
                         }                        
+                    }else if(!distance && V.rTrail.length){
+                        //paused?
+                        paused = true;
                     }
                     if(cad>0){
                         $(document).trigger('cadUpdated.veload');

@@ -64,76 +64,101 @@ var Options = {
         rows: 4
     },
     chart : {
-        type: 'line',
-        data: {
-            datasets: [{
-                data: [],
-                pointRadius: 3,
-                pointBackgroundColor: []
-            }]
-        },
-        defaults : {
-            global: {
-                defaultFontFamily: 'Work Sans'
-            }
-        },
-        options: {
-            tooltips: {
-                enabled: false
-            },
-            scales: {
-                xAxes: [{
-                    type: 'realtime',   // x axis will auto-scroll from right to left
-                    realtime: {         // per-axis options
-                        duration: 1000*60,    // data in the past 1m will be displayed
-                        delay: 2000,        // delay of 2000 ms, so upcoming values are known before plotting a line
-                        pause: true,       // chart is  paused
-                        ttl: 99999999999     // data will not be automatically deleted as it disappears off the chart
-                    },
-                    gridLines: {
-                        drawOnChartArea: false
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    },
-                    gridLines: {
-                        drawOnChartArea: false
-                    }
+        line : {
+            type: 'line',
+            data: {
+                datasets: [{
+                    data: [],
+                    pointRadius: 3,
+                    pointBackgroundColor: []
                 }]
             },
-            plugins: {
-                streaming: {            // per-chart option
-                    frameRate: 20       // chart is drawn 30 times every second
+            defaults : {
+                global: {
+                    defaultFontFamily: 'Work Sans'
                 }
             },
-            legend: {
-                display: false
-            },
-            pan: {
-                enabled: true,
-                mode: 'x',
-                rangeMax: {
-                    x: 4000
+            options: {
+                tooltips: {
+                    enabled: false
                 },
-                rangeMin: {
-                    x: 0
-                }
-            },
-            zoom: {
-                enabled: true,
-                mode: 'x',
-                rangeMax: {
-                    x: 20000
+                scales: {
+                    xAxes: [{
+                        type: 'realtime',   // x axis will auto-scroll from right to left
+                        realtime: {         // per-axis options
+                            duration: 1000*60,    // data in the past 1m will be displayed
+                            delay: 2000,        // delay of 2000 ms, so upcoming values are known before plotting a line
+                            pause: true,       // chart is  paused
+                            ttl: 99999999999     // data will not be automatically deleted as it disappears off the chart
+                        },
+                        gridLines: {
+                            drawOnChartArea: false
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        gridLines: {
+                            drawOnChartArea: false
+                        }
+                    }]
                 },
-                rangeMin: {
-                    x: 1000
-                }
-            },		
-            responsive: true,
-            maintainAspectRatio: false
-        }
+                plugins: {
+                    streaming: {            // per-chart option
+                        frameRate: 20       // chart is drawn 30 times every second
+                    }
+                },
+                legend: {
+                    display: false
+                },
+                pan: {
+                    enabled: true,
+                    mode: 'x',
+                    rangeMax: {
+                        x: null
+                    },
+                    rangeMin: {
+                        x: null
+                    }
+                },
+                zoom: {
+                    enabled: true,
+                    mode: 'x',
+                    rangeMax: {
+                        x: null
+                    },
+                    rangeMin: {
+                        x: null
+                    }
+                },		
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        },
+        gauge : {
+            type: "tsgauge",
+            animation: {
+                animateRotate: false
+            },
+            data: {
+                datasets: [{
+                    backgroundColor: [],
+                    borderWidth: 0,
+                    gaugeData: {
+                        value: 0
+                    },
+                    gaugeLimits: []
+                }]
+            },
+            options: {
+                    events: [],
+                    showMarkers: false,
+                    plugins: {
+                        streaming: false
+                    },
+            }
+        }        
     }
 }
 Options.generateUrls();
