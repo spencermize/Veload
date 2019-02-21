@@ -394,13 +394,13 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 			break;
 		case 'workoutTemplate':
 			User.findOne({ where: { username: req.session.user } }).then(function (user) {	
-				if(req.body.value){
+				if(req.body.data){
 					WorkoutTemplate.create({
-						data : req.body.value,
+						data : req.body.data,
 						title : req.body.title,
 						type : req.body.type,
-						length : req.body.len,
-						lengthType : req.body.lType
+						length : req.body.length,
+						lengthType : req.body.lengthType
 					}).then(function(workoutTemplate) {
 						user.addWorkoutTemplates(workoutTemplate).then(function(){
 							data = {"status" : "success"}

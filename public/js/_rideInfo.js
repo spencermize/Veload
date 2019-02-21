@@ -14,7 +14,8 @@ function RideInfo() {
       speed = V.opts.toKph(point.speed);
     }
     $("#currSpeed").html(`${Number(speed).toFixed(2)}<br />${per}`);
-    $("#distance").html(`${Number(V.getDistance(V.user.units)).toFixed(2)}<br />${V.user.units}`);
+    $("#distance").html(`${Number(V.getDistance(V.user.units,true)).toFixed(2)}<br />${V.user.units}`);
+    $("#rdistance").html(`${Number(V.getRemainingDistance(V.user.units)).toFixed(2)}<br />${V.user.units}`);
     $("#avgSpeed").html(`${Number(V.getAvg(V.user.units)).toFixed(2)}<br />${per}`);
   })
   $(document).on('cadUpdated.veload', function () {

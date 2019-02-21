@@ -15,36 +15,36 @@ Goals.prototype.makeGraphable = function(){
 	var self = this;
 	this.workout.data.forEach(function(val,i){
 		if(val.lengthType=="distance"){
-
+			self.workout.data[i].x = cumulative
 		}else if(val.lengthType=="minutes"){
 			self.workout.data[i].x = cumulative * 60; //convert to seconds
-			self.workout.data[i].y = Number(val.value);
-			cumulative += Number(val.length);
 		}
+		self.workout.data[i].y = Number(val.value);
+		cumulative += Number(val.length);		
 	})
 	$(document).trigger("workoutLoaded.veload");
 }
 Goals.prototype.getCurrent = function(){
 	if(this.workout.lengthType == "distance"){
-
+		var e = V.getDistance("meters",true);
 	}else if(this.workout.lengthType == "minutes"){
 		var e = V.getElapsed();
-		for(var i = 0; i<this.workout.data.length-1; i++){
-			var val = this.workout.data[i];
-			if(i == this.workout.data.length - 1){
-				console.log("last goal!")
-				return {type: this.workout.lengthType,value: val.y}
-			}else if(e>=val.x && e<this.workout.data[i+1].x){
-				console.log("current goal: " + val.y)
-				return {
-					lengthType: this.workout.lengthType,
-					value: val.y,
-					type:this.workout.type};
-			}
-		}
-		console.log("current goal: 0")
-		return 0;
 	}
+	for(var i = 0; i<this.workout.data.length-1; i++){
+		var val = this.workout.data[i];
+		if(i == this.workout.data.length - 1){
+			console.log("last goal!")
+			return {type: this.workout.lengthType,value: val.y}
+		}else if(e>=val.x && e<this.workout.data[i+1].x){
+			console.log("current goal: " + val.y)
+			return {
+				lengthType: this.workout.lengthType,
+				value: val.y,
+				type:this.workout.type};
+		}
+	}
+	console.log("current goal: 0")
+	return 0;	
 }
 Goals.prototype.show = function(){
 	V.loading();
@@ -205,35 +205,35 @@ Goals.prototype.getLength = function(){
 Goals.prototype.serialize = function(){
 	var items = $('.goals-grid .item');
 	var ser = {
-		value : [],
-		len: 0,
+		data : [],
+		length: 0,
 		title : $('.workout-title').val(),
 		type : "",
-		lType : ""
+		lengthType : ""
 	};
 	items.each(function(_i,el){
 		console.log(el)
 		var e = $(el).find('.item-content');
-		var lType = e.attr("data-metric-length-type");
-		var l = e.attr("data-metric-length");
+		var lengthType = e.attr("data-metric-length-type");
+		var length = e.attr("data-metric-length");
 		var type = e.attr("data-metric-type");
-		if(lType=="miles"){
-			l = V.opts.toMFromBarb(l);
-			lType = "distance"
-		}else if(lType=="kilometers"){
-			l = V.opts.toM(l);
-			lType = "distance"
+		if(lengthType=="miles"){
+			length = V.opts.toMFromBarb(l);
+			lengthType = "distance"
+		}else if(lengthType=="kilometers"){
+			length = V.opts.toM(l);
+			lengthType = "distance"
 		}
-		ser.value[_i] ={
+		ser.data[_i] ={
 			value : e.attr("data-metric-value"),
 			type : type,
-			length : l,
-			lengthType : lType
+			length : length,
+			lengthType : lengthType
 		}
 		console.log(ser.value)
 		ser.type = type;
-		ser.lType = lType;
-		ser.len += Number(l);
+		ser.lengthType = lengthType;
+		ser.length += Number(length);
 	})
 	return ser;
 }
@@ -255,9 +255,11 @@ Goals.prototype.save = function(){
 	if(title.val().length){
 		V.loading()
 		var ser = this.serialize();
+		this.workout = ser;
 		$.post(V.opts.urls.remote.workoutTemplate,ser,function(data){
 			V.unpop();
-			V.pop({title: "Success!",body:"Workout template saved.",accept:false})
+			//V.pop({title: "Success!",body:"Workout template saved.",accept:false})
+			$(document).trigger("workoutSaved.veload")
 		})
 	}else{
 		title.addClass("is-invalid");

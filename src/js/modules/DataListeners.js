@@ -81,6 +81,17 @@ function DataListeners(){
             }
         }
     })
+    //TODO: bind to anywhere in document on location update
+    $(document).on("locationUpdated.veload",function(){
+        _.forEach(_.last(V.points),function(value,key){
+            var el = $(`[data-param="${key}"]:not(:focus)`);
+            if(el.is('button')){
+                el.toggleClass("active",value);
+            }else{
+                el.val(value);
+            }    
+        });
+    })
     $(document).on("localInfo.veload",function(_e){
         _.forEach(V.status.sensors,function(value,key){
             $(`[data-sensor="${key}"]`).toggleClass("btn-primary",value).toggleClass("btn-outline-secondary",!value);

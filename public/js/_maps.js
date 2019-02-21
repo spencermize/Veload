@@ -63,7 +63,7 @@ V.loadGPX = function(url){
 			var f = route[coord+1];
 			var sl = {lat: s[1], lng: s[0]};
 			var fl = {lat: f[1], lng: f[0]};
-			V.rTrail.push({distance: distance, bearing: bearing, latlng: {lat:sl.lat,lng:sl.lng}});
+			V.rTrail.push({distance: distance, bearing: bearing, latitude: sl.lat, longitude: sl.lng, latlng: {lat:sl.lat,lng:sl.lng}});
 
 			//distance remaining from previous waypoint. first waypoint should be zero
 			distance = geolib.getDistance(sl,fl,1,15);

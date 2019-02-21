@@ -79,7 +79,7 @@ Veload.prototype.start = function () {
 				accept: false
 			})
 		})
-		$(document).one("workoutLoaded.veload",function(){
+		$(document).one("workoutLoaded.veload workoutSaved.veload",function(){
 			V.unpop();
 			V.start();
 		})
@@ -200,9 +200,9 @@ Veload.prototype.getAvg = function (unit) {
 	}
 
 }
-Veload.prototype.getDistance = function (unit) {
+Veload.prototype.getDistance = function (unit,est) {
 	var self = this;
-	var dm = geolib.getPathLength(self.rTrailPopped);
+	var dm = est ? geolib.getPathLength(self.points) : geolib.getPathLength(self.rTrailPopped);
 	if (unit == "miles") {
 		return geolib.convertUnit("mi",dm,8);
 	} else if (unit == "meters") {
@@ -210,6 +210,17 @@ Veload.prototype.getDistance = function (unit) {
 	} else if (unit == "kilometers"){
 		return geolib.convertUnit("km",dm,8);
 	}
+}
+Veload.prototype.getRemainingDistance = function(unit){
+	var self = this;
+	var dm = geolib.getPathLength(self.rTrail);
+	if (unit == "miles") {
+		return geolib.convertUnit("mi",dm,8);
+	} else if (unit == "meters") {
+		return dm;
+	} else if (unit == "kilometers"){
+		return geolib.convertUnit("km",dm,8);
+	}	
 }
 Veload.prototype.getElapsed = function(){
 	return moment(_.last(this.points).time).diff(moment(this.points[0].time)) / 1000; // return time in seconds
