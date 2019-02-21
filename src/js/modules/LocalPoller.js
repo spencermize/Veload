@@ -14,6 +14,7 @@ var LocalPoller = {
     startUpdating: function() {
         var hrCount = 0;
         var paused = false;
+        var missedUpdates = 0;
         return setInterval(function () {
             if (V.status.status) {
                 $.getJSON(V.opts.urls.local.stats, function (data) {
@@ -24,8 +25,7 @@ var LocalPoller = {
                     var tempLoc = false;
                     var newLoc = false;
                     var point = false;                                       
-
-                    // speed point * (time since last update -> seconds)
+      
                     // if this is the first loop, there will only be one partial point (from the map initialization). kill that point and put a full one in.
                     var last = _.last(V.points)
                     if(!last.time){
@@ -36,10 +36,14 @@ var LocalPoller = {
 
                     //covered this many meters
                     if(!paused){
+                         // speed point * (time since last update -> seconds)
                         var distance = speed * (moment().diff(moment(last.time)) / 1000);
+                        console.log(`covered ${distance}`);
                     }else if(speed>0 && paused){
                         var distance = 0;
                         paused = false;
+                        missedUpdates = 0;
+                        console.log('unpause');
                     }
                     
 
@@ -48,7 +52,7 @@ var LocalPoller = {
                             //set the distance remaining after we get to the new waypoint
                             distance = distance - V.rTrail[0].distance;
                             tempLoc = V.rTrail.shift();
-                            V.rTrailPopped.push(new Point(tempLoc.latlng.lat, tempLoc.latlng.lng, moment(), hr, cad, speed,false)); // this is the real trail
+                            V.rTrailPopped.push(new Point(tempLoc.latlng.lat, tempLoc.latlng.lng, moment(), hr, cad, speed,false,V.Goals.getCurrent())); // this is the real trail
                         }
                         if(V.rTrail.length==0){
                             //nothing left, we're done!
@@ -61,27 +65,34 @@ var LocalPoller = {
                                 point = _.last(V.rTrailPopped);
                             }else{ //we didn't pass a real point so just estimate for the map
                                 newLoc = geolib.computeDestinationPoint(_.last(V.points), distance, V.rTrail[0].bearing);   
-                                point = new Point(newLoc.latitude, newLoc.longitude, moment(), hr, cad, speed,true);
+                                point = new Point(newLoc.latitude, newLoc.longitude, moment(), hr, cad, speed,true,V.Goals.getCurrent());
                             }
+                            console.log(point)
                             V.points.push(point);
-                            console.log(`${V.getDistance('miles')} miles total`)
-                            console.log(`${V.getDistance('meters')} meters total`)
+                            //console.log(`${V.getDistance('miles')} miles total`)
+                            //console.log(`${V.getDistance('meters')} meters total`)
                             $(document).trigger('locationUpdated.veload');
                         }                        
-                    }else if(!distance && V.rTrail.length){
+                    }else if(!distance && V.rTrail.length && missedUpdates<10){
                         //paused?
+                        missedUpdates += 1;
+                        console.log('pause detected');
+                    }
+                    if(missedUpdates>=10){
                         paused = true;
+                    }else{
+                        if(cad>0){
+                            $(document).trigger('cadUpdated.veload');
+                        }
+                        if(speed>0){
+                            $(document).trigger('speedUpdated.veload');
+                        }
+                        if (hrCount % 5 == 0 && hr>0) {
+                            $(document).trigger('hrUpdated.veload');
+                        }
+                        hrCount++;
                     }
-                    if(cad>0){
-                        $(document).trigger('cadUpdated.veload');
-                    }
-                    if(speed>0){
-                        $(document).trigger('speedUpdated.veload');
-                    }
-                    if (hrCount % 5 == 0 && hr>0) {
-                        $(document).trigger('hrUpdated.veload');
-                    }
-                    hrCount++;
+
                 })
                 
             }

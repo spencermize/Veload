@@ -205,9 +205,6 @@ app.get('/api/:action/:id([0-9]{0,})?/:sub([a-zA-Z]{0,})?',[sessionChecker,getSt
 				res.json(data);
 			});
 			break;
-		case 'workoutTemplate':			
-
-			break;
 		case 'modules':
 			res.json(modules);
 			break;

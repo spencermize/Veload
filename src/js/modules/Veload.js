@@ -11,7 +11,6 @@ import omni from '@mapbox/leaflet-omnivore';
 import ico from '@ansur/leaflet-pulse-icon';
 import '../../../node_modules/leaflet-providers/leaflet-providers.js';
 import geolib from 'geolib';
-import Timer from 'easytimer.js';
 import {Point} from './Point.js';
 
 window.Handlebars = Handlebars;
@@ -21,7 +20,6 @@ window.List = List;
 window.omni = omni;
 window.ico = ico;
 window.geolib = geolib;
-window.Timer = Timer;
 window.Point = Point;
 
 ["rTrail", "cTemps", "enabledMods", "modLoadQueue", "points", "rTrailPopped"].forEach(function (e) {
@@ -68,12 +66,21 @@ Veload.prototype.start = function () {
 			over.remove();
 			b.addClass('playing stoppable').removeClass('paused');
 		
-			self.timer.start();
 			$(document).trigger("start.veload");			
 		})
 	}else{
+		$('body').append(V.cTemps['start']());
 		V.pickTrackGUI();
-		$(document).one("trackLoaded.veload",function(){
+		$(document).one("trackLoading.veload",function(){
+			V.unpop();
+			V.pop({
+				title: "Select or Create a Workout?",
+				body: $('.GoalSelectOrBuild').html(),
+				accept: false
+			})
+		})
+		$(document).one("workoutLoaded.veload",function(){
+			V.unpop();
 			V.start();
 		})
 	}
@@ -90,7 +97,6 @@ Veload.prototype.pause = function () {
 	var self = this;
 	$('body').removeClass('playing');
 	$('body').addClass('paused');
-	self.timer.pause();
 	$(document).trigger("pause.veload");
 }
 Veload.prototype.stop = function () {
@@ -130,7 +136,6 @@ Veload.prototype.clear = function () {
 		acceptClick: function () {
 			self.points = [];
 			self.rTrailPopped = []
-			self.timer.reset();
 			$("body").removeClass('stoppable');
 			self.unpop();
 			$(document).trigger("clear.veload");
@@ -205,6 +210,9 @@ Veload.prototype.getDistance = function (unit) {
 	} else if (unit == "kilometers"){
 		return geolib.convertUnit("km",dm,8);
 	}
+}
+Veload.prototype.getElapsed = function(){
+	return moment(_.last(this.points).time).diff(moment(this.points[0].time)) / 1000; // return time in seconds
 }
 Veload.prototype.loading = function () {
 	$('body').addClass('loading');

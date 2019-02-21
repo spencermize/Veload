@@ -41,6 +41,7 @@ SettingsPane.prototype.show = function(){
 			//match UI to server settings
 			$(document).one("settingsShown.veload",function(){
 				console.log(_.difference(data, V.enabledMods))
+				$('[data-name="maps"] button').attr("disabled",true);
 				_.forEach(_.difference(data, V.enabledMods), function (el) {
 					$(`[data-name=${el}] .btn-toggle`).removeClass('active');
 				});

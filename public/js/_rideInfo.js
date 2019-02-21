@@ -1,13 +1,5 @@
 function RideInfo() {
   console.log('init ride info');
-  V.rideRoller();
-
-  $(document).trigger('initialized.rideInfo');
-}
-$(document).trigger('moduleLoaded.rideInfo');
-
-V.rideRoller = function(){
-  var self = this;
   $(document).on('speedUpdated.veload', function () {
     var point = V.points[V.points.length-1];
     var per = "";
@@ -36,13 +28,9 @@ V.rideRoller = function(){
   $(document).on('clear.veload', function () {
     $("#currSpeed,#distance,#avgSpeed,#hr,#currCadence").html('');
   });
-  V.timer.addEventListener('secondsUpdated', function (e) {
-    $('#elapsedTime').html(self.timer.getTimeValues().toString());
+  $(document).on('locationUpdated.veload',function (e) {
+    $('#elapsedTime').html(new Date(V.getElapsed() * 1000).toISOString().substr(11, 8)); // clock time
   });
-  V.timer.addEventListener('started', function (e) {
-    $('#elapsedTime').html(self.timer.getTimeValues().toString());
-  });
-  V.timer.addEventListener('reset', function (e) {
-    $('#elapsedTime').html(self.timer.getTimeValues().toString());
-  });
+  $(document).trigger('initialized.rideInfo');
 }
+$(document).trigger('moduleLoaded.rideInfo');

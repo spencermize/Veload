@@ -104,10 +104,22 @@ var Options = {
                         }
                     }]
                 },
+                annotation: {
+                    // See below for detailed descriptions of the annotation options
+                    annotations: [{
+                        drawTime: 'afterDatasetsDraw', // overrides annotation.drawTime if set
+                        type: 'line',
+                        mode: 'horizontal',
+                        scaleID: 'y-axis-0',
+                        value: '0',
+                        borderColor: 'transparent',
+                        borderWidth: 2,
+                    }]
+                },                
                 plugins: {
                     streaming: {            // per-chart option
                         frameRate: 20       // chart is drawn 30 times every second
-                    }
+                    }        
                 },
                 legend: {
                     display: false
@@ -138,9 +150,6 @@ var Options = {
         },
         gauge : {
             type: "tsgauge",
-            animation: {
-                animateRotate: false
-            },
             data: {
                 datasets: [{
                     backgroundColor: [],
@@ -157,6 +166,10 @@ var Options = {
                     plugins: {
                         streaming: false
                     },
+                    animation: {
+                        animateRotate: false,
+                        duration: 0
+                    }                    
             }
         }        
     }

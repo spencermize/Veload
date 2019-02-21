@@ -19,8 +19,6 @@ Veload.prototype.loadInterface = function(){
 	
 	if(window.location.pathname=="/dashboard"){
 		console.log('loading dash...');
-		//ensure timers are ready to go so we can attach listeners;
-		self.initTimers();
 		self.loadDash();
 	
 		//wait until modules loaded before showing loaded
@@ -111,15 +109,6 @@ Veload.prototype.loadDash = function(){
 	self.initGrid();
 	$('[data-tooltip="tooltip"],[data-toggle="tooltip"]').tooltip();
 }
-
-Veload.prototype.initTimers = function(){
-	var self = this;
-	self.timer = new Timer();
-	self.timer.addEventListener('secondsUpdated', function (e) {
-		self.elapsed = self.timer.getTotalTimeValues().seconds;
-	});
-}
-
 
 Veload.prototype.initVoice = function(){
 	self = this;

@@ -9,14 +9,13 @@
 						<p class="card-subtitle mb-2 lead"><small>\{{this.type}} for \{{this.length}} \{{this.lengthType}}</small></p>
 						<div class="spark spark d-flex flex-row justify-content-start align-items-end">
 							\{{#each this.spark}}	
-								\{{debug this}}
 								<div style="width:\{{this.[0]}}%;height:\{{this.[1]}}%"></div>
 							\{{/each}}
 						</div>
 					</div>
 					<div class="card-footer text-right">
-						<button class="btn btn-secondary" data-cmd="Goals.deleteWorkoutTemplate" data-id="\{{this.id}}">Remove</button>
-						<button class="btn btn-primary" data-cmd="Goals.selecteWorkoutTemplate" data-id="\{{this.id}}">Select</button>
+						<button class="btn btn-secondary" data-cmd="Goals.deleteWorkoutTemplate" data-id="\{{this.id}}">Delete</button>
+						<button class="btn btn-primary" data-cmd="Goals.selectWorkoutTemplate" data-id="\{{this.id}}">Select</button>
 					</div>
 				</div>
 			</div>

@@ -6,7 +6,46 @@ function Goals(opts){
 	this.opts = opts;
 	if (!(this instanceof Goals)) return new Goals(opts);
 };
+Goals.prototype.selectWorkoutTemplate = function(e){
+	this.workout = _.find(this.workoutTemplates,{'id' : e.data("id")});
+	this.makeGraphable();
+}
+Goals.prototype.makeGraphable = function(){
+	var cumulative = 0;
+	var self = this;
+	this.workout.data.forEach(function(val,i){
+		if(val.lengthType=="distance"){
 
+		}else if(val.lengthType=="minutes"){
+			self.workout.data[i].x = cumulative * 60; //convert to seconds
+			self.workout.data[i].y = Number(val.value);
+			cumulative += Number(val.length);
+		}
+	})
+	$(document).trigger("workoutLoaded.veload");
+}
+Goals.prototype.getCurrent = function(){
+	if(this.workout.lengthType == "distance"){
+
+	}else if(this.workout.lengthType == "minutes"){
+		var e = V.getElapsed();
+		for(var i = 0; i<this.workout.data.length-1; i++){
+			var val = this.workout.data[i];
+			if(i == this.workout.data.length - 1){
+				console.log("last goal!")
+				return {type: this.workout.lengthType,value: val.y}
+			}else if(e>=val.x && e<this.workout.data[i+1].x){
+				console.log("current goal: " + val.y)
+				return {
+					lengthType: this.workout.lengthType,
+					value: val.y,
+					type:this.workout.type};
+			}
+		}
+		console.log("current goal: 0")
+		return 0;
+	}
+}
 Goals.prototype.show = function(){
 	V.loading();
 	var self = this;
@@ -31,8 +70,6 @@ Goals.prototype.show = function(){
 		$('#modal .modal-dialog').css("max-width",$(e.relatedTarget).attr("data-max-width"));
 		
 		//handle button visibility
-		console.log(e.to)
-		console.log($(comp).find('.carousel-item').length)
 		$('[data-slide],.btn-accept').removeClass('d-none');
 		if(e.to == $(comp).find('.carousel-item').length - 1){
 			$('[data-slide=next]').addClass("d-none");
@@ -53,6 +90,7 @@ Goals.prototype.select = function(){
 	V.loading();
 	var self = this;
 	$.getJSON(V.opts.urls.remote.userWorkoutTemplates,function(data){
+		self.workoutTemplates = data;
 		data.forEach(function(workout){ // each workout template
 			var arr = [];
 			var spark = [];

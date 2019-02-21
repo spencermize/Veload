@@ -49,6 +49,7 @@ V.updateMap = function(){
 V.loadGPX = function(url){
 	V.unpop();
 	V.loading();
+	$(document).trigger("trackLoading.veload");
 	var om = omni.gpx(url);
 	V.points = [];
 	om.on('ready', function(e) {
@@ -77,7 +78,6 @@ V.loadGPX = function(url){
 			fillColor: V.opts.colors.GOOD
 		});
 		V.myIcon = L.marker([l.lat,l.lng],{icon: pulsingIcon,opacity:.8}).addTo(V.getMap());
-		V.unpop();
 		$(document).trigger("trackLoaded.veload");
 	}).on('error',function(e){
 		V.error(e);
@@ -90,7 +90,7 @@ V.pickTrackGUI = function(){
 	var config = {
 		title: 'Route Selection',
 		accept: false,
-		body: $('[data-name="maps"] .StravaOrRide').html()
+		body: $('.StravaOrRide').html()
 	}
 	V.unpop();
 	V.pop(config);	
@@ -98,7 +98,7 @@ V.pickTrackGUI = function(){
 V.gpsLoader = function(){
 	var options = V.listOptions()
 	V.unpop();
-	var html = $('.rwgpsSearch').html() + $('[data-name="maps"] .search-wrap').html()
+	var html = $('.rwgpsSearch').html() + $('.search-wrap').html()
 	V.pop(V.listModalOptions(html));
 	$('#modal .searcher').attr("id","searchme");
 	var list = new List("searchme",options);
@@ -140,7 +140,7 @@ V.gpsSearch = function(){
 
 }
 V.listOptions = function(){
-	var item = $('[data-module="map"] .search-wrap ul.list').cleanWhitespace().html();
+	var item = $('.search-wrap ul.list').cleanWhitespace().html();
 	return {
 		valueNames: [
 			'name',
@@ -167,7 +167,7 @@ V.stravaLoader = function(){
 		$.getJSON(V.opts.urls.remote.athleteActivities,function(activities){
 			var data = routes.concat(activities);
 			V.unpop();
-			V.pop(V.listModalOptions($('[data-name="maps"] .search-wrap').html()));
+			V.pop(V.listModalOptions($('.search-wrap').html()));
 			$('#modal .searcher').attr("id","searchme");
 			var list = new List("searchme",options);
 			list.clear();

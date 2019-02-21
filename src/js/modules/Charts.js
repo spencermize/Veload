@@ -2,6 +2,7 @@ import _ from 'lodash';
 import {setColors} from './ColorControls.js';
 import 'chartjs-plugin-streaming';
 import 'chartjs-plugin-zoom';
+import 'chartjs-plugin-annotation';
 import './Gauge.js'
 function Charts(){
 	console.log('building charts');
@@ -102,7 +103,7 @@ function initializeLineCharts(){
 			if(typeof chart.data.datasets[i] == "undefined"){
 				console.log("generating datasets...");
 				chart.data.datasets[i] = _.cloneDeep(V.opts.chart.line.data.datasets[0]);
-			}			
+			}
 			console.log(`setting up ${listen[i]}.veload for ${param}`)
 			$(document).on(`${listen[i]}.veload`, function () {
 				if (V.points.length) {
@@ -119,6 +120,14 @@ function initializeLineCharts(){
 					console.log(`${i}: ${p}`)
 					chart.data.datasets[i].data.push({ x: moment(point.time).valueOf(), y: p });
 					chart.data.datasets[i].pointBackgroundColor.push(V.opts.colors.GOOD);
+					if(point.goal && param == point.goal.type){
+						chart.options.annotation.annotations[0].value = point.goal.value;
+						var col = V.opts.colors.BAD
+						if(p>point.goal.value){
+							col = V.opts.colors.GOOD;
+						}
+						chart.options.annotation.annotations[0].borderColor = col;
+					}
 					//chart.data.datasets[i].backgroundColor = V.opts.colors.GOODBG;
 					chart.update();
 				}

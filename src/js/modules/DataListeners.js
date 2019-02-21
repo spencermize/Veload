@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { setColors } from './ColorControls';
 function DataListeners(){
-    $(document).on('click','[data-cmd]', function(e){
+    $(document).on('click','[data-cmd]:not([disabled])', function(e){
         buttonCmd(e)
     });
     $(document).on('submit','form:has([data-submit])',function(e){
