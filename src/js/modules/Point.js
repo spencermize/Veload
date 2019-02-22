@@ -1,9 +1,9 @@
-function Point(lat,lng,time,hr,cad,speed,est,goal){
+function Point(lat,lng,time,hr,cadence,speed,est,goal){
 	this.lat = lat;
 	this.lng = lng;
 	this.time = time;
 	this.hr = hr;
-	this.cad = cad;
+	this.cadence = cadence;
 	this.speed = speed;
 	this.est = est;
 	this.goal = goal;

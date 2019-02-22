@@ -1,3 +1,4 @@
+import _ from 'lodash';
 function HomePage(){
     console.log('go')
     //load github info

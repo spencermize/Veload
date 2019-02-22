@@ -111,7 +111,6 @@ Goals.prototype.select = function(){
 			workout.spark = spark;
 
 			if(workout.lengthType=="distance"){
-				workout.lengthType = V.user.units;
 				if(V.user.units == "miles"){
 					workout.length = Math.round(V.opts.toBarbarian(workout.length));
 				}else{
@@ -218,10 +217,10 @@ Goals.prototype.serialize = function(){
 		var length = e.attr("data-metric-length");
 		var type = e.attr("data-metric-type");
 		if(lengthType=="miles"){
-			length = V.opts.toMFromBarb(l);
+			length = V.opts.toMFromBarb(length);
 			lengthType = "distance"
 		}else if(lengthType=="kilometers"){
-			length = V.opts.toM(l);
+			length = V.opts.toM(length);
 			lengthType = "distance"
 		}
 		ser.data[_i] ={

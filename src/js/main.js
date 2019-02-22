@@ -1,5 +1,4 @@
-var DEBUG = true;
-if(!DEBUG){
+if(window.location.hostname === "veload.bike"){
     if(!window.console) window.console = {};
     var methods = ["log", "debug", "warn", "info"];
     for(var i=0;i<methods.length;i++){

@@ -19,6 +19,9 @@ $toggle-default-font-size: .75rem;
 $btn-default-color: $gray-500;
 $btn-default-bg: $gray-800;
 
+// Speed up Carousel
+$carousel-transition: .25s;
+
 // Mixin for Switch Colors
 // Variables: @color, @bg, @active-bg
 @mixin toggle-color($color: $btn-default-color, $bg: $btn-default-bg, $active-bg: $primary) {

@@ -31,12 +31,12 @@ V.createMap = function(){
 V.updateMap = function(){
 	$(document).on('locationUpdated.veload',function(){
 		var l = V.points[V.points.length - 1]
-		V.getMap().flyTo(l,16,{
+		V.getMap().flyTo(l,14,{
 			animate: false
 		});
 		V.myIcon.setLatLng(l);
 	});
-	$(document).on('gridItemResized.maps,gridResized.veload',function(){
+	$(document).on('gridItemResized.maps gridResized.veload',function(){
 		console.log('redrawing map');
 		V.getMap().invalidateSize();
 	});

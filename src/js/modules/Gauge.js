@@ -127,10 +127,11 @@
 		ctx.fillStyle = this.data.valueColor || this.fontColor;
 		ctx.fillText(label, this.gaugeCenterX, this.gaugeCenterY);
 	};
-	GaugeChartHelper.prototype.renderValueArrow = function(value) {
+	GaugeChartHelper.prototype.renderValueArrow = function(value,color) {
 		var angle = this.getAngleOfValue(typeof value === "number" ? value : this.data.value);
+		var color = color || this.arrowColor;
 		this.ctx.globalCompositeOperation = "source-over";
-		this.renderArrow(this.gaugeRadius, angle, this.arrowLength, this.arrowAngle, this.arrowColor);
+		this.renderArrow(this.gaugeRadius, angle, this.arrowLength, this.arrowAngle, color);
 	};
 	GaugeChartHelper.prototype.renderSmallValueArrow = function(value) {
 		var angle = this.getAngleOfValue(value);
@@ -203,6 +204,7 @@
 				gaugeHelper.updateGaugeDimensions();
 				//gaugeHelper.animateArrow();
 				gaugeHelper.renderValueArrow();
+				gaugeHelper.renderValueArrow(chart.config.data.datasets[0].goal,chart.config.data.datasets[0].color);
 			};
 			Chart.controllers.doughnut.prototype.initialize.apply(this, arguments);
 		},

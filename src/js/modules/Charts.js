@@ -65,13 +65,22 @@ function initializeGaugeCharts(){
 				var point = _.last(V.points);
 				var p = "";
 				if(param=="speed" && V.user.units=="miles"){
-					p = V.opts.toBarbarianph(point[param]);
+					p = Number(V.opts.toBarbarianph(point[param])).toFixed(2);
 				}else if(param=="speed" && V.user.units=="kilometers"){
-					p = V.opts.toKph(point[param]);
+					p = Number(V.opts.toKph(point[param])).toFixed(2);
 				}else{
 					p = point[param];
 				}
 				chart.data.datasets[0].gaugeData.value = p;
+				if(point.goal && param == point.goal.type){
+					chart.data.datasets[0].goal = point.goal.value;
+					var col = V.opts.colors.BAD
+					if(p>point.goal.value){
+						col = V.opts.colors.GOOD;
+					}
+					chart.data.datasets[0].color = col;
+				}
+
 				chart.update();				
 			}
 		})

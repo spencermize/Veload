@@ -17,6 +17,9 @@ h1,h2,h3,h4,h5,h6{
 	font-weight: 800;
 	color: $secondary;
 }
+.lead{
+	color: #fff;
+}
 h1{
 	color: #fff;
 }
@@ -360,7 +363,10 @@ nav .pause,.playing .play,.stop{
 			}
 	}
 	.cover-container {
-		max-width: 50em;
+		max-width: 60vw;
+		.btn{
+			min-width: 10em;
+		}
 	}
 	.weather{
 		.rot{

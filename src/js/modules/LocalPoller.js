@@ -82,7 +82,7 @@ var LocalPoller = {
                         paused = true;
                     }else{
                         if(cad>0){
-                            $(document).trigger('cadUpdated.veload');
+                            $(document).trigger('cadenceUpdated.veload');
                         }
                         if(speed>0){
                             $(document).trigger('speedUpdated.veload');
