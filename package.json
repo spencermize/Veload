@@ -35,6 +35,7 @@
     "prod": "set NODE_ENV=production",
     "js:watch": "webpack -d --info-verbosity verbose -w",
     "js:build": "webpack -d -p --mode=production --optimize-minimize",
+    "js:lint": "node node_modules/eslint/bin/eslint.js src/js/modules",
     "css:watch": "sass src/scss/main.scss public/css/style.css --watch",
     "css:build": "sass src/scss/main.scss public/css/style.css --no-source-map --style=compressed",
     "css": "npm run css:watch",
