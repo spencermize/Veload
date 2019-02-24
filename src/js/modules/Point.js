@@ -8,5 +8,5 @@ function Point(lat,lng,time,hr,cadence,speed,est,goal){
 	this.est = est;
 	this.goal = goal;
 }
-	
-export {Point}
+
+export { Point };

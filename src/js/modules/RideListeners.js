@@ -1,12 +1,12 @@
 function RideListeners(){
-    $(document).on('routeCompleted.veload',function(){
-        V.pause();
-        var config = {
-            title: "ride completed!"
-        }
+	$(document).on('routeCompleted.veload',function(){
+		V.pause();
+		var config = {
+			title: 'ride completed!'
+		};
 
-        V.pop(config);
-    });
+		V.pop(config);
+	});
 }
 
-export {RideListeners}
+export { RideListeners };
