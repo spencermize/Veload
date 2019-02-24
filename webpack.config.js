@@ -56,12 +56,9 @@ module.exports = {
 	plugins: [
     // To strip all locales except “en”
     new MomentLocalesPlugin(),
-	/*	new BundleAnalyzerPlugin({
-			analyzerMode: 'static'
-		}),*/
-		new webpack.ProvidePlugin({
-			'$': 'jquery',
-			'Handlebars': 'handlebars'
-		})
+	new webpack.ProvidePlugin({
+		'$': 'jquery',
+		'Handlebars': 'handlebars'
+	})
     ]
 };

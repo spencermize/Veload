@@ -1,5 +1,5 @@
 function ConnectionStatus(){
-    $(document).on("localInfo.veload",function(_e){
+    $(document).on("localInfo.veload",function(){
         //not connected
         if(!V.status.status){
             $('body').addClass('disconnected')

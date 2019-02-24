@@ -1,11 +1,8 @@
-console.log("trying to load map...");
-	
 function Maps(){
 	$(document).one(`modulesLoaded.veload`,function(e){
 		init();
 	});
 	$(document).trigger("initialized.maps");
-//	if (!(this instanceof Maps)) return new Maps(opts);
 }
 function init(){
 	V.createMap();
@@ -15,16 +12,12 @@ V.getMap = function(){
 	return $('.map').data("map");
 }
 V.createMap = function(){
-	console.log('create map');
 	var el = $('.map');
 	el.data("map",L.map(el[0],{
 		zoom: 9,
 		center: [51.505, -0.09],
 		attributionControl: false
 	}));	
-	/*L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=9550bf2f19b74edfbf935882be6d687e', {
-
-	}).addTo(V.getMap());	*/
 	L.tileLayer.provider('CartoDB.Positron').addTo(V.getMap());
 }
 
@@ -37,7 +30,6 @@ V.updateMap = function(){
 		V.myIcon.setLatLng(l);
 	});
 	$(document).on('gridItemResized.maps gridResized.veload',function(){
-		console.log('redrawing map');
 		V.getMap().invalidateSize();
 	});
 	$(document).on('clear.veload',function(){

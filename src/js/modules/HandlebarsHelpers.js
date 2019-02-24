@@ -23,21 +23,8 @@ Handlebars.registerHelper({
 	or: function () {
 		return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
 	},
-	debug: function (optionalValue) {
-		console.log("Current Context");
-		console.log("====================");
-		console.log(this);
-
-		if (optionalValue) {
-			console.log("Value");
-			console.log("====================");
-			console.log(optionalValue);
-		}
-	},
 	ifIn: function (elem, list, options) {
 		if (list) {
-			console.log(list);
-			console.log(elem);
 			if (list.indexOf(elem) > -1) {
 				return options.fn(this);
 			}

@@ -4,7 +4,7 @@ import _ from 'lodash';
 function SettingsPane(opts){
 	this.opts = opts;
 	if (!(this instanceof SettingsPane)) return new SettingsPane(opts);
-};
+}
 
 SettingsPane.prototype.show = function(){
 		V.loading();
@@ -26,13 +26,13 @@ SettingsPane.prototype.show = function(){
 				modalClass: "veload-settings"
 			}
 			var events = {
-				cancelClick: function (e) {
+				cancelClick: function () {
 					if(!$('#modal .is-invalid').length){
 						V.unpop();
 					}
 				},
 			}
-			V.getUser(function(data){
+			V.getUser(function(){
 				V.unpop();
 				V.pop(popts,events);
 				$(document).trigger('settingsShown.veload');
@@ -40,7 +40,6 @@ SettingsPane.prototype.show = function(){
 
 			//match UI to server settings
 			$(document).one("settingsShown.veload",function(){
-				console.log(_.difference(data, V.enabledMods))
 				$('[data-name="maps"] button').attr("disabled",true);
 				_.forEach(_.difference(data, V.enabledMods), function (el) {
 					$(`[data-name=${el}] .btn-toggle`).removeClass('active');
@@ -86,7 +85,6 @@ SettingsPane.prototype.addCustomModule = function(el){
 		title : _.startCase(title)
 	}
 	$(document).one("initialized.customChart",function(){
-		var id = "customChart";
 		V.saveLayout();
 		V.unpop();
 	})

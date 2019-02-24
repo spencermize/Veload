@@ -129,9 +129,9 @@
 	};
 	GaugeChartHelper.prototype.renderValueArrow = function(value,color) {
 		var angle = this.getAngleOfValue(typeof value === "number" ? value : this.data.value);
-		var color = color || this.arrowColor;
+		var col = color || this.arrowColor;
 		this.ctx.globalCompositeOperation = "source-over";
-		this.renderArrow(this.gaugeRadius, angle, this.arrowLength, this.arrowAngle, color);
+		this.renderArrow(this.gaugeRadius, angle, this.arrowLength, this.arrowAngle, col);
 	};
 	GaugeChartHelper.prototype.renderSmallValueArrow = function(value) {
 		var angle = this.getAngleOfValue(value);
@@ -200,7 +200,7 @@
 			var gaugeHelper = this.gaugeHelper = new GaugeChartHelper();
 			gaugeHelper.setup(chart, chart.config);
 			gaugeHelper.applyGaugeConfig(chart.config);
-			chart.config.options.animation.onComplete = function(chartElement) {
+			chart.config.options.animation.onComplete = function() {
 				gaugeHelper.updateGaugeDimensions();
 				//gaugeHelper.animateArrow();
 				gaugeHelper.renderValueArrow();

@@ -1,4 +1,8 @@
 import _ from 'lodash';
+import moment from 'moment';
+import geolib from 'geolib';
+import {Point} from './Point.js';
+
 var LocalPoller = {
     poll: function() {
         $.getJSON(V.opts.urls.local.stats, function (data) {
@@ -35,15 +39,14 @@ var LocalPoller = {
                     }
 
                     //covered this many meters
+                    var distance;
                     if(!paused){
                          // speed point * (time since last update -> seconds)
-                        var distance = speed * (moment().diff(moment(last.time)) / 1000);
-                        console.log(`covered ${distance}`);
+                        distance = speed * (moment().diff(moment(last.time)) / 1000);
                     }else if(speed>0 && paused){
-                        var distance = 0;
+                        distance = 0;
                         paused = false;
                         missedUpdates = 0;
-                        console.log('unpause');
                     }
                     
 
@@ -67,16 +70,12 @@ var LocalPoller = {
                                 newLoc = geolib.computeDestinationPoint(_.last(V.points), distance, V.rTrail[0].bearing);   
                                 point = new Point(newLoc.latitude, newLoc.longitude, moment(), hr, cad, speed,true,V.Goals.getCurrent());
                             }
-                            console.log(point)
                             V.points.push(point);
-                            //console.log(`${V.getDistance('miles')} miles total`)
-                            //console.log(`${V.getDistance('meters')} meters total`)
                             $(document).trigger('locationUpdated.veload');
                         }                        
                     }else if(!distance && V.rTrail.length && missedUpdates<10){
                         //paused?
                         missedUpdates += 1;
-                        console.log('pause detected');
                     }
                     if(missedUpdates>=10){
                         paused = true;

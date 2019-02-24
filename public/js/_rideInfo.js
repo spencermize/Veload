@@ -1,5 +1,4 @@
 function RideInfo() {
-  console.log('init ride info');
   $(document).on('speedUpdated.veload', function () {
     var point = V.points[V.points.length-1];
     var per = "";

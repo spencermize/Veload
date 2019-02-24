@@ -20,7 +20,6 @@ function DataListeners(){
 
      function buttonCmd(e){
         var fnc = $(e.target).closest('[data-cmd]').data('cmd') ? $(e.target).closest('[data-cmd]').data('cmd') : $(e.target).closest('form').find('[data-submit]').data('submit');
-        console.log(fnc);
         var fncs = fnc.split(".");
         var one = fncs[0];
         var two = fncs[1] || 0;
@@ -28,8 +27,6 @@ function DataListeners(){
             V[fncs[0]]($(e.target));
         }else if(fncs.length == 2 && V[one][two] ){
             V[one][two]($(e.target));
-        }else{
-            console.log("couldn't find fnc");
         }
      }
 
@@ -51,7 +48,7 @@ function DataListeners(){
            var path = h.split(".")[1];
 
            $.post(`${V.opts.urls[host][path]}?value=${val}`,function(data){
-               if(data.status="success"){
+               if(data.status=="success"){
                    remHosts.push(h);
                    if(hosts.length == remHosts.length){
                        loadSuccess(el);
@@ -59,7 +56,7 @@ function DataListeners(){
                }else{
                    loadFail(el);    
                }
-           }).fail(function(e){
+           }).fail(function(){
                loadFail(el,h);
            });
        }) 
@@ -73,7 +70,6 @@ function DataListeners(){
             if(f.indexOf(".")>-1){
                 // V.something.something
                 f = f.split(".");
-                console.log(el.val())
                 V[f[0]][f[1]](el.val())
             }else{
                 // V.something
@@ -92,14 +88,14 @@ function DataListeners(){
             }    
         });
     })
-    $(document).on("localInfo.veload",function(_e){
+    $(document).on("localInfo.veload",function(){
         _.forEach(V.status.sensors,function(value,key){
             $(`[data-sensor="${key}"]`).toggleClass("btn-primary",value).toggleClass("btn-outline-secondary",!value);
         });
         setColors();
     })
 
-    $(document).on("urlsUpdated.veload",function(_e){
+    $(document).on("urlsUpdated.veload",function(){
         $.post(`${V.opts.urls.remote.userUrl}?value=${V.opts.urlComponents.local.url}`,function(){
 
         }).fail(function(){
@@ -119,8 +115,7 @@ function loadSuccess(el){
     },3000)
 }
 
-function loadFail(el,h){
+function loadFail(el){
     el.addClass("is-invalid").parent().find(".spin").remove();
-    console.log(`error saving to ${h}`)    
 }
 export {DataListeners}

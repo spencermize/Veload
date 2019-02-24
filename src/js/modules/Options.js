@@ -10,7 +10,7 @@ var Options = {
             })
         });
     },
-    updateLocal: function(server,el){
+    updateLocal: function(server){
         this.urlComponents.local.url = server;
         this.generateUrls()
         $(document).trigger("urlsUpdated.veload");

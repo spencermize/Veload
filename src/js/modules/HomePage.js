@@ -1,6 +1,5 @@
 import _ from 'lodash';
 function HomePage(){
-    console.log('go')
     //load github info
     var api = 'https://api.github.com/repos/spencermize/VeloadListener';
     $.getJSON(`${api}/releases/latest`,function(data){
@@ -55,7 +54,7 @@ function HomePage(){
               });
             
         }catch(error){
-            
+            //ruh-roh
         }
     }
         

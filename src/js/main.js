@@ -1,19 +1,18 @@
-if(window.location.hostname === "veload.bike"){
-    if(!window.console) window.console = {};
-    var methods = ["log", "debug", "warn", "info"];
-    for(var i=0;i<methods.length;i++){
-        console[methods[i]] = function(){};
-    }
-}
-
-
 import _ from 'lodash';
-window._ = _;
+
+//init logging
+import {Rollbar} from './modules/Rollbar.js';
+Rollbar();
 
 //init Veload Core
 import {Options} from './modules/Options.js';
-import {Goals} from './modules/Goals.js';
 import {Veload} from './modules/Veload.js';
+
+window.Veload = Veload;
+var V = new Veload(Options);	
+window.V = V;
+
+import {Goals} from './modules/Goals.js';
 import {HomePage} from './modules/HomePage.js';
 import './modules/HandlebarsHelpers.js';
 import {LocalPoller} from './modules/LocalPoller.js';
@@ -21,24 +20,25 @@ import {updatePhoto} from './modules/PhotoRefresher.js';
 import {ConnectionStatus} from './modules/ConnectionStatus.js';
 import {DataListeners} from './modules/DataListeners.js';
 import {SettingsPane} from './modules/SettingsPane.js';
+import {Grid} from './modules/Grid.js';
 
-window.Veload = Veload;
+import {Modals} from './modules/Modals.js';
+import {RideListeners} from './modules/RideListeners.js';
+import {Initialize} from './modules/Veload.initialize.js';
 
-//create an instance;
 $(function(){
-	var V = new Veload(Options);	
-	window.V = V;	
 	V.poller = LocalPoller;
 	V.poller.handleEvents();
-	require('./modules/Modals.js');
-	require('./modules/RideListeners.js');
-	require('./modules/Veload.initialize.js');
 
 	DataListeners();
 	if(window.location.pathname=="/" || window.location.pathname=="/about"){
 		HomePage();
 		$("body").removeClass("loading");
 	}else{
+		Grid();
+		Modals();
+		RideListeners();		
+		Initialize();
 		V.loadInterface();
 		V.loadProfile();
 		V.Goals = new Goals();

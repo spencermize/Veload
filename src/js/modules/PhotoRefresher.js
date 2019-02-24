@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 function PhotoRefresher() {
 	V.photoRefresher = "";
-	$(document).on("pause.veload",function(f){
+	$(document).on("pause.veload",function(){
 		clearInterval(V.photoRefresher);
 	});
 

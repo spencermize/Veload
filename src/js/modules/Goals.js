@@ -5,7 +5,7 @@ import Muuri from 'muuri';
 function Goals(opts){
 	this.opts = opts;
 	if (!(this instanceof Goals)) return new Goals(opts);
-};
+}
 Goals.prototype.selectWorkoutTemplate = function(e){
 	this.workout = _.find(this.workoutTemplates,{'id' : e.data("id")});
 	this.makeGraphable();
@@ -25,25 +25,23 @@ Goals.prototype.makeGraphable = function(){
 	$(document).trigger("workoutLoaded.veload");
 }
 Goals.prototype.getCurrent = function(){
+	var e;
 	if(this.workout.lengthType == "distance"){
-		var e = V.getDistance("meters",true);
+		e = V.getDistance("meters",true);
 	}else if(this.workout.lengthType == "minutes"){
-		var e = V.getElapsed();
+		e = V.getElapsed();
 	}
 	for(var i = 0; i<this.workout.data.length-1; i++){
 		var val = this.workout.data[i];
 		if(i == this.workout.data.length - 1){
-			console.log("last goal!")
 			return {type: this.workout.lengthType,value: val.y}
 		}else if(e>=val.x && e<this.workout.data[i+1].x){
-			console.log("current goal: " + val.y)
 			return {
 				lengthType: this.workout.lengthType,
 				value: val.y,
 				type:this.workout.type};
 		}
 	}
-	console.log("current goal: 0")
 	return 0;	
 }
 Goals.prototype.show = function(){
@@ -78,7 +76,7 @@ Goals.prototype.show = function(){
 			$('[data-slide=prev],.btn-accept').addClass("d-none");
 		}
 	})
-	$('#workout-builder').on('slid.bs.carousel', function (e) {
+	$('#workout-builder').on('slid.bs.carousel', function () {
 		if($('#modal .carousel-item.active .goals-container').length){
 			self.initGoalBuilder();
 		}
@@ -103,7 +101,7 @@ Goals.prototype.select = function(){
 				totalX += l;
 				if(v>maxY){maxY=v}
 			})
-			arr.forEach(function(sp,i){
+			arr.forEach(function(sp){
 				var w = (sp[0] / totalX)*100;
 				var h = (sp[1] / maxY)*100;
 				spark.push([w,h]);
@@ -211,7 +209,6 @@ Goals.prototype.serialize = function(){
 		lengthType : ""
 	};
 	items.each(function(_i,el){
-		console.log(el)
 		var e = $(el).find('.item-content');
 		var lengthType = e.attr("data-metric-length-type");
 		var length = e.attr("data-metric-length");
@@ -229,7 +226,6 @@ Goals.prototype.serialize = function(){
 			length : length,
 			lengthType : lengthType
 		}
-		console.log(ser.value)
 		ser.type = type;
 		ser.lengthType = lengthType;
 		ser.length += Number(length);
@@ -255,9 +251,8 @@ Goals.prototype.save = function(){
 		V.loading()
 		var ser = this.serialize();
 		this.workout = ser;
-		$.post(V.opts.urls.remote.workoutTemplate,ser,function(data){
+		$.post(V.opts.urls.remote.workoutTemplate,ser,function(){
 			V.unpop();
-			//V.pop({title: "Success!",body:"Workout template saved.",accept:false})
 			$(document).trigger("workoutSaved.veload")
 		})
 	}else{
@@ -319,7 +314,7 @@ Goals.prototype.updateTooltip = function(target,msg,reset){
 	var t = $(target);
 	t.attr("title", msg)
 	if(reset){
-		$('[data-toggle="tooltip"]').tooltip('disable').tooltip('dispose').tooltip();;
+		$('[data-toggle="tooltip"]').tooltip('disable').tooltip('dispose').tooltip();
 	}else{
 		t.attr('data-original-title', msg);
 		t.tooltip("show");	
@@ -332,34 +327,15 @@ Goals.prototype.removeGoal = function(e){
 Goals.prototype.addGoal = function(vari){
 	var temp =$('.goal-item-template').clone().removeClass('d-none').children() // brand new
 	var nw;
-	var w = temp.width();
-	var h = temp.height();
 
 	if(vari===true){ //adding the first element;
 		this.r = this.getResizeParams();
 		nw = temp;		
 		nw.find('.closer').addClass("d-none");
 	}else if($(vari).hasClass('item')){
-		console.log("looks like we're cloning!")
 		nw = $(vari); //clone
 		nw.find(".closer").removeClass("d-none");
 		this.updateTooltip(nw,msg,true);
-			
-	}else if(false){
-		var size = this.paramsToSize({
-			absY: nw.attr("data-metric-value"),
-			absX: nw.attr("data-metric.length")
-		})
-		console.log(size)
-		w = size[0];
-		h = size[1];
-		nw.height(h);
-		nw.width(w);
-		var msg = this.sizeGoal({
-			width: 	w,
-			height: h,
-			target: nw
-		});			
 	}else{
 		nw = temp; // brand new
 	}
@@ -369,7 +345,6 @@ Goals.prototype.addGoal = function(vari){
 
 	//check to make sure the sizing is proper
 	if(!nw.find(".item-content").attr("data-metric-value")){
-		console.log(nw)
 		var msg = this.sizeGoal({
 			width: 	nw.width(),
 			height: nw.height(),
