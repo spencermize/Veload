@@ -36,7 +36,8 @@ function Veload(opts){
 }
 
 Veload.prototype.listenForFinish = function(finishedEvent){
-	self.modLoadQueue.push(finishedEvent);
+	var self = this;
+	this.modLoadQueue.push(finishedEvent);
 	$(document).one(finishedEvent,function(){
 		_.pull(self.modLoadQueue,finishedEvent);
 		if (self.modLoadQueue.length == 0){

@@ -4,10 +4,10 @@ function Grid(){
 		var e = $(ele);
 		var el = e.closest('[data-name]');
 		if (e.closest('.btn-toggle').hasClass('active')){
-			self.enableModule(el.data('name'));
-			self.saveLayout();
+			this.enableModule(el.data('name'));
+			this.saveLayout();
 		} else {
-			self.disableModule(el);
+			this.disableModule(el);
 		}
 	};
 	Veload.prototype.disableModule = function(mod){
@@ -53,7 +53,7 @@ function Grid(){
 
 				var finishedEvent = `initialized.${mod}`;
 
-				self.listenForFinish(finishedEvent);
+				this.listenForFinish(finishedEvent);
 				$('.grid').data('grid').add_widget(comp,config.size_x,config.size_y,config.col,config.row);
 				if ($(comp).data('script') && !window[_.upperFirst(mod)]){
 					$.getScript(`/js/_${mod}.js`,function(){
@@ -152,28 +152,28 @@ function Grid(){
 		return $(window).height() - currNav - 10;
 	};
 	Veload.prototype.getWidgetMargins = function(){
-		return [self.opts.grid.margX,self.opts.grid.margY];
+		return [this.opts.grid.margX,this.opts.grid.margY];
 	};
 	Veload.prototype.getWidgetSize = function(){
-		var availH = this.getAvailH() - (self.opts.grid.margY * (self.opts.grid.rows + 1));
+		var availH = this.getAvailH() - (this.opts.grid.margY * (this.opts.grid.rows + 1));
 		if ($(window).width() < 1000){
-			self.opts.grid.margX = 5;
-			self.opts.grid.cols = 3;
+			this.opts.grid.margX = 5;
+			this.opts.grid.cols = 3;
 		}
 		if ($(window).width() < 500){
-			self.opts.grid.margX = 5;
-			self.opts.grid.cols = 2;
+			this.opts.grid.margX = 5;
+			this.opts.grid.cols = 2;
 		}
 		if ($(window).height() < 800){
-			self.opts.grid.margY = 5;
-			self.opts.grid.rows = 2;
+			this.opts.grid.margY = 5;
+			this.opts.grid.rows = 2;
 		}
 		if ($(window).height() < 500){
-			self.opts.grid.margY = 5;
-			self.opts.grid.rows = 2;
+			this.opts.grid.margY = 5;
+			this.opts.grid.rows = 2;
 		}
-		var w = ($(window).width() - (self.opts.grid.margX * (self.opts.grid.cols + 1))) / self.opts.grid.cols;
-		var h = availH / self.opts.grid.rows;
+		var w = ($(window).width() - (this.opts.grid.margX * (this.opts.grid.cols + 1))) / this.opts.grid.cols;
+		var h = availH / this.opts.grid.rows;
 		return [w,h];
 	};
 }
