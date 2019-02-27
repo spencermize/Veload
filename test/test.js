@@ -1,8 +1,35 @@
-var assert = require('assert');
-describe('Array', function() {
-  describe('#indexOf()', function() {
-    it('should return -1 when the value is not present', function() {
-      assert.equal([1, 2, 3].indexOf(4), -1);
-    });
-  });
+var glob = require("glob");
+var CLIEngine = require('eslint').CLIEngine;
+var assert = require('chai').assert;
+
+var paths = glob.sync('./src/js/modules/*.js');
+paths = paths.concat('./src/js/main.js')
+
+const engine = new CLIEngine({
+  envs: ['node', 'mocha'],
+  useEslintrc: true,
 });
+
+const results = engine.executeOnFiles(paths).results;
+
+describe('ESLint', function() {
+  results.forEach((result) => generateTest(result));
+});
+
+function generateTest(result) {
+  const { filePath, messages } = result;
+
+  it(`validates ${filePath}`, function() {
+    if (messages.length > 0) {
+      assert.fail(false, true, formatMessages(messages));
+    }
+  });
+}
+
+function formatMessages(messages) {
+  const errors = messages.map((message) => {
+    return `${message.line}:${message.column} ${message.message.slice(0, -1)} - ${message.ruleId}\n`;
+  });
+
+  return `\n${errors.join('')}`;
+}

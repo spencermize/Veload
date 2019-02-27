@@ -57,12 +57,6 @@ var Options = {
 		MAINBG: 'rgba(255,255,255,.95)',
 		MAINTXT: '#000'
 	},
-	grid: {
-		margX: 10,
-		margY: 10,
-		cols: 6,
-		rows: 4
-	},
 	chart: {
 		line: {
 			type: 'line',

@@ -1,5 +1,7 @@
 import _ from 'lodash';
 import { setColors } from './ColorControls';
+import * as Trail from './Utils.Trail.js';
+
 function DataListeners(){
 	$(document).on('click','[data-cmd]:not([disabled])',function(e){
 		buttonCmd(e);
@@ -84,7 +86,30 @@ function DataListeners(){
 			if (el.is('button')){
 				el.toggleClass('active',value);
 			} else {
-				el.val(value);
+				if (value > 0){
+					if (el.is('input,select,textarea')){
+						el.val(Number(value).toFixed(2));
+					} else {
+						var parsed = Number(value).toFixed(2);
+						if (isNaN(parsed)){
+							el.text(value);
+						} else {
+							el.text(parsed);
+						}
+					}
+				}
+			}
+		});
+		$(`[data-param$="()"]`).each(function(_i,el){
+			var fnc = $(el).data('param').replace('()','');
+			var val = Trail[fnc]();
+			if (val > 0){
+				var parsed = Number(val).toFixed(2);
+				if (isNaN(parsed)){
+					$(el).text(val);
+				} else {
+					$(el).text(parsed);
+				}
 			}
 		});
 	});

@@ -25,6 +25,7 @@ module.exports = {
         "spaced-comment": [2,"never"],
         "no-tabs": 0,
         "eqeqeq": 0,
+        "no-unused-vars": [2,{"argsIgnorePattern": "^_"}],
         "space-before-blocks":[2,"never"],
         "comma-spacing":[2,{"before": false,"after": false}]
     }

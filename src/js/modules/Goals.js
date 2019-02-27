@@ -1,10 +1,13 @@
 import _ from 'lodash';
 import interact from 'interactjs';
 import Muuri from 'muuri';
+import * as Trail from './Utils.Trail.js';
 
-function Goals(opts){
-	this.opts = opts;
-	if (!(this instanceof Goals)) return new Goals(opts);
+function Goals(){
+	V.Goals = this;
+	if (!(this instanceof Goals)){
+		return new Goals();
+	}
 }
 Goals.prototype.selectWorkoutTemplate = function(e){
 	this.workout = _.find(this.workoutTemplates,{ 'id': e.data('id') });
@@ -27,9 +30,9 @@ Goals.prototype.makeGraphable = function(){
 Goals.prototype.getCurrent = function(){
 	var e;
 	if (this.workout.lengthType == 'distance'){
-		e = V.getDistance('meters',true);
+		e = Trail.getDistance('meters');
 	} else if (this.workout.lengthType == 'minutes'){
-		e = V.getElapsed();
+		e = Trail.getElapsed();
 	}
 	for (var i = 0; i < this.workout.data.length - 1; i++){
 		var val = this.workout.data[i];

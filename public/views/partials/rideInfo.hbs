@@ -1,8 +1,5 @@
 {{#partial "script"}}
-true
-{{/partial}}
-{{#partial "cardHeader"}}
-
+ignore
 {{/partial}}
 
 {{#partial "bodyClass" }}
@@ -12,13 +9,13 @@ text-center
 {{#partial "bodyContent" }}
 	<div class="carousel slide" data-ride="carousel" data-interval="2500">
 		<ul class="carousel-inner m-0 p-0">
-			<li class="carousel-item active"><h5>Current Speed </h5><h3 class="display-4" id="currSpeed"></h3></li>
-			<li class="carousel-item"><h5>Average Speed</h5> <h3 class="display-4" id="avgSpeed"></h3></li>
-			<li class="carousel-item"><h5>Cadence </h5><h3 class="display-4" id="currCadence"></h3></li>			
-			<li class="carousel-item"><h5>Total Distance</h5> <h3 class="display-4" id="distance"></h3></li>
-			<li class="carousel-item"><h5>Remaining Distance</h5> <h3 class="display-4" id="rdistance"></h3></li>
-			<li class="carousel-item"><h5>Elapsed</h5> <h3 class="display-4" id="elapsedTime"></h3></li>
-			<li class="carousel-item"><h5>HR</h5> <h3 class="display-4" id="hr"></h3></li>
+			<li class="carousel-item active"><h5>Current Speed</h5><h3 class="display-4" data-param="speed"></h3></li>
+			<li class="carousel-item"><h5>Average Speed</h5> <h3 class="display-4" data-param="getAvg()"></h3></li>
+			<li class="carousel-item"><h5>Cadence </h5><h3 class="display-4" data-param="cadence"></h3></li>			
+			<li class="carousel-item"><h5>Total Distance</h5> <h3 class="display-4" data-param="getDistance()"></h3></li>
+			<li class="carousel-item"><h5>Remaining Distance</h5> <h3 class="display-4" data-param="getRemainingDistance()"></h3></li>
+			<li class="carousel-item"><h5>Elapsed</h5> <h3 class="display-4" data-param="getElapsedClock()"></h3></li>
+			<li class="carousel-item"><h5>HR</h5> <h3 class="display-4" data-param="hr"></h3></li>
 		</ul>
 	</div>
 {{/partial}}

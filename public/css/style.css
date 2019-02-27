@@ -9876,15 +9876,15 @@ nav .pause, .playing .play, .stop {
   display: none;
 }
 
-[data-name=maps] [data-cmd=pickTrackGUI] {
+[data-name=map] [data-cmd=pickTrackGUI] {
   right: 5px;
   margin-top: 5px;
   z-index: 5;
 }
-[data-name=maps] .card-body {
+[data-name=map] .card-body {
   background-color: transparent !important;
 }
-[data-name=maps] .map {
+[data-name=map] .map {
   position: absolute !important;
   opacity: 0.8;
   top: 0;
@@ -9894,10 +9894,10 @@ nav .pause, .playing .play, .stop {
   opacity: 0.9;
   z-index: 0;
 }
-[data-name=maps] .leaflet-pulsing-icon {
+[data-name=map] .leaflet-pulsing-icon {
   border-radius: 100%;
 }
-[data-name=maps] .leaflet-pulsing-icon:after {
+[data-name=map] .leaflet-pulsing-icon:after {
   content: "";
   border-radius: 100%;
   height: 300%;

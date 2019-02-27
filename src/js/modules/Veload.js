@@ -2,49 +2,37 @@
 import _ from 'lodash';
 import moment from 'moment';
 import 'bootstrap';
-import '../../third_party/gridster/jquery.gridster.min.js';
-import * as L from 'leaflet';
-import List from 'list.js';
-import omni from '@mapbox/leaflet-omnivore';
-import ico from '@ansur/leaflet-pulse-icon';
-import '../../../node_modules/leaflet-providers/leaflet-providers.js';
-import geolib from 'geolib';
-import { Point } from './Point.js';
+import { setColors } from './ColorControls.js';
+import { Options } from './Options.js';
+import { PhotoRefresher } from './PhotoRefresher.js';
+import { Charts } from './Charts.js';
+import { grid } from './Grid.js';
+import { map } from './Map.js';
+//import './RideInfo.js';
+import './Utils.Trail.js';
+import * as annyang from 'annyang';
 
 window.$ = $;
-window.Handlebars = Handlebars;
-window.moment = moment;
-window.L = L;
-window.List = List;
-window.omni = omni;
-window.ico = ico;
-window.geolib = geolib;
-window.Point = Point;
-
-['rTrail','cTemps','enabledMods','modLoadQueue','points','rTrailPopped'].forEach(function(e){
-	Veload.prototype[e] = [];
-});
-
-['user','status','athlete','refresher','$grid','myIcon','photos'].forEach(function(e){
-	Veload.prototype[e] = '';
-});
 
 function Veload(opts){
+	var self = this;
 	this.opts = opts;
 	this.status = {};
-	if (!(this instanceof Veload)) return new Veload(opts);
+	['rTrail','cTemps','points','rTrailPopped'].forEach(function(e){
+		self[e] = [];
+	});
+
+	['user','status','athlete','refresher','photos'].forEach(function(e){
+		self[e] = '';
+	});
+	window.V = this;
+	window.Veload = window.V;
+	$(document).trigger('initialized.veload');
+	if (!(this instanceof Veload)){
+		return new Veload(opts);
+	}
 }
 
-Veload.prototype.listenForFinish = function(finishedEvent){
-	var self = this;
-	this.modLoadQueue.push(finishedEvent);
-	$(document).one(finishedEvent,function(){
-		_.pull(self.modLoadQueue,finishedEvent);
-		if (self.modLoadQueue.length == 0){
-			$(document).trigger('modulesLoaded.veload');
-		}
-	});
-};
 Veload.prototype.start = function(){
 	var self = this;
 	if (self.points.length){
@@ -66,7 +54,8 @@ Veload.prototype.start = function(){
 		});
 	} else {
 		$('body').append(V.cTemps['start']());
-		V.pickTrackGUI();
+		V.map = map;
+		map.pickTrackGUI();
 		$(document).one('trackLoading.veload',function(){
 			V.unpop();
 			V.pop({
@@ -181,43 +170,195 @@ Veload.prototype.fullscreen = function(config){
 	}
 };
 
-Veload.prototype.getAvg = function(unit){
-	var self = this;
-	if (self.rTrailPopped.length >= 2){
-		var d = self.getDistance(unit);
-		var t = moment(_.last(self.rTrailPopped).time).diff(moment(self.rTrailPopped[0].time)) / 1000 / 3600;
-		return d / t;
-	} else {
-		return 0;
-	}
-};
-Veload.prototype.getDistance = function(unit,est){
-	var self = this;
-	var dm = est ? geolib.getPathLength(self.points) : geolib.getPathLength(self.rTrailPopped);
-	if (unit == 'miles'){
-		return geolib.convertUnit('mi',dm,8);
-	} else if (unit == 'meters'){
-		return dm;
-	} else if (unit == 'kilometers'){
-		return geolib.convertUnit('km',dm,8);
-	}
-};
-Veload.prototype.getRemainingDistance = function(unit){
-	var self = this;
-	var dm = geolib.getPathLength(self.rTrail);
-	if (unit == 'miles'){
-		return geolib.convertUnit('mi',dm,8);
-	} else if (unit == 'meters'){
-		return dm;
-	} else if (unit == 'kilometers'){
-		return geolib.convertUnit('km',dm,8);
-	}
-};
-Veload.prototype.getElapsed = function(){
-	return moment(_.last(this.points).time).diff(moment(this.points[0].time)) / 1000; //return time in seconds
-};
 Veload.prototype.loading = function(){
 	$('body').addClass('loading');
+};
+
+Veload.prototype.unpop = function(){
+	$('body').removeClass('loading');
+	$('#modal').modal('hide');
+	$('.modal-backdrop').not('.loader').remove();
+};
+
+Veload.prototype.pop = function(cnf = {},evt = {}){
+	var self = this;
+	const config = Object.assign({
+		title: 'Alert',
+		body: '',
+		accept: true,
+		close: true,
+		acceptText: 'Okay',
+		acceptClass: 'btn-primary',
+		modalClass: '',
+		backdrop: 'static'
+	},cnf);
+	const events = Object.assign({
+		cancelClick: function(){
+			V.unpop();
+		},
+		acceptClick: function(){ }
+	},evt);
+	$('#modal-container').html(self.cTemps.modal(config));
+	$('#modal .btn-cancel').on('click',events.cancelClick);
+	$('#modal .btn-accept').on('click',events.acceptClick);
+	if (config.width){
+		$('.modal-dialog').css('max-width',config.width);
+	}
+	$('#modal').modal('show');
+	$('[data-tooltip=tooltip]').tooltip();
+	setColors();
+};
+
+$('#modal-container').on('hidden.bs.modal','#modal',function(){
+	$('#modal').modal('dispose').removeClass().addClass('modal fade');
+	$('body').removeClass('modal-open');
+});
+
+//first thing loaded
+Veload.prototype.loadInterface = function(){
+	var self = this;
+	//load required elements
+	var templates = $('[id$="-temp"]');
+	templates.each(function(_i,e){
+		var el = $(e);
+		self.cTemps[el.attr('id').split('-')[0]] = Handlebars.compile(el.html());
+	});
+
+	if (window.location.pathname == '/dashboard'){
+		self.loadDash();
+
+		//wait until modules loaded before showing loaded
+		$(document).one('modulesLoaded.grid',function(){
+			$('body').removeClass('loading');
+		});
+
+		$(document).on('loaded.veload',function(){
+			//build up the charts
+
+			//I really want to use this sytax but I'm doing something wrong...
+			//import("./Charts.js").then(Charts=>{Charts()})
+			Charts();
+			$('[data-ride="carousel"]').carousel();
+			setColors();
+		});
+	} else {
+		$('body').removeClass('loading');
+	}
+
+	//enable each module
+	self.getUser(function(data){
+		if (data.layout){
+			_.forEach(data.layout[0],function(obj){
+				grid.enableModule(obj.name,obj);
+			});
+
+			//html is ready to play
+			self.loaded();
+		} else {
+			$.getJSON(self.opts.urls.remote.modules,function(modules){
+				_.forEach(modules,function(mod){
+					grid.enableModule(mod);
+				});
+
+				//html is ready to play
+				self.loaded();
+			});
+		}
+	});
+	$(document).trigger('modulesQueued.veload');
+};
+Veload.prototype.loaded = function(){
+	$(document).trigger('loaded.veload');
+};
+
+//second thing loaded
+Veload.prototype.loadProfile = function(){
+	var self = this;
+	$.getJSON(self.opts.urls.remote.athlete,function(data){
+		$('body').removeClass('loggedout').addClass('loggedin');
+		self.athlete = data;
+		$('#profile button').html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + self.athlete.profile + '" />');
+	});
+};
+Veload.prototype.getUser = function(callback){
+	var self = this;
+	$.getJSON(self.opts.urls.remote.userAll,function(data){
+		var changed = self.status.circumference == data.circumference;
+		self.user = data;
+		self.opts.updateLocal(data.url);
+		$(document).trigger('remoteInfo.veload');
+		if (changed){
+			$.post(`${self.opts.urls.local.circ}?value=${data.circumference}`,function(){
+			}).fail(function(){
+				self.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor. ${self.opts.resetConnection}`);
+			});
+		}
+		$(document).trigger('userUpdated.veload');
+		if (callback){
+			callback(data);
+		}
+	});
+};
+//third thing loaded
+Veload.prototype.loadDash = function(){
+	this.initVoice();
+	this.poller.poll();
+	this.poller.startPolling(3000);
+	PhotoRefresher();
+	grid.initGrid();
+	$('[data-tooltip="tooltip"],[data-toggle="tooltip"]').tooltip();
+};
+
+Veload.prototype.initVoice = function(){
+	var self = this;
+	if (annyang){
+	//add all commands from buttons that have [data-cmd] (not all functions will be valid)
+		var commands = {};
+		$('button[data-cmd]').each(function(ind,el){
+			var cmd = $(el).data('cmd');
+			commands[cmd] = function(){ self[cmd]({ caller: 'voice' }); };
+
+			var alt = $(el).data('voice-alt');
+			if (alt){
+				alt = alt.split(',');
+				alt.forEach(function(el){
+					commands[el] = function(){ self[cmd]({ caller: 'voice' }); };
+				});
+			}
+		});
+
+		annyang.addCommands(commands);
+
+		annyang.addCommands({
+			'select item :num': {
+				callback: function(num){
+					$(`#modal li:eq(${num - 1}) [data-cmd]`).click();
+				},
+				regexp: /^select item ([0-9])$/
+			}
+		});
+
+		annyang.addCallback('resultMatch',function(userSaid){
+			var config = {
+				message: userSaid,
+				title: 'command recognized',
+				class: 'speech',
+				mainClass: 'top'
+			};
+			var over = $(self.cTemps['overlay'](config));
+			$('body').append(over);
+			setTimeout(function(){
+				over.remove();
+			},2000);
+		});
+		annyang.addCallback('error',function(err){
+			if (err.error != 'no-speech'){
+				V.error('The speech engine has crashed - do you have another Veload tab open?');
+			}
+		});
+
+		annyang.start({ autoRestart: true });
+	}
 };
 
 //===============HELPERS===================
@@ -237,5 +378,6 @@ $.fn.cleanWhitespace = function(){
 		.remove();
 	return this;
 };
+let V = new Veload(Options);
 
-export { Veload };
+export { V };

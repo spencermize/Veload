@@ -1,8 +1,10 @@
 import _ from 'lodash';
 
-function SettingsPane(opts){
-	this.opts = opts;
-	if (!(this instanceof SettingsPane)) return new SettingsPane(opts);
+function SettingsPane(){
+	V.SettingsPane = this;
+	if (!(this instanceof SettingsPane)){
+		return new SettingsPane();
+	}
 }
 
 SettingsPane.prototype.show = function(){
@@ -17,7 +19,7 @@ SettingsPane.prototype.show = function(){
 			links: ['bike','connection','modules']
 		};
 		//console.log(opts);
-		var comp = self.cTemps.settings(opts);
+		var comp = V.cTemps.settings(opts);
 		var popts = {
 			title: 'Veload Settings',
 			body: comp,
@@ -89,4 +91,4 @@ SettingsPane.prototype.addCustomModule = function(el){
 	V.enableModule('customChart',config);
 };
 
-export { SettingsPane };
+export let settings = new SettingsPane();
