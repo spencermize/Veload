@@ -26,6 +26,7 @@
     "nodemon": "^1.18.10",
     "sass": "^1.17.2",
     "source-map-loader": "^0.2.4",
+    "terser": "^3.16.1",    
     "terser-webpack-plugin": "^1.2.2",
     "webpack": "^4.29.5",
     "webpack-bundle-analyzer": "^3.0.4",
@@ -35,7 +36,7 @@
     "dev": "set NODE_ENV=development",
     "prod": "set NODE_ENV=production",
     "js:watch": "webpack -d --info-verbosity verbose -w",
-    "js:build": "webpack -d -p --mode=production --optimize-minimize",
+    "js:build": "webpack -p --mode=production",
     "js:lint": "node node_modules/eslint/bin/eslint.js src/js/modules",
     "css:watch": "sass src/scss/main.scss public/css/style.css --watch",
     "css:build": "sass src/scss/main.scss public/css/style.css --no-source-map --style=compressed",
@@ -96,7 +97,6 @@
     "sparky": "^0.1.1",
     "spdy": "^4.0.0",
     "strava-v3": "*",
-    "terser": "^3.16.1",
     "yargs": "^13.2.1"
   }
 }
