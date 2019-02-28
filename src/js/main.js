@@ -3,32 +3,34 @@ import { Rollbar } from './modules/Rollbar.js';
 
 import { V } from './modules/Veload.js';
 
-import { Goals } from './modules/Goals.js';
-import { HomePage } from './modules/HomePage.js';
 import './modules/HandlebarsHelpers.js';
-import { LocalPoller } from './modules/LocalPoller.js';
 import { updatePhoto } from './modules/PhotoRefresher.js';
-import { ConnectionStatus } from './modules/ConnectionStatus.js';
 import { DataListeners } from './modules/DataListeners.js';
-import './modules/SettingsPane.js';
-import { RideListeners } from './modules/RideListeners.js';
 
 Rollbar();
 
-$(function(){
-	V.poller = LocalPoller;
+$(async function(){
+	let poll = await import('./modules/LocalPoller.js');
+	V.poller = poll.LocalPoller;
 	V.poller.handleEvents();
 
 	DataListeners();
 	if (window.location.pathname == '/' || window.location.pathname == '/about'){
-		HomePage();
+		let home = await import('./modules/HomePage.js');
+		home.HomePage();
 		$('body').removeClass('loading');
 	} else {
-		Goals();
-		RideListeners();
+		let goals = await import('./modules/Goals.js');
+		let ride = await import('./modules/RideListeners.js');
+		let conn = await import('./modules/ConnectionStatus.js');	
+		await import('./modules/SettingsPane.js');					
+		goals.Goals();
+		ride.RideListeners();
+		conn.ConnectionStatus();
+
 		V.loadInterface();
 		V.loadProfile();
-		ConnectionStatus();
+
 	}
 	updatePhoto();
 });

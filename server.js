@@ -83,8 +83,11 @@ app.engine( 'hbs', hbs.express4( {
 const Photos = require(`${__dirname}/src/js/backend/Photos.js`);
 
 console.log("startUp");
-//serve from public folder
+//serve from static folders
 app.use(express.static('public',{index:false}));
+app.use('/test', express.static('test',{index:false}))
+app.use('/node_modules', express.static('node_modules',{index:false}))
+
 // initialize express-session to allow us track the logged-in user across sessions.
 app.use(session({
 	secret: config.secret,

@@ -1,17 +1,18 @@
-import * as L from 'leaflet';
 import List from 'list.js';
-import omni from '@mapbox/leaflet-omnivore';
-import geolib from 'geolib';
 import moment from 'moment';
 import { Options } from './Options.js';
 import { Point } from './Point.js';
 
-import '@ansur/leaflet-pulse-icon';
-import '../../../node_modules/leaflet-providers/leaflet-providers.js';
+var L,omni,geolib;
 
 function Map(){
 	var self = this;
-	$(document).one(`enabling.map`,function(_e){
+	$(document).one(`enabling.map`,async function(_e){
+		L = await import('leaflet');
+		await import('@ansur/leaflet-pulse-icon');
+		await import('../../../node_modules/leaflet-providers/leaflet-providers.js');
+		omni = await import('@mapbox/leaflet-omnivore');
+		geolib = await import('geolib');
 		self.init();
 	});
 	if (!(this instanceof Map)){
@@ -130,7 +131,7 @@ Map.prototype.gpsSearch = function(){
 		$('#searchme .list').loader();
 		$.getJSON(`${Options.urls.remote.rwgpsRouteSearch}?keywords=${keywords}&distance=${distance}`,function(routes){
 			$('#searchme .list').empty();
-			routes.results.forEach(function(e){
+			routes.results.forEach(async function(e){
 				var el = e[e.type];
 				el.distance = el.distance / 1000;
 				if (V.user.units == 'miles'){

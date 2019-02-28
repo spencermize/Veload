@@ -1,16 +1,15 @@
 'use strict';
 import _ from 'lodash';
-import moment from 'moment';
 import 'bootstrap';
+import * as annyang from 'annyang';
+
 import { setColors } from './ColorControls.js';
 import { Options } from './Options.js';
 import { PhotoRefresher } from './PhotoRefresher.js';
 import { Charts } from './Charts.js';
 import { grid } from './Grid.js';
 import { map } from './Map.js';
-//import './RideInfo.js';
 import './Utils.Trail.js';
-import * as annyang from 'annyang';
 
 window.$ = $;
 
@@ -127,7 +126,8 @@ Veload.prototype.clear = function(){
 	self.pop(config,events);
 };
 
-Veload.prototype.upload = function(){
+Veload.prototype.upload = async function(){
+	var moment = await import('moment');
 	var self = this;
 	$('.modal-footer').loader(36,36,true);
 	self.rTrailPopped.forEach(function(val,i){

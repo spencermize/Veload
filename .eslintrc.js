@@ -5,6 +5,7 @@ module.exports = {
         "jquery": true
     },
     "extends": "standard",
+    "parser": "babel-eslint",    
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
@@ -15,6 +16,7 @@ module.exports = {
     },
     "parserOptions": {
         "ecmaVersion": 2018,
+        "allowImportExportEverywhere": true,
         "sourceType": "module"
     },
     "rules": {

@@ -9,6 +9,7 @@ module.exports = {
 	},
 	output: {
 		filename: '[name].js',
+		chunkFilename: '[name].[contenthash:8].js',
 		path: path.resolve(__dirname,'public/js'),
 		publicPath: '/js/',
 		sourceMapFilename: '[name].js.map'
@@ -17,7 +18,6 @@ module.exports = {
 		fs: 'empty'
 	},
 	cache: false,
-	devtool: 'false',
 	mode: 'production',
 	optimization: {
 		minimizer: [
@@ -60,8 +60,8 @@ module.exports = {
 		]
 	},
 	plugins: [
-		//To strip all locales except “en”
-		new MomentLocalesPlugin(),
+		new MomentLocalesPlugin(), //To strip all locales except “en”
+		new webpack.HashedModuleIdsPlugin(), //so that file hashes don't change unexpectedly
 		new webpack.ProvidePlugin({
 			'$': 'jquery',
 			'Handlebars': 'handlebars'

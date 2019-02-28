@@ -1,16 +1,19 @@
 import _ from 'lodash';
 import { setColors } from './ColorControls.js';
 import moment from 'moment';
-import Chart from 'chart.js';
 
-import 'chartjs-plugin-streaming';
-import 'chartjs-plugin-zoom';
-import 'chartjs-plugin-annotation';
-import './Gauge.js';
+async function Charts(){
+	if($('[data-chart]').length){
+		await import('chart.js');
+		await import('chartjs-plugin-streaming');
+		await import('chartjs-plugin-zoom');
+		await import('chartjs-plugin-annotation');
+		await import('./Gauge.js');	
+		
+		initializeLineCharts();
+		initializeGaugeCharts();			
+	}
 
-function Charts(){
-	initializeLineCharts();
-	initializeGaugeCharts();
 
 	$(document).on('clear.veload',function(){
 		var chart = $('.grid-item:has([data-chart])');

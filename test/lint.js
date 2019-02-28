@@ -1,9 +1,35 @@
-var V = require('../src/js/modules/Veload.js');
-var Trail = require('../src/js/modules/Utils.Trail.js');
+var glob = require("glob");
+var CLIEngine = require('eslint').CLIEngine;
 var assert = require('chai').assert;
 
-describe('getAvg', function() {
-  it(`gets the average speed so far`, function() {
-      assert.isNumber(Trail.getAvg());
-  });
+var paths = glob.sync('./src/js/modules/*.js');
+paths = paths.concat('./src/js/main.js')
+
+const engine = new CLIEngine({
+  envs: ['node', 'mocha'],
+  useEslintrc: true,
 });
+
+const results = engine.executeOnFiles(paths).results;
+
+describe('ESLint', function() {
+  results.forEach((result) => generateTest(result));
+});
+
+function generateTest(result) {
+  const { filePath, messages } = result;
+
+  it(`validates ${filePath}`, function() {
+    if (messages.length > 0) {
+      assert.fail(false, true, formatMessages(messages));
+    }
+  });
+}
+
+function formatMessages(messages) {
+  const errors = messages.map((message) => {
+    return `${message.line}:${message.column} ${message.message.slice(0, -1)} - ${message.ruleId}\n`;
+  });
+
+  return `\n${errors.join('')}`;
+}

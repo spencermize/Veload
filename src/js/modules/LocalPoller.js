@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import moment from 'moment';
-import geolib from 'geolib';
 import { Point } from './Point.js';
 
 var LocalPoller = {
@@ -15,7 +14,8 @@ var LocalPoller = {
 			});
 	},
 
-	startUpdating: function(){
+	startUpdating: async function(){
+		var geolib = await import('geolib');
 		var hrCount = 0;
 		var paused = false;
 		var missedUpdates = 0;
