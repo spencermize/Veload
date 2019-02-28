@@ -1,11 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
+import geolib from 'geolib';
 
-var geolib;
-
-(async function(){
-    geolib = await import('geolib');
-})
 export function getAvg(u){
 	var unit = u || V.user.units;
 	if (V.rTrailPopped.length >= 2){

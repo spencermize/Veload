@@ -1,6 +1,8 @@
 language: node_js
 node_js:
  - "node"
+script:
+ - npm run build
 deploy:
   provider: gae
   keyfile: veload-9badc1235d9e.json

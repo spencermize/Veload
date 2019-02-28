@@ -1,6 +1,7 @@
 var glob = require("glob");
 var CLIEngine = require('eslint').CLIEngine;
 var assert = require('chai').assert;
+var argv = require('yargs').argv;
 
 var paths = glob.sync('./src/js/modules/*.js');
 paths = paths.concat('./src/js/main.js')
@@ -8,6 +9,7 @@ paths = paths.concat('./src/js/main.js')
 const engine = new CLIEngine({
   envs: ['node', 'mocha'],
   useEslintrc: true,
+  fix: argv.fix
 });
 
 const results = engine.executeOnFiles(paths).results;

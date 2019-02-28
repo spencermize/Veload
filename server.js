@@ -87,6 +87,7 @@ console.log("startUp");
 app.use(express.static('public',{index:false}));
 app.use('/test', express.static('test',{index:false}))
 app.use('/node_modules', express.static('node_modules',{index:false}))
+app.use('/src', express.static('src',{index:false}))
 
 // initialize express-session to allow us track the logged-in user across sessions.
 app.use(session({

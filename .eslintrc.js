@@ -4,7 +4,7 @@ module.exports = {
         "es6": true,
         "jquery": true
     },
-    "extends": "standard",
+    "extends": ["standard","plugin:import/errors","plugin:import/warnings"],
     "parser": "babel-eslint",    
     "globals": {
         "Atomics": "readonly",
@@ -29,6 +29,7 @@ module.exports = {
         "eqeqeq": 0,
         "no-unused-vars": [2,{"argsIgnorePattern": "^_"}],
         "space-before-blocks":[2,"never"],
-        "comma-spacing":[2,{"before": false,"after": false}]
+        "comma-spacing":[2,{"before": false,"after": false}],
+        "import/namespace":[2,{"allowComputed": true}]
     }
 };
