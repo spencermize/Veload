@@ -13,7 +13,6 @@ const Templates = {
 };
 
 Templates.init();
-
 Object.freeze(Templates);
 
 export default Templates;

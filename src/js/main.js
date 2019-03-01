@@ -3,7 +3,7 @@ import { Rollbar } from './modules/Rollbar.js';
 
 import './modules/HandlebarsHelpers.js';
 
-//import V from './modules/Veload.js';
+import V from './modules/Veload.js';
 
 if (window.location.hostname == 'veload.bike'){
 	Rollbar();

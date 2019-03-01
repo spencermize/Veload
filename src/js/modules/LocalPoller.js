@@ -5,7 +5,6 @@ import Options from './Options.js';
 
 function Poller(){
 	this.pollReference = null;
-	V.Poller = this;
 	this.handleEvents();
 	this.startPolling(3000);
 	if (!(this instanceof Poller)){
