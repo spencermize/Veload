@@ -22,15 +22,14 @@ $(async function(){
 	} else if (window.location.pathname == '/dashboard'){
 		let goals = await import('./modules/Goals.js');
 		let ride = await import('./modules/RideListeners.js');
-		let conn = await import('./modules/ConnectionStatus.js');	
-		await import('./modules/SettingsPane.js');					
+		let conn = await import('./modules/ConnectionStatus.js');
+		await import('./modules/SettingsPane.js');
 		goals.Goals();
 		ride.RideListeners();
 		conn.ConnectionStatus();
 
 		V.loadInterface();
 		V.loadProfile();
-
 	}
 	updatePhoto();
 });

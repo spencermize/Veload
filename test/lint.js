@@ -2,21 +2,25 @@ var glob = require("glob");
 var CLIEngine = require('eslint').CLIEngine;
 var assert = require('chai').assert;
 var argv = require('yargs').argv;
+var fs = require('fs');
 
 var paths = glob.sync('./src/js/modules/*.js');
 paths = paths.concat('./src/js/main.js')
 
 const engine = new CLIEngine({
   envs: ['node', 'mocha'],
-  useEslintrc: true,
-  fix: argv.fix
+  fix: argv.fix,
+  useEslintrc: true
 });
 
-const results = engine.executeOnFiles(paths).results;
+const report = engine.executeOnFiles(paths);
+const results = report.results;
 
 describe('ESLint', function() {
   results.forEach((result) => generateTest(result));
 });
+
+CLIEngine.outputFixes(report);
 
 function generateTest(result) {
   const { filePath, messages } = result;

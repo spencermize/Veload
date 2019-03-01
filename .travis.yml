@@ -2,6 +2,7 @@ language: node_js
 node_js:
  - "node"
 script:
+ - npm run test
  - npm run build
 deploy:
   provider: gae
@@ -20,8 +21,7 @@ addons:
     packages:
       - g++-4.8
 after_success:
-  - provider : script
-    script: bash deploy/rollbar.sh $rollbar_key
+  - "sh deploy/rollbar.sh" $rollbar_key
 
 branches:
   only:

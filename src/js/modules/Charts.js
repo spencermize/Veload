@@ -3,17 +3,16 @@ import { setColors } from './ColorControls.js';
 import moment from 'moment';
 
 async function Charts(){
-	if($('[data-chart]').length){
+	if ($('[data-chart]').length){
 		await import('chart.js');
 		await import('chartjs-plugin-streaming');
 		await import('chartjs-plugin-zoom');
 		await import('chartjs-plugin-annotation');
-		await import('./Gauge.js');	
-		
-		initializeLineCharts();
-		initializeGaugeCharts();			
-	}
+		await import('./Gauge.js');
 
+		initializeLineCharts();
+		initializeGaugeCharts();
+	}
 
 	$(document).on('clear.veload',function(){
 		var chart = $('.grid-item:has([data-chart])');
