@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import interact from 'interactjs';
 import Muuri from 'muuri';
+import Options from './Options.js';
+import Templates from './Templates.js';
+import Modals from './Modals.js';
 import * as Trail from './Utils.Trail.js';
 
 function Goals(){
@@ -50,7 +53,7 @@ Goals.prototype.getCurrent = function(){
 Goals.prototype.show = function(){
 	V.loading();
 	var self = this;
-	var comp = V.cTemps.workoutBuilder(V.user);
+	var comp = Templates.get('workoutBuilder')(V.user);
 	var popts = {
 		title: 'Workout Builder',
 		body: comp,
@@ -64,8 +67,8 @@ Goals.prototype.show = function(){
 			self.save();
 		}
 	};
-	V.unpop();
-	V.pop(popts,events);
+	Modals.unpop();
+	Modals.pop(popts,events);
 	$('[data-slide=prev]').addClass('d-none');
 	$('#workout-builder').on('slide.bs.carousel',function(e){
 		$('#modal .modal-dialog').css('max-width',$(e.relatedTarget).attr('data-max-width'));
@@ -88,7 +91,7 @@ Goals.prototype.show = function(){
 Goals.prototype.select = function(){
 	V.loading();
 	var self = this;
-	$.getJSON(V.opts.urls.remote.userWorkoutTemplates,function(data){
+	$.getJSON(Options.urls.remote.userWorkoutTemplates,function(data){
 		self.workoutTemplates = data;
 		data.forEach(function(workout){ //each workout template
 			var arr = [];
@@ -111,13 +114,13 @@ Goals.prototype.select = function(){
 
 			if (workout.lengthType == 'distance'){
 				if (V.user.units == 'miles'){
-					workout.length = Math.round(V.opts.toBarbarian(workout.length));
+					workout.length = Math.round(Options.toBarbarian(workout.length));
 				} else {
-					workout.length = V.opts.toK(workout.length);
+					workout.length = Options.toK(workout.length);
 				}
 			}
 		});
-		var comp = V.cTemps.workoutSelector(data);
+		var comp = Templates.get('workoutSelector')(data);
 		var popts = {
 			title: 'Workout Selector',
 			body: comp,
@@ -125,8 +128,8 @@ Goals.prototype.select = function(){
 			modalClass: 'veload-goals',
 			width: '60vw'
 		};
-		V.unpop();
-		V.pop(popts);
+		Modals.unpop();
+		Modals.pop(popts);
 	});
 };
 Goals.prototype.initGoalBuilder = function(){
@@ -214,10 +217,10 @@ Goals.prototype.serialize = function(){
 		var length = e.attr('data-metric-length');
 		var type = e.attr('data-metric-type');
 		if (lengthType == 'miles'){
-			length = V.opts.toMFromBarb(length);
+			length = Options.toMFromBarb(length);
 			lengthType = 'distance';
 		} else if (lengthType == 'kilometers'){
-			length = V.opts.toM(length);
+			length = Options.toM(length);
 			lengthType = 'distance';
 		}
 		ser.data[_i] = {
@@ -236,7 +239,7 @@ Goals.prototype.deleteWorkoutTemplate = function(e){
 	$.ajax({
 		dataType: 'json',
 		method: 'delete',
-		url: `${V.opts.urls.remote.userWorkoutTemplates}/${e.data('id')}`,
+		url: `${Options.urls.remote.userWorkoutTemplates}/${e.data('id')}`,
 		success: function(data){
 			if (data.status == 'success'){
 				e.closest('.col-3').remove();
@@ -250,8 +253,8 @@ Goals.prototype.save = function(){
 		V.loading();
 		var ser = this.serialize();
 		this.workout = ser;
-		$.post(V.opts.urls.remote.workoutTemplate,ser,function(){
-			V.unpop();
+		$.post(Options.urls.remote.workoutTemplate,ser,function(){
+			Modals.unpop();
 			$(document).trigger('workoutSaved.veload');
 		});
 	} else {

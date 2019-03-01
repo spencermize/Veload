@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import { setColors } from './ColorControls.js';
+import setColors from './ColorControls.js';
 import moment from 'moment';
+import Options from './Options.js';
 
 async function Charts(){
 	if ($('[data-chart]').length){
@@ -50,7 +51,7 @@ function initializeGaugeCharts(){
 	var charts = $('[data-chart=gauge]').not('.initialized');
 	charts.each(function(_ind,el){
 		var v = $(el);
-		var opts = _.cloneDeep(V.opts.chart.gauge);
+		var opts = _.cloneDeep(Options.chart.gauge);
 		var name = v.closest('[data-name]').data('name');
 		var param = v.data('param');
 		var listen = v.data('listen');
@@ -66,18 +67,18 @@ function initializeGaugeCharts(){
 				var point = _.last(V.points);
 				var p = '';
 				if (param == 'speed' && V.user.units == 'miles'){
-					p = Number(V.opts.toBarbarianph(point[param])).toFixed(2);
+					p = Number(Options.toBarbarianph(point[param])).toFixed(2);
 				} else if (param == 'speed' && V.user.units == 'kilometers'){
-					p = Number(V.opts.toKph(point[param])).toFixed(2);
+					p = Number(Options.toKph(point[param])).toFixed(2);
 				} else {
 					p = point[param];
 				}
 				chart.data.datasets[0].gaugeData.value = p;
 				if (point.goal && param == point.goal.type){
 					chart.data.datasets[0].goal = point.goal.value;
-					var col = V.opts.colors.BAD;
+					var col = Options.colors.BAD;
 					if (p > point.goal.value){
-						col = V.opts.colors.GOOD;
+						col = Options.colors.GOOD;
 					}
 					chart.data.datasets[0].color = col;
 				}
@@ -93,7 +94,7 @@ function initializeLineCharts(){
 	var charts = $('[data-chart=line]').not('.initialized');
 	charts.each(function(_ind,el){
 		var v = $(el);
-		var opts = _.cloneDeep(V.opts.chart.line);
+		var opts = _.cloneDeep(Options.chart.line);
 		var name = v.closest('[data-name]').data('name');
 		var params = v.data('param').split(',');
 		var listen = v.data('listen').split(',');
@@ -108,30 +109,30 @@ function initializeLineCharts(){
 		v.closest('.grid-item').data('chart',chart);
 		params.forEach(function(param,i){
 			if (typeof chart.data.datasets[i] == 'undefined'){
-				chart.data.datasets[i] = _.cloneDeep(V.opts.chart.line.data.datasets[0]);
+				chart.data.datasets[i] = _.cloneDeep(Options.chart.line.data.datasets[0]);
 			}
 			$(document).on(`${listen[i]}.veload`,function(){
 				if (V.points.length){
 					var point = _.last(V.points);
 					var p = '';
 					if (param == 'speed' && V.user.units == 'miles'){
-						p = V.opts.toBarbarianph(point[param]);
+						p = Options.toBarbarianph(point[param]);
 					} else if (param == 'speed' && V.user.units == 'kilometers'){
-						p = V.opts.toKph(point[param]);
+						p = Options.toKph(point[param]);
 					} else {
 						p = point[param];
 					}
 					chart.data.datasets[i].data.push({ x: moment(point.time).valueOf(),y: p });
-					chart.data.datasets[i].pointBackgroundColor.push(V.opts.colors.GOOD);
+					chart.data.datasets[i].pointBackgroundColor.push(Options.colors.GOOD);
 					if (point.goal && param == point.goal.type){
 						chart.options.annotation.annotations[0].value = point.goal.value;
-						var col = V.opts.colors.BAD;
+						var col = Options.colors.BAD;
 						if (p > point.goal.value){
-							col = V.opts.colors.GOOD;
+							col = Options.colors.GOOD;
 						}
 						chart.options.annotation.annotations[0].borderColor = col;
 					}
-					//chart.data.datasets[i].backgroundColor = V.opts.colors.GOODBG;
+					//chart.data.datasets[i].backgroundColor = Options.colors.GOODBG;
 					chart.update();
 				}
 			});

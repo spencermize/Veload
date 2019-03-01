@@ -15,7 +15,7 @@ module.exports = {
 		sourceMapFilename: '[name].js.map'
 	},
 	node: {
-		fs: "empty"
+		fs: 'empty'
 	},
 	cache: true,
 	mode: 'production',
@@ -52,9 +52,9 @@ module.exports = {
 			test: /\.js$/,
 			exclude: /node_modules/,
 			include: [
-				path.join(__dirname, 'src'),
-				path.join(__dirname, 'test')
-			],			
+				path.join(__dirname,'src'),
+				path.join(__dirname,'test')
+			],
 			query: {
 				plugins: ['lodash','@babel/plugin-syntax-dynamic-import'],
 				presets: [['@babel/env',{ 'targets': { 'node': 6 } }]]

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import { Point } from './Point.js';
+import Options from './Options.js';
 
 function Poller(){
 	this.pollReference = null;
@@ -13,7 +14,7 @@ function Poller(){
 }
 
 Poller.prototype.poll = function(){
-	$.getJSON(V.opts.urls.local.stats,function(data){
+	$.getJSON(Options.urls.local.stats,function(data){
 		V.status = data;
 		$(document).trigger('localInfo.veload');
 	})
@@ -30,7 +31,7 @@ Poller.prototype.startUpdating = async function(frequency){
 	var missedUpdates = 0;
 	self.refresher = setInterval(function(){
 		if (V.status.status){
-			$.getJSON(V.opts.urls.local.stats,function(data){
+			$.getJSON(Options.urls.local.stats,function(data){
 				//expect meters/second
 				var speed = Number(Math.max(Number(data.speed),0)).toFixed(6);
 				var cad = Math.round(data.cadence);
@@ -118,7 +119,7 @@ Poller.prototype.handleEvents = function(){
 	var self = this;
 	$(document).on('start.veload',function(){
 		self.stopUpdating();
-		self.startUpdating(V.opts.UPDATEFREQ);
+		self.startUpdating(Options.UPDATEFREQ);
 	});
 	$(document).on('pause.veload',function(){
 		self.stopUpdating();

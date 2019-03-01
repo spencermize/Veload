@@ -1,4 +1,6 @@
 import * as annyang from 'annyang';
+import Modals from './Modals.js';
+import Templates from './Templates.js';
 function Voice(){
 	if (annyang){
 	//add all commands from buttons that have [data-cmd] (not all functions will be valid)
@@ -34,7 +36,7 @@ function Voice(){
 				class: 'speech',
 				mainClass: 'top'
 			};
-			var over = $(V.cTemps['overlay'](config));
+			var over = $(Templates.get('overlay')(config));
 			$('body').append(over);
 			setTimeout(function(){
 				over.remove();
@@ -42,7 +44,7 @@ function Voice(){
 		});
 		annyang.addCallback('error',function(err){
 			if (err.error != 'no-speech'){
-				V.error('The speech engine has crashed - do you have another Veload tab open?');
+				Modals.error('The speech engine has crashed - do you have another Veload tab open?');
 			}
 		});
 

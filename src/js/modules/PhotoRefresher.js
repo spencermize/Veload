@@ -1,6 +1,6 @@
 import Options from './Options.js';
 import { TinyColor,mostReadable } from '@ctrl/tinycolor';
-import { setColors } from './ColorControls.js';
+import setColors from './ColorControls.js';
 import _ from 'lodash';
 
 var refreshReference = null;
@@ -29,10 +29,10 @@ const PhotoRefresher = {
 			var readable = mostReadable(newCol,['#fff','#000',domCol,darkCol,darkerCol]);
 
 			if (V){
-				V.opts.colors.MAINBG = newCol.toRgbString();
-				V.opts.colors.MAINTXT = readable.toRgbString();
-				V.opts.colors.DARK = darkCol.toRgbString();
-				V.opts.colors.DARKER = darkerCol.toRgbString();
+				Options.colors.MAINBG = newCol.toRgbString();
+				Options.colors.MAINTXT = readable.toRgbString();
+				Options.colors.DARK = darkCol.toRgbString();
+				Options.colors.DARKER = darkerCol.toRgbString();
 			}
 
 			setColors();
@@ -42,7 +42,7 @@ const PhotoRefresher = {
 		var url;
 		if (typeof V !== 'undefined' && V.points.length){
 			var l = _.last(V.points);
-			url = `${V.opts.urls.remote.photos}/${l.lat}/${l.lng}/${radius}/public`;
+			url = `${Options.urls.remote.photos}/${l.lat}/${l.lng}/${radius}/public`;
 		} else {
 			url = `${Options.urls.remote.photosRandom}/public`;
 		}

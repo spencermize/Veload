@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { setColors } from './ColorControls';
+import Options from './Options.js';
 import * as Trail from './Utils.Trail.js';
 
 const DataListeners = {
@@ -73,11 +73,10 @@ const DataListeners = {
 			_.forEach(V.status.sensors,function(value,key){
 				$(`[data-sensor="${key}"]`).toggleClass('btn-primary',value).toggleClass('btn-outline-secondary',!value);
 			});
-			setColors();
 		});
 
 		$(document).on('urlsUpdated.veload',function(){
-			$.post(`${V.opts.urls.remote.userUrl}?value=${V.opts.urlComponents.local.url}`,function(){
+			$.post(`${Options.urls.remote.userUrl}?value=${Options.urlComponents.local.url}`,function(){
 
 			}).fail(function(){
 
@@ -113,7 +112,7 @@ function sendUpdates(e){
 		var host = h.split('.')[0];
 		var path = h.split('.')[1];
 
-		$.post(`${V.opts.urls[host][path]}?value=${val}`,function(data){
+		$.post(`${Options.urls[host][path]}?value=${val}`,function(data){
 			if (data.status == 'success'){
 				remHosts.push(h);
 				if (hosts.length == remHosts.length){

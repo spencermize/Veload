@@ -1,4 +1,7 @@
 import _ from 'lodash';
+import Options from './Options.js';
+import Templates from './Templates.js';
+import Modals from './Modals.js';
 
 function SettingsPane(){
 	V.SettingsPane = this;
@@ -9,7 +12,7 @@ function SettingsPane(){
 
 SettingsPane.prototype.show = function(){
 	V.loading();
-	$.getJSON(V.opts.urls.remote.modules,function(data){
+	$.getJSON(Options.urls.remote.modules,function(data){
 		_.remove(data,function(el){
 			return el == 'customChart';
 		});
@@ -19,7 +22,7 @@ SettingsPane.prototype.show = function(){
 			links: ['bike','connection','modules']
 		};
 		//console.log(opts);
-		var comp = V.cTemps.settings(opts);
+		var comp = Templates.get('settings')(opts);
 		var popts = {
 			title: 'Veload Settings',
 			body: comp,
@@ -29,13 +32,13 @@ SettingsPane.prototype.show = function(){
 		var events = {
 			cancelClick: function(){
 				if (!$('#modal .is-invalid').length){
-					V.unpop();
+					Modals.unpop();
 				}
 			}
 		};
 		V.getUser(function(){
-			V.unpop();
-			V.pop(popts,events);
+			Modals.unpop();
+			Modals.pop(popts,events);
 			$(document).trigger('settingsShown.veload');
 		});
 
@@ -70,7 +73,7 @@ SettingsPane.prototype.show = function(){
 };
 
 SettingsPane.prototype.addCustomModule = function(el){
-	V.unpop();
+	Modals.unpop();
 	V.loading();
 	var e = $(el).closest('.custom-creator');
 	var title = e.find('.title').val();
@@ -86,7 +89,7 @@ SettingsPane.prototype.addCustomModule = function(el){
 	};
 	$(document).one('initialized.customChart',function(){
 		V.saveLayout();
-		V.unpop();
+		Modals.unpop();
 	});
 	V.enableModule('customChart',config);
 };

@@ -2,19 +2,19 @@
 import _ from 'lodash';
 import 'bootstrap';
 
-import { setColors } from './ColorControls.js';
+import setColors from './ColorControls.js';
 import Options from './Options.js';
+import Modals from './Modals.js';
+import Templates from './Templates.js';
 import { Charts } from './Charts.js';
 import { grid } from './Grid.js';
 import { map } from './Map.js';
 import './Utils.Trail.js';
 
-window.$ = $;
-
 function Veload(){
 	var self = this;
 	this.status = {};
-	['rTrail','cTemps','points','rTrailPopped'].forEach(function(e){
+	['rTrail','points','rTrailPopped'].forEach(function(e){
 		self[e] = [];
 	});
 
@@ -35,9 +35,9 @@ Veload.prototype.start = function(){
 		var config = {
 			title: 'waiting for sensors to connect',
 			overClass: 'bigButtons',
-			content: self.cTemps['buttons']()
+			content: Templates.get('buttons')()
 		};
-		var over = $(self.cTemps['overlay'](config));
+		var over = $(Templates.get('overlay')(config));
 		var b = $('body').append(over);
 
 		var connected = setInterval(function(){ self.sensorsConnected(self); },500);
@@ -49,20 +49,20 @@ Veload.prototype.start = function(){
 			$(document).trigger('start.veload');
 		});
 	} else {
-		$('body').append(V.cTemps['start']());
+		$('body').append(Templates.get('start')());
 		V.map = map;
 		map.pickTrackGUI();
 		$(document).one('trackLoading.veload',function(){
-			V.unpop();
-			V.pop({
+			Modals.unpop();
+			Modals.pop({
 				title: 'Select or Create a Workout?',
 				body: $('.GoalSelectOrBuild').html(),
 				accept: false
 			});
 		});
 		$(document).one('workoutLoaded.veload workoutSaved.veload',function(){
-			V.unpop();
-			V.start();
+			Modals.unpop();
+			self.start();
 		});
 	}
 };
@@ -116,11 +116,11 @@ Veload.prototype.clear = function(){
 			self.points = [];
 			self.rTrailPopped = [];
 			$('body').removeClass('stoppable');
-			self.unpop();
+			Modals.unpop();
 			$(document).trigger('clear.veload');
 		}
 	};
-	self.pop(config,events);
+	Modals.pop(config,events);
 };
 
 Veload.prototype.upload = async function(){
@@ -140,25 +140,15 @@ Veload.prototype.upload = async function(){
 				cancelText: 'Finish'
 			};
 			$('#modal').on('hidden.bs.modal',function(){
-				self.pop(config);
+				Modals.pop(config);
 			});
-			self.unpop();
+			Modals.unpop();
 		} else {
-			self.error('Error uploading to Strava');
+			Modals.error('Error uploading to Strava');
 		}
 	}).fail(function(err){
-		self.error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${self.remote.publish}) responded (${err.status} ${err.statusText})</p>`);
+		Modals.error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${self.remote.publish}) responded (${err.status} ${err.statusText})</p>`);
 	});
-};
-Veload.prototype.error = function(err){
-	var config = {
-		title: 'Error',
-		body: `${err}`,
-		accept: false,
-		close: true
-	};
-	this.unpop();
-	this.pop(config);
 };
 
 Veload.prototype.fullscreen = function(config){
@@ -171,56 +161,9 @@ Veload.prototype.loading = function(){
 	$('body').addClass('loading');
 };
 
-Veload.prototype.unpop = function(){
-	$('body').removeClass('loading');
-	$('#modal').modal('hide');
-	$('.modal-backdrop').not('.loader').remove();
-};
-
-Veload.prototype.pop = function(cnf = {},evt = {}){
-	var self = this;
-	const config = Object.assign({
-		title: 'Alert',
-		body: '',
-		accept: true,
-		close: true,
-		acceptText: 'Okay',
-		acceptClass: 'btn-primary',
-		modalClass: '',
-		backdrop: 'static'
-	},cnf);
-	const events = Object.assign({
-		cancelClick: function(){
-			V.unpop();
-		},
-		acceptClick: function(){ }
-	},evt);
-	$('#modal-container').html(self.cTemps.modal(config));
-	$('#modal .btn-cancel').on('click',events.cancelClick);
-	$('#modal .btn-accept').on('click',events.acceptClick);
-	if (config.width){
-		$('.modal-dialog').css('max-width',config.width);
-	}
-	$('#modal').modal('show');
-	$('[data-tooltip=tooltip]').tooltip();
-	setColors();
-};
-
-$('#modal-container').on('hidden.bs.modal','#modal',function(){
-	$('#modal').modal('dispose').removeClass().addClass('modal fade');
-	$('body').removeClass('modal-open');
-});
-
 //first thing loaded
-Veload.prototype.loadInterface = function(){
+Veload.prototype.loadInterface = async function(){
 	var self = this;
-	//load required elements
-	var templates = $('[id$="-temp"]');
-	templates.each(function(_i,e){
-		var el = $(e);
-		self.cTemps[el.attr('id').split('-')[0]] = Handlebars.compile(el.html());
-	});
-
 	if (window.location.pathname == '/dashboard'){
 		self.loadDash();
 
@@ -231,15 +174,10 @@ Veload.prototype.loadInterface = function(){
 
 		$(document).on('loaded.veload',function(){
 			//build up the charts
-
-			//I really want to use this sytax but I'm doing something wrong...
-			//import("./Charts.js").then(Charts=>{Charts()})
 			Charts();
 			$('[data-ride="carousel"]').carousel();
 			setColors();
 		});
-	} else {
-		$('body').removeClass('loading');
 	}
 
 	//enable each module
@@ -287,7 +225,7 @@ Veload.prototype.getUser = function(callback){
 		if (changed){
 			$.post(`${Options.urls.local.circ}?value=${data.circumference}`,function(){
 			}).fail(function(){
-				self.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor. ${Options.resetConnection}`);
+				self.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor.`);
 			});
 		}
 		$(document).trigger('userUpdated.veload');
@@ -320,4 +258,7 @@ $.fn.cleanWhitespace = function(){
 		.remove();
 	return this;
 };
-export { V };
+
+let V = new Veload();
+
+export default V;

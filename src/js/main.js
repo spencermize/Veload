@@ -3,7 +3,7 @@ import { Rollbar } from './modules/Rollbar.js';
 
 import './modules/HandlebarsHelpers.js';
 
-var V = null;
+//import V from './modules/Veload.js';
 
 if (window.location.hostname == 'veload.bike'){
 	Rollbar();
@@ -11,7 +11,6 @@ if (window.location.hostname == 'veload.bike'){
 
 $(async function(){
 	if (window.location.pathname == '/dashboard'){
-		V = await import('./modules/Veload.js');
 		await import('./modules/LocalPoller.js');
 		await import('./modules/SettingsPane.js');
 		await import('./modules/DataListeners.js');

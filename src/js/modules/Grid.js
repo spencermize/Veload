@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import '../../third_party/gridster/jquery.gridster.min.js';
-import { Options } from './Options.js';
+import Options from './Options.js';
 
 function Grid(){
 	this.margX = 10;

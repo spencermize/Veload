@@ -1,6 +1,7 @@
 import List from 'list.js';
 import moment from 'moment';
-import { Options } from './Options.js';
+import Options from './Options.js';
+import Modals from './Modals.js';
 import { Point } from './Point.js';
 
 var L,omni,geolib;
@@ -58,7 +59,7 @@ Map.prototype.update = function(){
 
 Map.prototype.loadGPX = function(url){
 	var self = this;
-	V.unpop();
+	Modals.unpop();
 	V.loading();
 	$(document).trigger('trackLoading.veload');
 	var om = omni.gpx(url);
@@ -103,14 +104,14 @@ Map.prototype.pickTrackGUI = function(){
 		accept: false,
 		body: $('.StravaOrRide').html()
 	};
-	V.unpop();
-	V.pop(config);
+	Modals.unpop();
+	Modals.pop(config);
 };
 Map.prototype.gpsLoader = function(){
 	var options = this.listOptions();
-	V.unpop();
+	Modals.unpop();
 	var html = $('.rwgpsSearch').html() + $('.search-wrap').html();
-	V.pop(V.listModalOptions(html));
+	Modals.pop(V.listModalOptions(html));
 	$('#modal .searcher').attr('id','searchme');
 	var list = new List('searchme',options);
 	$('#modal').data('list',list);
@@ -176,8 +177,8 @@ Map.prototype.stravaLoader = function(){
 	$.getJSON(Options.urls.remote.athleteRoutes,function(routes){
 		$.getJSON(Options.urls.remote.athleteActivities,function(activities){
 			var data = routes.concat(activities);
-			V.unpop();
-			V.pop(self.listModalOptions($('.search-wrap').html()));
+			Modals.unpop();
+			Modals.pop(self.listModalOptions($('.search-wrap').html()));
 			$('#modal .searcher').attr('id','searchme');
 			var list = new List('searchme',options);
 			list.clear();
