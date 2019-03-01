@@ -22,7 +22,7 @@ addons:
     packages:
       - g++-4.8
 after_success:
-  - "sh deploy/rollbar.sh" $rollbar_key
+  - "sh deploy/rollbar.sh $rollbar_key"
 
 branches:
   only:
