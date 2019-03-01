@@ -1,11 +1,9 @@
 'use strict';
 import _ from 'lodash';
 import 'bootstrap';
-import * as annyang from 'annyang';
 
 import { setColors } from './ColorControls.js';
-import { Options } from './Options.js';
-import { PhotoRefresher } from './PhotoRefresher.js';
+import Options from './Options.js';
 import { Charts } from './Charts.js';
 import { grid } from './Grid.js';
 import { map } from './Map.js';
@@ -13,9 +11,8 @@ import './Utils.Trail.js';
 
 window.$ = $;
 
-function Veload(opts){
+function Veload(){
 	var self = this;
-	this.opts = opts;
 	this.status = {};
 	['rTrail','cTemps','points','rTrailPopped'].forEach(function(e){
 		self[e] = [];
@@ -28,7 +25,7 @@ function Veload(opts){
 	window.Veload = window.V;
 	$(document).trigger('initialized.veload');
 	if (!(this instanceof Veload)){
-		return new Veload(opts);
+		return new Veload();
 	}
 }
 
@@ -133,7 +130,7 @@ Veload.prototype.upload = async function(){
 	self.rTrailPopped.forEach(function(val,i){
 		self.rTrailPopped[i].time = moment(val.time).format();
 	});
-	$.post(self.opts.urls.remote.publish,{ points: self.rTrailPopped },function(data){
+	$.post(Options.urls.remote.publish,{ points: self.rTrailPopped },function(data){
 		if (data.id){
 			var config = {
 				title: 'Congrats!',
@@ -255,7 +252,7 @@ Veload.prototype.loadInterface = function(){
 			//html is ready to play
 			self.loaded();
 		} else {
-			$.getJSON(self.opts.urls.remote.modules,function(modules){
+			$.getJSON(Options.urls.remote.modules,function(modules){
 				_.forEach(modules,function(mod){
 					grid.enableModule(mod);
 				});
@@ -274,7 +271,7 @@ Veload.prototype.loaded = function(){
 //second thing loaded
 Veload.prototype.loadProfile = function(){
 	var self = this;
-	$.getJSON(self.opts.urls.remote.athlete,function(data){
+	$.getJSON(Options.urls.remote.athlete,function(data){
 		$('body').removeClass('loggedout').addClass('loggedin');
 		self.athlete = data;
 		$('#profile button').html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + self.athlete.profile + '" />');
@@ -282,15 +279,15 @@ Veload.prototype.loadProfile = function(){
 };
 Veload.prototype.getUser = function(callback){
 	var self = this;
-	$.getJSON(self.opts.urls.remote.userAll,function(data){
+	$.getJSON(Options.urls.remote.userAll,function(data){
 		var changed = self.status.circumference == data.circumference;
 		self.user = data;
-		self.opts.updateLocal(data.url);
+		Options.updateLocal(data.url);
 		$(document).trigger('remoteInfo.veload');
 		if (changed){
-			$.post(`${self.opts.urls.local.circ}?value=${data.circumference}`,function(){
+			$.post(`${Options.urls.local.circ}?value=${data.circumference}`,function(){
 			}).fail(function(){
-				self.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor. ${self.opts.resetConnection}`);
+				self.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor. ${Options.resetConnection}`);
 			});
 		}
 		$(document).trigger('userUpdated.veload');
@@ -300,65 +297,10 @@ Veload.prototype.getUser = function(callback){
 	});
 };
 //third thing loaded
-Veload.prototype.loadDash = function(){
-	this.initVoice();
-	this.poller.poll();
-	this.poller.startPolling(3000);
-	PhotoRefresher();
+Veload.prototype.loadDash = async function(){
+	await import('./Voice.js');
 	grid.initGrid();
 	$('[data-tooltip="tooltip"],[data-toggle="tooltip"]').tooltip();
-};
-
-Veload.prototype.initVoice = function(){
-	var self = this;
-	if (annyang){
-	//add all commands from buttons that have [data-cmd] (not all functions will be valid)
-		var commands = {};
-		$('button[data-cmd]').each(function(ind,el){
-			var cmd = $(el).data('cmd');
-			commands[cmd] = function(){ self[cmd]({ caller: 'voice' }); };
-
-			var alt = $(el).data('voice-alt');
-			if (alt){
-				alt = alt.split(',');
-				alt.forEach(function(el){
-					commands[el] = function(){ self[cmd]({ caller: 'voice' }); };
-				});
-			}
-		});
-
-		annyang.addCommands(commands);
-
-		annyang.addCommands({
-			'select item :num': {
-				callback: function(num){
-					$(`#modal li:eq(${num - 1}) [data-cmd]`).click();
-				},
-				regexp: /^select item ([0-9])$/
-			}
-		});
-
-		annyang.addCallback('resultMatch',function(userSaid){
-			var config = {
-				message: userSaid,
-				title: 'command recognized',
-				class: 'speech',
-				mainClass: 'top'
-			};
-			var over = $(self.cTemps['overlay'](config));
-			$('body').append(over);
-			setTimeout(function(){
-				over.remove();
-			},2000);
-		});
-		annyang.addCallback('error',function(err){
-			if (err.error != 'no-speech'){
-				V.error('The speech engine has crashed - do you have another Veload tab open?');
-			}
-		});
-
-		annyang.start({ autoRestart: true });
-	}
 };
 
 //===============HELPERS===================
@@ -378,6 +320,4 @@ $.fn.cleanWhitespace = function(){
 		.remove();
 	return this;
 };
-let V = new Veload(Options);
-
 export { V };

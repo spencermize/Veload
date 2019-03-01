@@ -1,5 +1,5 @@
 import _ from 'lodash';
-var Options = {
+const Options = {
 	generateUrls: function(){
 		var self = this;
 		_.forEach(self.urlComponents,function(key,value){
@@ -168,4 +168,6 @@ var Options = {
 	}
 };
 Options.generateUrls();
-export { Options };
+
+Object.freeze(Options);
+export default Options;
