@@ -40,7 +40,7 @@ Veload.prototype.start = function(){
 		var over = $(Templates.get('overlay')(config));
 		var b = $('body').append(over);
 
-		var connected = setInterval(function(){ self.sensorsConnected(self); },500);
+		var connected = setInterval(function(){ self.sensorsConnected(self); },100);
 		$(document).on('sensorsConnected.veload',function(){
 			clearInterval(connected);
 			over.remove();
@@ -225,7 +225,7 @@ Veload.prototype.getUser = function(callback){
 		if (changed){
 			$.post(`${Options.urls.local.circ}?value=${data.circumference}`,function(){
 			}).fail(function(){
-				self.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor.`);
+				Modals.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor.`);
 			});
 		}
 		$(document).trigger('userUpdated.veload');

@@ -14,7 +14,7 @@ const PhotoRefresher = {
 
 		$(document).on('start.veload',function(){
 			var radius = 1;
-			self.refreshReference = setInterval(function(){
+			refreshReference = setInterval(function(){
 				radius = self.updatePhoto(radius);
 			},15000);
 		});
