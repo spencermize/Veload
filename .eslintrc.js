@@ -2,7 +2,8 @@ module.exports = {
     "env": {
         "browser": true,
         "es6": true,
-        "jquery": true
+        "jquery": true,
+        "mocha": true
     },
     "extends": ["standard","plugin:import/errors","plugin:import/warnings"],
     "parser": "babel-eslint",    
