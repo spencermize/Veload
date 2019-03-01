@@ -5,7 +5,7 @@ var argv = require('yargs').argv;
 
 var paths = glob.sync('./src/js/**/*.js');
 paths = paths.concat('./src/js/main.js');
-paths = paths.concat('./test/lint.js');
+paths = paths.concat('./test/*.js');
 paths = paths.concat('./app.js');
 paths = paths.concat('./server.js');
 

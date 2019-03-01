@@ -1,0 +1,11 @@
+{
+	"plugins": [
+		"stylelint-scss"
+	],
+	"extends": "stylelint-config-recommended-scss",
+	"rules": {
+		"selector-list-comma-newline-after" : "never-multi-line",
+		"block-opening-brace-space-before" : "never"
+
+	}
+}

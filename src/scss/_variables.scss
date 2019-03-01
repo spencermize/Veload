@@ -13,25 +13,26 @@ $theme-colors: (
 // Toggle Sizes
 $toggle-default-size: 1.5rem;
 $toggle-default-label-width: 4rem;
-$toggle-default-font-size: .75rem;
+$toggle-default-font-size: 0.75rem;
 
 // Button Colors
 $btn-default-color: $gray-500;
 $btn-default-bg: $gray-800;
 
 // Speed up Carousel
-$carousel-transition: .25s;
+$carousel-transition: 0.25s;
 
 // Mixin for Switch Colors
 // Variables: @color, @bg, @active-bg
-@mixin toggle-color($color: $btn-default-color, $bg: $btn-default-bg, $active-bg: $primary) {
+@mixin toggle-color($color: $btn-default-color, $bg: $btn-default-bg, $active-bg: $primary){
   color: $color;
   background: $bg;
-  &:before,
-  &:after {
+
+  &::before,&::after{
     color: $color;
   }
-  &.active {
+
+  &.active{
     background-color: $active-bg;
   }
 }
@@ -48,17 +49,8 @@ $carousel-transition: .25s;
   height: $size;
   width: $size * 2;
   border-radius: $size;
-  
-  &:focus,
-  &.focus {
-    &,
-    &.active {
-      outline: none;
-    }
-  }
-  
-  &:before,
-  &:after {
+
+  &::before,&::after{
     line-height: $size;
     width: $margin;
     text-align: center;
@@ -69,71 +61,83 @@ $carousel-transition: .25s;
     letter-spacing: 2px;
     position: absolute;
     bottom: 0;
-    transition: opacity .25s;
+    transition: opacity 0.25s;
   }
-  &:before {
+
+  &::before{
     content: 'Off';
     left: -$margin;
   }
-  &:after {
+
+  &::after{
     content: 'On';
     right: -$margin;
-    opacity: .5;
+    opacity: 0.5;
   }
-  
-  > .handle {
+
+  > .handle{
     position: absolute;
-    top: ($size * .25) / 2;
-    left: ($size * .25) / 2;
-    width: $size * .75;
-    height: $size * .75;
-    border-radius: $size * .75;
+    top: ($size * 0.25) / 2;
+    left: ($size * 0.25) / 2;
+    width: $size * 0.75;
+    height: $size * 0.75;
+    border-radius: $size * 0.75;
     background: #fff;
-    transition: left .25s;
+    transition: left 0.25s;
   }
-  &.active {
-    transition: background-color .25s;
-    > .handle {
-      left: $size + (($size * .25) / 2);
-      transition: left .25s;
+
+  &.active{
+    transition: background-color 0.25s;
+
+    > .handle{
+      left: $size + (($size * 0.25) / 2);
+      transition: left 0.25s;
     }
-    &:before {
-      opacity: .5;
+
+    &::before{
+      opacity: 0.5;
     }
-    &:after {
+
+    &::after{
       opacity: 1;
     }
   }
-  
-  &.btn-sm {
-    &:before,
-    &:after {
+  &:focus,&.focus{
+    &,&.active{
+      outline: none;
+    }
+  }
+  &.btn-sm{
+    &::before,&::after{
       line-height: $size;
       color: #fff;
-      letter-spacing: .75px;
-      left: $size * .275;
+      letter-spacing: 0.75px;
+      left: $size * 0.275;
       width: $size * 1.55;
     }
-    &:before {
+
+    &::before{
       text-align: right;
     }
-    &:after {
+
+    &::after{
       text-align: left;
       opacity: 0;
     }
-    &.active {
-      &:before {
+
+    &.active{
+      &::before{
         opacity: 0;
       }
-      &:after {
+
+      &::after{
         opacity: 1;
       }
     }
   }
-  
-  &.btn-xs {
-    &:before,
-    &:after {
+
+  &.btn-xs{
+    &::before,&::after{
       display: none;
     }
   }
