@@ -49,7 +49,7 @@
     "css:build": "sass src/scss/main.scss public/css/style.css --no-source-map --style=compressed",
     "css": "npm run css:watch",
     "app:watch": "nodemon app.js",
-    "test": "npm run js:lint && karma start --single-run --browsers PhantomJS",
+    "test": "npm run js:lint && node node_modules/karma/bin/karma start karma.js --single-run --browsers PhantomJS",
     "test:karma": "node node_modules/karma/bin/karma start karma.js",
     "watch": "npm run dev && start npm run js:watch && start npm run css:watch && start npm run app:watch",
     "build": "npm run prod && npm run js:build && npm run css:build",
