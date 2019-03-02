@@ -6,7 +6,7 @@ stylelint.lint({
 	files: './src/scss/*.scss',
 	fix: argv.fix
 }).then(function(data){
-	describe('ESLint',function(){
+	describe('StyleLint',function(){
 		data.results.forEach((result) => generateTest(result));
 	});
 	run();
@@ -15,11 +15,9 @@ stylelint.lint({
 function generateTest(result){
 	it(`validates ${result.source}`,function(){
 		if (result.errored){
-			console.log('fail')
 			assert.fail(true,false,formatMessages(result.warnings));
 		}
 	});
-	console.log("!!!!!!!!!!!!")
 }
 
 function formatMessages(messages){

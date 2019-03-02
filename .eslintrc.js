@@ -15,6 +15,9 @@ module.exports = {
         "Handlebars" : "readonly",
         "Chart" : "writable"
     },
+    "settings": {
+        "import/resolver": "webpack"
+    },
     "parserOptions": {
         "ecmaVersion": 2018,
         "allowImportExportEverywhere": true,
