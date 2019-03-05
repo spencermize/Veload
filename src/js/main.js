@@ -1,34 +1,31 @@
-//init logging
-import { Rollbar } from './modules/Rollbar.js';
-
-import './modules/HandlebarsHelpers.js';
-
 import V from './modules/Veload.js';
 
-if (window.location.hostname == 'veload.bike'){
-	Rollbar();
-}
+$(async function(){
+	if (window.location.hostname == 'veload.bike'){
+		//init logging
+		var Rollbar = await import('./modules/Rollbar.js');
+		Rollbar();
+	}
+});
 
 $(async function(){
+	import('./modules/PhotoRefresher.js');
 	if (window.location.pathname == '/dashboard'){
 		await import('./modules/LocalPoller.js');
 		await import('./modules/SettingsPane.js');
 		await import('./modules/DataListeners.js');
-
-		let goals = await import('./modules/Goals.js');
-		let ride = await import('./modules/RideListeners.js');
-		let conn = await import('./modules/ConnectionStatus.js');
-
-		goals.Goals();
-		ride.RideListeners();
-		conn.ConnectionStatus();
+		await import('./modules/Goals.js');
+		await import('./modules/RideListeners.js');
+		await import('./modules/ConnectionStatus.js');
+		await import('./modules/Charts.js');
+		await import('./modules/Voice.js');
+		await import('./modules/Map.js');
 
 		V.loadInterface();
 		V.loadProfile();
 	} else {
 		import('./modules/DownloadLink.js');
 		import('./modules/Weather.js');
-		$('body').removeClass('loading');
+		V.notLoading();
 	}
-	import('./modules/PhotoRefresher.js');
 });

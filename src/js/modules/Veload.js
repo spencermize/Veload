@@ -7,24 +7,20 @@ import setColors from './ColorControls.js';
 import Options from './Options.js';
 import Modals from './Modals.js';
 import Templates from './Templates.js';
-import { Charts } from './Charts.js';
 import { EE } from './EventBus.js';
 import { grid } from './Grid.js';
-import { map } from './Map.js';
 import './Utils.Trail.js';
 
 function Veload(){
 	var self = this;
 	this.status = {};
+	this.user = {};
+	this.status = {};
 	['rTrail','points','rTrailPopped'].forEach(function(e){
 		self[e] = [];
 	});
 
-	['user','status','athlete','refresher','photos'].forEach(function(e){
-		self[e] = '';
-	});
 	window.V = this;
-	window.Veload = window.V;
 	EE.emit('Veload.initialized');
 	if (!(this instanceof Veload)){
 		return new Veload();
@@ -52,8 +48,8 @@ Veload.prototype.start = function(){
 		});
 	} else {
 		$('body').append(Templates.get('start')());
-		V.map = map;
-		map.pickTrackGUI();
+		EE.emit('Veload.choosingRoute');
+
 		EE.once('Map.trackLoading',function(){
 			Modals.unpop();
 			Modals.pop({
@@ -62,7 +58,11 @@ Veload.prototype.start = function(){
 				accept: false
 			});
 		});
-		EE.once('Veload.workoutLoaded Veload.workoutSaved',function(){
+		EE.once('Goals.workoutSaved',function(){
+			Modals.unpop();
+			self.start();
+		});
+		EE.once('Goals.workoutLoaded',function(){
 			Modals.unpop();
 			self.start();
 		});
@@ -162,33 +162,38 @@ Veload.prototype.loading = function(){
 	$('body').addClass('loading');
 };
 
+Veload.prototype.notLoading = function(){
+	$('body').removeClass('loading');
+};
+
+Veload.prototype.loaded = function(){
+	EE.emit('Veload.loaded');
+};
+
 //first thing loaded
 Veload.prototype.loadInterface = async function(){
 	var self = this;
-	if (window.location.pathname == '/dashboard'){
-		self.loadDash();
+	//wait until modules loaded before showing loaded
+	EE.once('Grid.modulesLoaded',function(){
+		self.notLoading();
+	});
 
-		//wait until modules loaded before showing loaded
-		EE.once('Grid.modulesLoaded',function(){
-			$('body').removeClass('loading');
-		});
-
-		EE.on('Veload.loaded',function(){
-			$('[data-ride="carousel"]').carousel();
-			setColors();
-		});
-	}
+	EE.on('Veload.loaded',function(){
+		$('[data-ride="carousel"]').carousel();
+		$('[data-tooltip="tooltip"],[data-toggle="tooltip"]').tooltip();
+		setColors();
+	});
 
 	//enable each module
 	self.getUser(function(data){
-		if (data.layout){
+		if (data.layout){ //user has been here before
 			_.forEach(data.layout[0],function(obj){
 				grid.enableModule(obj.name,obj);
 			});
 
 			//html is ready to play
 			self.loaded();
-		} else {
+		} else { //initialize a dashboard
 			$.getJSON(Options.urls.remote.modules,function(modules){
 				_.forEach(modules,function(mod){
 					grid.enableModule(mod);
@@ -201,17 +206,12 @@ Veload.prototype.loadInterface = async function(){
 	});
 	EE.emit('Veload.modulesQueued');
 };
-Veload.prototype.loaded = function(){
-	EE.emit('Veload.loaded');
-};
 
 //second thing loaded
 Veload.prototype.loadProfile = function(){
-	var self = this;
 	$.getJSON(Options.urls.remote.athlete,function(data){
 		$('body').removeClass('loggedout').addClass('loggedin');
-		self.athlete = data;
-		$('#profile button').html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + self.athlete.profile + '" />');
+		$('#profile button').html('<img class="img-fluid rounded-circle" style="max-width:36px" src="' + data.profile + '" />');
 	});
 };
 Veload.prototype.getUser = function(callback){
@@ -233,12 +233,6 @@ Veload.prototype.getUser = function(callback){
 		}
 	});
 };
-//third thing loaded
-Veload.prototype.loadDash = async function(){
-	await import('./Voice.js');
-	grid.initGrid();
-	$('[data-tooltip="tooltip"],[data-toggle="tooltip"]').tooltip();
-};
 
 //===============HELPERS===================
 $.fn.loader = function(height = 64,width = 64,clear = false){
@@ -251,12 +245,6 @@ $.fn.loader = function(height = 64,width = 64,clear = false){
 function loadAni(height = 64,width = 64){
 	return `<span style='height:${height}px;width:${width}px' class='spin'/>`;
 }
-$.fn.cleanWhitespace = function(){
-	this.contents().filter(
-		function(){ return (this.nodeType == 3 && !/\S/.test(this.nodeValue)); })
-		.remove();
-	return this;
-};
 
 let V = new Veload();
 

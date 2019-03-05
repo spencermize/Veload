@@ -6,7 +6,12 @@ import Modals from './Modals.js';
 import { grid } from './Grid.js';
 
 function SettingsPane(){
-	EE.on('SettingsPane.show',this.show);
+	var self = this;
+	['SettingsPane.addCustomModule','SettingsPane.show'].forEach(function(eventName){
+		EE.on(eventName,function(el){
+			self[eventName.split('.')[1]](el);
+		});
+	});
 	if (!(this instanceof SettingsPane)){
 		return new SettingsPane();
 	}

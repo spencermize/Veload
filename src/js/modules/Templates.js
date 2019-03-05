@@ -1,3 +1,5 @@
+import './HandlebarsHelpers.js';
+
 var els = $('[id$="-temp"]');
 var temps = [];
 const Templates = {

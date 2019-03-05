@@ -4,18 +4,9 @@ import { EE } from './EventBus.js';
 import moment from 'moment';
 import Options from './Options.js';
 
-EE.once('Veload.loaded',Charts);
 async function Charts(){
-	if ($('[data-chart]').length){
-		await import('chart.js');
-		await import('chartjs-plugin-streaming');
-		await import('chartjs-plugin-zoom');
-		await import('chartjs-plugin-annotation');
-		await import('./Gauge.js');
-
-		initializeLineCharts();
-		initializeGaugeCharts();
-	}
+	EE.once('Veload.loaded',init);
+	EE.on('Grid.addedModule',init);
 
 	EE.on('Veload.clear',function(){
 		var chart = $('.grid-item:has([data-chart])');
@@ -27,6 +18,19 @@ async function Charts(){
 		});
 	});
 }
+
+async function init(){
+	if ($('[data-chart]').length){
+		await import('chart.js');
+		await import('chartjs-plugin-streaming');
+		await import('chartjs-plugin-zoom');
+		await import('chartjs-plugin-annotation');
+		await import('./Gauge.js');
+
+		initializeLineCharts();
+		initializeGaugeCharts();
+	}
+};
 function getTypicalLimits(param){
 	var lim = [0];
 	var max = 0;
@@ -155,4 +159,4 @@ function initializeLineCharts(){
 		EE.emit(`${_.capitalize(name)}.initialized`);
 	});
 }
-export { Charts };
+export let charts = new Charts();

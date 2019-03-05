@@ -86,12 +86,13 @@ const DataListeners = {
 	}
 };
 async function buttonCmd(e){
-	var fnc = $(e.target).closest('[data-cmd]').data('cmd') ? $(e.target).closest('[data-cmd]').data('cmd') : $(e.target).closest('form').find('[data-submit]').data('submit');
+	var jq = $(e.target);
+	var fnc = jq.closest('[data-cmd]').data('cmd') ? jq.closest('[data-cmd]').data('cmd') : jq.closest('form').find('[data-submit]').data('submit');
 	var fncs = fnc.split('.');
 	if (fncs.length == 1 && V[fnc]){
-		V[fncs[0]]($(e.target));
+		V[fncs[0]](jq);
 	} else if (fncs.length == 2){
-		EE.emit(fnc);
+		EE.emit(fnc,jq);
 	}
 }
 function sendUpdates(e){

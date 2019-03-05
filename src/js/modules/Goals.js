@@ -8,11 +8,19 @@ import Modals from './Modals.js';
 import * as Trail from './Utils.Trail.js';
 
 function Goals(){
-	V.Goals = this;
+	this.listen();
 	if (!(this instanceof Goals)){
 		return new Goals();
 	}
 }
+Goals.prototype.listen = function(){
+	var self = this;
+	['Goals.deleteWorkoutTemplate','Goals.selectWorkoutTemplate','Goals.select','Goals.show'].forEach(function(eventName){
+		EE.on(eventName,function(el){
+			self[eventName.split('.')[1]](el);
+		});
+	});
+};
 Goals.prototype.selectWorkoutTemplate = function(e){
 	this.workout = _.find(this.workoutTemplates,{ 'id': e.data('id') });
 	this.makeGraphable();
@@ -29,7 +37,7 @@ Goals.prototype.makeGraphable = function(){
 		self.workout.data[i].y = Number(val.value);
 		cumulative += Number(val.length);
 	});
-	EE.emit('Veload.workoutLoaded');
+	EE.emit('Goals.workoutLoaded');
 };
 Goals.prototype.getCurrent = function(){
 	var e;
@@ -256,7 +264,7 @@ Goals.prototype.save = function(){
 		this.workout = ser;
 		$.post(Options.urls.remote.workoutTemplate,ser,function(){
 			Modals.unpop();
-			EE.emit('Veload.workoutSaved');
+			EE.emit('Goals.workoutSaved');
 		});
 	} else {
 		title.addClass('is-invalid');
@@ -371,4 +379,4 @@ Goals.prototype.refresh = function(item){
 	}
 };
 
-export { Goals };
+export let goals = new Goals();

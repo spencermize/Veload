@@ -9,29 +9,21 @@ var L,omni,geolib;
 
 function Map(){
 	var self = this;
-	EE.once(`Map.enabling`,async function(_e){
-		L = await import('leaflet');
-		await import('@ansur/leaflet-pulse-icon');
-		await import('../../../node_modules/leaflet-providers/leaflet-providers.js');
-		omni = await import('@mapbox/leaflet-omnivore');
-		geolib = await import('geolib');
-
+	EE.once(`Map.enabling`,function(_e){
 		self.init();
 	});
 	if (!(this instanceof Map)){
 		return new Map();
 	}
 }
-Map.prototype.init = function(){
-	var self = this;
+Map.prototype.init = async function(){
+	L = await import('leaflet');
+	await import('@ansur/leaflet-pulse-icon');
+	await import('../../../node_modules/leaflet-providers/leaflet-providers.js');
+	omni = await import('@mapbox/leaflet-omnivore');
+	geolib = await import('geolib');
 	this.create();
-	this.update();
-	var meth = getAllMethods(this)
-	console.log(meth)
-	meth.forEach(function(fnc){
-		console.log(fnc);
-		EE.on(`Map.${fnc}`,function(){ self[fnc](); });
-	});
+	this.listen();
 	EE.emit('Map.initialized');
 	EE.emit('Map.moduleLoaded');
 };
@@ -48,8 +40,14 @@ Map.prototype.create = function(){
 	L.tileLayer.provider('CartoDB.Positron').addTo(this.get());
 };
 
-Map.prototype.update = function(){
+Map.prototype.listen = function(){
 	var self = this;
+	[`Map.loadGPX`,'Map.stravaLoader','Map.gpsLoader','Map.gpsSearch'].forEach(function(eventName){
+		EE.on(eventName,function(el){
+			self[eventName.split('.')[1]](el);
+		});
+	});
+	EE.on('Veload.choosingRoute',self.pickTrackGUI);
 	EE.on('Veload.locationUpdated',function(){
 		var l = V.points[V.points.length - 1];
 		self.get().flyTo(l,14,{
@@ -57,7 +55,10 @@ Map.prototype.update = function(){
 		});
 		self.myIcon.setLatLng(l);
 	});
-	EE.on('Map.gridItemResized Veload.gridResized',function(){
+	EE.on('Veload.gridResized',function(){
+		self.get().invalidateSize();
+	});
+	EE.on('Map.gridItemResized',function(){
 		self.get().invalidateSize();
 	});
 	EE.on('Veload.clear',function(){
@@ -66,8 +67,9 @@ Map.prototype.update = function(){
 	});
 };
 
-Map.prototype.loadGPX = function(url){
+Map.prototype.loadGPX = function(e){
 	var self = this;
+	var url = e.closest('[data-ref]').data('ref');
 	Modals.unpop();
 	V.loading();
 	EE.emit('Map.trackLoading');
@@ -104,9 +106,7 @@ Map.prototype.loadGPX = function(url){
 		Modals.error(e);
 	}).addTo(self.get());
 };
-Map.prototype.loadTrack = function(e){
-	this.loadGPX(e.closest('[data-ref]').data('ref'));
-};
+
 Map.prototype.pickTrackGUI = function(){
 	var config = {
 		title: 'Route Selection',
@@ -227,11 +227,12 @@ Map.prototype.stravaLoader = function(){
 	});
 };
 
-function getAllMethods(obj){
-	var result = [];
-	do {
-		result.push(...Object.getOwnPropertyNames(obj));
-	} while ((obj = Object.getPrototypeOf(obj)));
-	return result;
-}
+//this is here specifically for List.js, which freaks out on whitespace
+$.fn.cleanWhitespace = function(){
+	this.contents().filter(
+		function(){ return (this.nodeType == 3 && !/\S/.test(this.nodeValue)); })
+		.remove();
+	return this;
+};
+
 export let map = new Map();
