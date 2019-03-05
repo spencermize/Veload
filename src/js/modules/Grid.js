@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { EE } from './EventBus.js';
 import '../../third_party/gridster/jquery.gridster.min.js';
 import Options from './Options.js';
 
@@ -65,7 +66,7 @@ Grid.prototype.enableModule = function(mod,cnf){
 			var src = el.innerHTML;
 			var comp = Handlebars.compile(src)(config);
 			var jcomp = $(comp);
-			var finishedEvent = `initialized.${mod}`;
+			var finishedEvent = `${_.capitalize(mod)}.initialized`;
 
 			if (jcomp.data('script').trim() !== 'ignore'){
 				this.listenForFinish(finishedEvent);
@@ -83,7 +84,7 @@ Grid.prototype.enableModule = function(mod,cnf){
 				//script already loaded
 				window[_.upperFirst(mod)]();
 			}
-			$(document).trigger(`enabling.${mod}`);
+			EE.emit(`${_.capitalize(mod)}.enabling`);
 		} else {
 			throw Error(`Unable to load module: ${mod}`);
 		}
@@ -108,7 +109,7 @@ Grid.prototype.saveLayout = function(){
 	});
 };
 Grid.prototype.initGrid = function(){
-	$(document).trigger('loading.grid');
+	EE.emit('Grid.loading');
 	var self = this;
 	var gridSettings = {
 		widget_selector: '.grid-item',
@@ -125,7 +126,7 @@ Grid.prototype.initGrid = function(){
 			enabled: true,
 			stop: function(e){
 				self.saveLayout();
-				$(document).trigger(`gridItemResized.${$(e.target).closest('.grid-item').data('name')}`);
+				EE.emit(`${_.capitalize($(e.target).closest('.grid-item').data('name'))}.gridItemResized`);
 			}
 		},
 		autogenerate_stylesheet: true,
@@ -152,7 +153,7 @@ Grid.prototype.initGrid = function(){
 			},2000);
 		});
 	});
-	$(document).trigger('loaded.grid');
+	EE.emit('Grid.loaded');
 };
 
 Grid.prototype.resizeGrid = function(){
@@ -164,7 +165,7 @@ Grid.prototype.resizeGrid = function(){
 		$('body').toggleClass('fullscreen',window.innerHeight === screen.height);
 		g.options.widget_base_dimensions = self.getWidgetSize();
 		g.resize_responsive_layout();
-		$(document).trigger('gridResized.veload');
+		EE.emit('Veload.gridResized');
 	},500);
 };
 Grid.prototype.getAvailH = function(){
@@ -200,10 +201,10 @@ Grid.prototype.getWidgetSize = function(){
 Grid.prototype.listenForFinish = function(finishedEvent){
 	var self = this;
 	self.modLoadQueue.push(finishedEvent);
-	$(document).one(finishedEvent,function(){
+	EE.once(finishedEvent,function(){
 		_.pull(self.modLoadQueue,finishedEvent);
 		if (self.modLoadQueue.length === 0){
-			$(document).trigger('modulesLoaded.grid');
+			EE.emit('Grid.modulesLoaded');
 		}
 	});
 };

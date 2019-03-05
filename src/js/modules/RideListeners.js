@@ -1,11 +1,14 @@
+import { EE } from './EventBus.js';
+import Modals from './Modals.js';
+
 function RideListeners(){
-	$(document).on('routeCompleted.veload',function(){
+	EE.on('Veload.routeCompleted',function(){
 		V.pause();
 		var config = {
 			title: 'ride completed!'
 		};
 
-		V.pop(config);
+		Modals.pop(config);
 	});
 }
 

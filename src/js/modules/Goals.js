@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import interact from 'interactjs';
+import { EE } from './EventBus.js';
 import Muuri from 'muuri';
 import Options from './Options.js';
 import Templates from './Templates.js';
@@ -28,7 +29,7 @@ Goals.prototype.makeGraphable = function(){
 		self.workout.data[i].y = Number(val.value);
 		cumulative += Number(val.length);
 	});
-	$(document).trigger('workoutLoaded.veload');
+	EE.emit('Veload.workoutLoaded');
 };
 Goals.prototype.getCurrent = function(){
 	var e;
@@ -255,7 +256,7 @@ Goals.prototype.save = function(){
 		this.workout = ser;
 		$.post(Options.urls.remote.workoutTemplate,ser,function(){
 			Modals.unpop();
-			$(document).trigger('workoutSaved.veload');
+			EE.emit('Veload.workoutSaved');
 		});
 	} else {
 		title.addClass('is-invalid');

@@ -1,19 +1,21 @@
 import * as annyang from 'annyang';
 import Modals from './Modals.js';
 import Templates from './Templates.js';
+import { EE } from './EventBus.js';
+
 function Voice(){
 	if (annyang){
 	//add all commands from buttons that have [data-cmd] (not all functions will be valid)
 		var commands = {};
 		$('button[data-cmd]').each(function(ind,el){
 			var cmd = $(el).data('cmd');
-			commands[cmd] = function(){ V[cmd]({ caller: 'voice' }); };
+			commands[cmd] = function(){ EE.emit(cmd); };
 
 			var alt = $(el).data('voice-alt');
 			if (alt){
 				alt = alt.split(',');
 				alt.forEach(function(el){
-					commands[el] = function(){ V[cmd]({ caller: 'voice' }); };
+					commands[el] = function(){ EE.emit(cmd); };
 				});
 			}
 		});

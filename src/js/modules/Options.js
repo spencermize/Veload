@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { EE } from './EventBus.js';
+
 const Options = {
 	generateUrls: function(){
 		var self = this;
@@ -13,7 +15,7 @@ const Options = {
 	updateLocal: function(server){
 		this.urlComponents.local.url = server;
 		this.generateUrls();
-		$(document).trigger('urlsUpdated.veload');
+		EE.emit('urlsUpdated.veload');
 	},
 	urlComponents: {
 		local: {

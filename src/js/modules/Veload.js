@@ -1,12 +1,14 @@
 'use strict';
 import _ from 'lodash';
 import 'bootstrap';
+import moment from 'moment';
 
 import setColors from './ColorControls.js';
 import Options from './Options.js';
 import Modals from './Modals.js';
 import Templates from './Templates.js';
 import { Charts } from './Charts.js';
+import { EE } from './EventBus.js';
 import { grid } from './Grid.js';
 import { map } from './Map.js';
 import './Utils.Trail.js';
@@ -23,7 +25,7 @@ function Veload(){
 	});
 	window.V = this;
 	window.Veload = window.V;
-	$(document).trigger('initialized.veload');
+	EE.emit('Veload.initialized');
 	if (!(this instanceof Veload)){
 		return new Veload();
 	}
@@ -41,18 +43,18 @@ Veload.prototype.start = function(){
 		var b = $('body').append(over);
 
 		var connected = setInterval(function(){ self.sensorsConnected(self); },100);
-		$(document).on('sensorsConnected.veload',function(){
+		EE.on('Veload.sensorsConnected',function(){
 			clearInterval(connected);
 			over.remove();
 			b.addClass('playing stoppable').removeClass('paused');
 
-			$(document).trigger('start.veload');
+			EE.emit('Veload.start');
 		});
 	} else {
 		$('body').append(Templates.get('start')());
 		V.map = map;
 		map.pickTrackGUI();
-		$(document).one('trackLoading.veload',function(){
+		EE.once('Map.trackLoading',function(){
 			Modals.unpop();
 			Modals.pop({
 				title: 'Select or Create a Workout?',
@@ -60,7 +62,7 @@ Veload.prototype.start = function(){
 				accept: false
 			});
 		});
-		$(document).one('workoutLoaded.veload workoutSaved.veload',function(){
+		EE.once('Veload.workoutLoaded Veload.workoutSaved',function(){
 			Modals.unpop();
 			self.start();
 		});
@@ -70,13 +72,13 @@ Veload.prototype.sensorsConnected = function(self){
 	var desired = [self.user.hr,self.user.cadence,self.user.speed];
 	var connected = [self.status.sensors.hr,self.status.sensors.cadence,self.status.sensors.speed];
 	if (_.isEqual(desired,connected)){
-		$(document).trigger('sensorsConnected.veload');
+		EE.emit('Veload.sensorsConnected');
 	}
 };
 Veload.prototype.pause = function(){
 	$('body').removeClass('playing');
 	$('body').addClass('paused');
-	$(document).trigger('pause.veload');
+	EE.emit('Veload.pause');
 };
 Veload.prototype.stop = function(){
 	var self = this;
@@ -95,9 +97,9 @@ Veload.prototype.stop = function(){
 				self.upload();
 			}
 		};
-		self.pop(config,events);
+		Modals.pop(config,events);
 	}
-	$(document).trigger('stop.veload');
+	EE.emit('Veload.stop');
 };
 Veload.prototype.clear = function(){
 	var self = this;
@@ -117,14 +119,13 @@ Veload.prototype.clear = function(){
 			self.rTrailPopped = [];
 			$('body').removeClass('stoppable');
 			Modals.unpop();
-			$(document).trigger('clear.veload');
+			EE.emit('Veload.clear');
 		}
 	};
 	Modals.pop(config,events);
 };
 
 Veload.prototype.upload = async function(){
-	var moment = await import('moment');
 	var self = this;
 	$('.modal-footer').loader(36,36,true);
 	self.rTrailPopped.forEach(function(val,i){
@@ -168,13 +169,11 @@ Veload.prototype.loadInterface = async function(){
 		self.loadDash();
 
 		//wait until modules loaded before showing loaded
-		$(document).one('modulesLoaded.grid',function(){
+		EE.once('Grid.modulesLoaded',function(){
 			$('body').removeClass('loading');
 		});
 
-		$(document).on('loaded.veload',function(){
-			//build up the charts
-			Charts();
+		EE.on('Veload.loaded',function(){
 			$('[data-ride="carousel"]').carousel();
 			setColors();
 		});
@@ -200,10 +199,10 @@ Veload.prototype.loadInterface = async function(){
 			});
 		}
 	});
-	$(document).trigger('modulesQueued.veload');
+	EE.emit('Veload.modulesQueued');
 };
 Veload.prototype.loaded = function(){
-	$(document).trigger('loaded.veload');
+	EE.emit('Veload.loaded');
 };
 
 //second thing loaded
@@ -221,14 +220,14 @@ Veload.prototype.getUser = function(callback){
 		var changed = self.status.circumference == data.circumference;
 		self.user = data;
 		Options.updateLocal(data.url);
-		$(document).trigger('remoteInfo.veload');
+		EE.emit('Veload.remoteInfo');
 		if (changed){
 			$.post(`${Options.urls.local.circ}?value=${data.circumference}`,function(){
 			}).fail(function(){
 				Modals.error(`Error updating the Veload Monitor's circumference setting. Please restart the Veload Monitor.`);
 			});
 		}
-		$(document).trigger('userUpdated.veload');
+		EE.emit('Veload.userUpdated');
 		if (callback){
 			callback(data);
 		}

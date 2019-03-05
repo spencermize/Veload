@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { EE } from './EventBus.js';
 import Options from './Options.js';
 import * as Trail from './Utils.Trail.js';
 
@@ -69,13 +70,13 @@ const DataListeners = {
 				}
 			});
 		});
-		$(document).on('localInfo.veload',function(){
+		EE.on('localInfo.veload',function(){
 			_.forEach(V.status.sensors,function(value,key){
 				$(`[data-sensor="${key}"]`).toggleClass('btn-primary',value).toggleClass('btn-outline-secondary',!value);
 			});
 		});
 
-		$(document).on('urlsUpdated.veload',function(){
+		EE.on('urlsUpdated.veload',function(){
 			$.post(`${Options.urls.remote.userUrl}?value=${Options.urlComponents.local.url}`,function(){
 
 			}).fail(function(){
@@ -84,15 +85,13 @@ const DataListeners = {
 		});
 	}
 };
-function buttonCmd(e){
+async function buttonCmd(e){
 	var fnc = $(e.target).closest('[data-cmd]').data('cmd') ? $(e.target).closest('[data-cmd]').data('cmd') : $(e.target).closest('form').find('[data-submit]').data('submit');
 	var fncs = fnc.split('.');
-	var one = fncs[0];
-	var two = fncs[1] || 0;
 	if (fncs.length == 1 && V[fnc]){
 		V[fncs[0]]($(e.target));
-	} else if (fncs.length == 2 && V[one][two]){
-		V[one][two]($(e.target));
+	} else if (fncs.length == 2){
+		EE.emit(fnc);
 	}
 }
 function sendUpdates(e){

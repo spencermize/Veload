@@ -1,8 +1,10 @@
 import _ from 'lodash';
 import setColors from './ColorControls.js';
+import { EE } from './EventBus.js';
 import moment from 'moment';
 import Options from './Options.js';
 
+EE.once('Veload.loaded',Charts);
 async function Charts(){
 	if ($('[data-chart]').length){
 		await import('chart.js');
@@ -15,7 +17,7 @@ async function Charts(){
 		initializeGaugeCharts();
 	}
 
-	$(document).on('clear.veload',function(){
+	EE.on('Veload.clear',function(){
 		var chart = $('.grid-item:has([data-chart])');
 		chart.each(function(_i,ch){
 			var v = $(ch).data('chart');
@@ -62,7 +64,7 @@ function initializeGaugeCharts(){
 		setColors();
 		chart.update();
 
-		$(document).on(`${listen}.veload`,function(){
+		EE.on(`Veload.${listen}`,function(){
 			if (V.points.length){
 				var point = _.last(V.points);
 				var p = '';
@@ -87,7 +89,7 @@ function initializeGaugeCharts(){
 			}
 		});
 		v.addClass('initialized');
-		$(document).trigger(`initialized.${name}`);
+		EE.emit(`${_.capitalize(name)}.initialized.`);
 	});
 }
 function initializeLineCharts(){
@@ -111,7 +113,7 @@ function initializeLineCharts(){
 			if (typeof chart.data.datasets[i] == 'undefined'){
 				chart.data.datasets[i] = _.cloneDeep(Options.chart.line.data.datasets[0]);
 			}
-			$(document).on(`${listen[i]}.veload`,function(){
+			EE.on(`Veload.${listen[i]}`,function(){
 				if (V.points.length){
 					var point = _.last(V.points);
 					var p = '';
@@ -138,19 +140,19 @@ function initializeLineCharts(){
 			});
 		});
 
-		$(document).on('start.veload',function(){
+		EE.on('Veload.start',function(){
 			_.forEach(chart.config.options.scales.xAxes,function(c,index){
 				chart.config.options.scales.xAxes[index].realtime.pause = false;
 			});
 		});
 
-		$(document).on('pause.veload',function(){
+		EE.on('Veload.pause',function(){
 			_.forEach(chart.config.options.scales.xAxes,function(c,index){
 				chart.config.options.scales.xAxes[index].realtime.pause = true;
 			});
 		});
 		v.addClass('initialized');
-		$(document).trigger(`initialized.${name}`);
+		EE.emit(`${_.capitalize(name)}.initialized`);
 	});
 }
 export { Charts };

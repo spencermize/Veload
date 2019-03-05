@@ -1,5 +1,6 @@
 import List from 'list.js';
 import moment from 'moment';
+import { EE } from './EventBus.js';
 import Options from './Options.js';
 import Modals from './Modals.js';
 import { Point } from './Point.js';
@@ -8,12 +9,13 @@ var L,omni,geolib;
 
 function Map(){
 	var self = this;
-	$(document).one(`enabling.map`,async function(_e){
+	EE.once(`Map.enabling`,async function(_e){
 		L = await import('leaflet');
 		await import('@ansur/leaflet-pulse-icon');
 		await import('../../../node_modules/leaflet-providers/leaflet-providers.js');
 		omni = await import('@mapbox/leaflet-omnivore');
 		geolib = await import('geolib');
+
 		self.init();
 	});
 	if (!(this instanceof Map)){
@@ -21,10 +23,17 @@ function Map(){
 	}
 }
 Map.prototype.init = function(){
+	var self = this;
 	this.create();
 	this.update();
-	$(document).trigger('initialized.map');
-	$(document).trigger('moduleLoaded.map');
+	var meth = getAllMethods(this)
+	console.log(meth)
+	meth.forEach(function(fnc){
+		console.log(fnc);
+		EE.on(`Map.${fnc}`,function(){ self[fnc](); });
+	});
+	EE.emit('Map.initialized');
+	EE.emit('Map.moduleLoaded');
 };
 Map.prototype.get = function(){
 	return $('.map').data('map');
@@ -41,17 +50,17 @@ Map.prototype.create = function(){
 
 Map.prototype.update = function(){
 	var self = this;
-	$(document).on('locationUpdated.veload',function(){
+	EE.on('Veload.locationUpdated',function(){
 		var l = V.points[V.points.length - 1];
 		self.get().flyTo(l,14,{
 			animate: false
 		});
 		self.myIcon.setLatLng(l);
 	});
-	$(document).on('gridItemResized.map gridResized.veload',function(){
+	EE.on('Map.gridItemResized Veload.gridResized',function(){
 		self.get().invalidateSize();
 	});
-	$(document).on('clear.veload',function(){
+	EE.on('Veload.clear',function(){
 		self.get().remove();
 		self.init();
 	});
@@ -61,7 +70,7 @@ Map.prototype.loadGPX = function(url){
 	var self = this;
 	Modals.unpop();
 	V.loading();
-	$(document).trigger('trackLoading.veload');
+	EE.emit('Map.trackLoading');
 	var om = omni.gpx(url);
 	V.points = [];
 	om.on('ready',function(e){
@@ -90,9 +99,9 @@ Map.prototype.loadGPX = function(url){
 			fillColor: Options.colors.GOOD
 		});
 		self.myIcon = L.marker([l.lat,l.lng],{ icon: pulsingIcon,opacity: 0.8 }).addTo(self.get());
-		$(document).trigger('trackLoaded.veload');
+		EE.emit('Map.trackLoaded');
 	}).on('error',function(e){
-		V.error(e);
+		Modals.error(e);
 	}).addTo(self.get());
 };
 Map.prototype.loadTrack = function(e){
@@ -111,7 +120,7 @@ Map.prototype.gpsLoader = function(){
 	var options = this.listOptions();
 	Modals.unpop();
 	var html = $('.rwgpsSearch').html() + $('.search-wrap').html();
-	Modals.pop(V.listModalOptions(html));
+	Modals.pop(this.listModalOptions(html));
 	$('#modal .searcher').attr('id','searchme');
 	var list = new List('searchme',options);
 	$('#modal').data('list',list);
@@ -218,4 +227,11 @@ Map.prototype.stravaLoader = function(){
 	});
 };
 
+function getAllMethods(obj){
+	var result = [];
+	do {
+		result.push(...Object.getOwnPropertyNames(obj));
+	} while ((obj = Object.getPrototypeOf(obj)));
+	return result;
+}
 export let map = new Map();

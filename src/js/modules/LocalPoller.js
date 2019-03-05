@@ -2,6 +2,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Point } from './Point.js';
 import Options from './Options.js';
+import { EE } from './EventBus.js';
 
 function Poller(){
 	this.pollReference = null;
@@ -15,12 +16,11 @@ function Poller(){
 Poller.prototype.poll = function(){
 	$.getJSON(Options.urls.local.stats,function(data){
 		V.status = data;
-		$(document).trigger('localInfo.veload');
-	})
-		.fail(function(){
-			V.status = {};
-			$(document).trigger('localInfo.veload');
-		});
+		EE.emit('Veload.localInfo');
+	}).fail(function(){
+		V.status = {};
+		EE.emit('Veload.localInfo');
+	});
 };
 
 Poller.prototype.startUpdating = async function(frequency){
@@ -67,7 +67,7 @@ Poller.prototype.startUpdating = async function(frequency){
 					}
 					if (V.rTrail.length == 0){
 						//nothing left, we're done!
-						$(document).trigger('routeCompleted.veload');
+						EE.emit('Veload.routeCompleted');
 					} else {
 						V.rTrail[0].distance = V.rTrail[0].distance - distance;
 
@@ -79,7 +79,7 @@ Poller.prototype.startUpdating = async function(frequency){
 							point = new Point(newLoc.latitude,newLoc.longitude,moment(),hr,cad,speed,true,V.Goals.getCurrent());
 						}
 						V.points.push(point);
-						$(document).trigger('locationUpdated.veload');
+						EE.emit('Veload.locationUpdated');
 					}
 				} else if (!distance && V.rTrail.length && missedUpdates < 10){
 					//paused?
@@ -89,13 +89,13 @@ Poller.prototype.startUpdating = async function(frequency){
 					paused = true;
 				} else {
 					if (cad > 0){
-						$(document).trigger('cadenceUpdated.veload');
+						EE.emit('Veload.cadenceUpdated');
 					}
 					if (speed > 0){
-						$(document).trigger('speedUpdated.veload');
+						EE.emit('Veload.speedUpdated');
 					}
 					if (hrCount % 5 == 0 && hr > 0){
-						$(document).trigger('hrUpdated.veload');
+						EE.emit('Veload.hrUpdated');
 					}
 					hrCount++;
 				}
@@ -116,11 +116,11 @@ Poller.prototype.stopUpdating = function(){
 
 Poller.prototype.handleEvents = function(){
 	var self = this;
-	$(document).on('start.veload',function(){
+	EE.on('Veload.start',function(){
 		self.stopUpdating();
 		self.startUpdating(Options.UPDATEFREQ);
 	});
-	$(document).on('pause.veload',function(){
+	EE.on('Veload.pause',function(){
 		self.stopUpdating();
 		self.startPolling(3000);
 	});

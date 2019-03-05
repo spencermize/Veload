@@ -46,15 +46,15 @@ const PhotoRefresher = {
 		} else {
 			url = `${Options.urls.remote.photosRandom}/public`;
 		}
-		$.get(url,function(data){
+		await $.get(url,function(data){
 			var url = data.url;
 			if (url && `url("${url}")` != $('.bg.blurrer').css('background-image')){
 				$('<img/>').attr('src',url).on('load',function(){
 					$(this).remove();
 					var el = $('.bg.blurrer').first();
-					var el2 = $("<span class='bg blurrer' />");
+					var el2 = $("<span class='bg blurrer in' />");
 					el.before(el2);
-					el2.css({ 'background-image': `url(${url})` }).addClass('in').data('color',data.color);
+					el2.css({ 'background-image': `url(${url})` }).data('color',data.color);
 					el.removeClass('in');
 					$(document).trigger('backgroundUpdated.veload');
 					setTimeout(function(){

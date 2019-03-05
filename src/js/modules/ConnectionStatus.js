@@ -1,5 +1,6 @@
+import { EE } from './EventBus.js';
 function ConnectionStatus(){
-	$(document).on('localInfo.veload',function(){
+	EE.on('Veload.localInfo',function(){
 		//not connected
 		if (!V.status.status){
 			$('body').addClass('disconnected');

@@ -1,10 +1,12 @@
 import _ from 'lodash';
+import { EE } from './EventBus.js';
 import Options from './Options.js';
 import Templates from './Templates.js';
 import Modals from './Modals.js';
+import { grid } from './Grid.js';
 
 function SettingsPane(){
-	V.SettingsPane = this;
+	EE.on('SettingsPane.show',this.show);
 	if (!(this instanceof SettingsPane)){
 		return new SettingsPane();
 	}
@@ -39,14 +41,14 @@ SettingsPane.prototype.show = function(){
 		V.getUser(function(){
 			Modals.unpop();
 			Modals.pop(popts,events);
-			$(document).trigger('settingsShown.veload');
+			EE.emit('SettingsPane.shown');
 		});
 
 		//match UI to server settings
-		$(document).one('settingsShown.veload',function(){
-			$('[data-name="maps"] button').attr('disabled',true);
-			_.forEach(_.difference(data,V.enabledMods),function(el){
-				$(`[data-name=${el}] .btn-toggle`).removeClass('active');
+		EE.once('SettingsPane.shown',function(){
+			$('button[data-name="map"]').attr('disabled',true);
+			_.forEach(_.difference(data,grid.enabledMods),function(el){
+				$(`[data-name=${el}].btn-toggle`).removeClass('active');
 			});
 			_.forEach(V.status,function(value,key){
 				var el = $(`[data-param="${key}"]:not(:focus)`);
@@ -87,11 +89,11 @@ SettingsPane.prototype.addCustomModule = function(el){
 		listen: listen,
 		title: _.startCase(title)
 	};
-	$(document).one('initialized.customChart',function(){
-		V.saveLayout();
+	EE.once('CustomChart.initialized',function(){
+		grid.saveLayout();
 		Modals.unpop();
 	});
-	V.enableModule('customChart',config);
+	grid.enableModule('customChart',config);
 };
 
 export let settings = new SettingsPane();

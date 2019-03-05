@@ -388,7 +388,7 @@ app.post('/api/:action/:sub([a-zA-Z]{0,})?',[sessionChecker,getStrava],function(
 			pointsMod.push(new Point(point.lat,point.lng,{
 				time: point.time,
 				hr: point.hr,
-				cad: point.cad,
+				cad: point.cadence,
 				speed: point.speed
 			}));
 		});
