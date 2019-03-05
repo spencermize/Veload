@@ -15,11 +15,10 @@ $(async function(){
 		await import('./modules/SettingsPane.js');
 		await import('./modules/DataListeners.js');
 
-		let goals = await import('./modules/Goals.js');
+		await import('./modules/Goals.js');
 		let ride = await import('./modules/RideListeners.js');
 		let conn = await import('./modules/ConnectionStatus.js');
 
-		goals.Goals();
 		ride.RideListeners();
 		conn.ConnectionStatus();
 

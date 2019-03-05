@@ -62,7 +62,11 @@ Veload.prototype.start = function(){
 				accept: false
 			});
 		});
-		EE.once('Veload.workoutLoaded Veload.workoutSaved',function(){
+		EE.once('Goals.workoutSaved',function(){
+			Modals.unpop();
+			self.start();
+		});
+		EE.once('Goals.workoutLoaded',function(){
 			Modals.unpop();
 			self.start();
 		});
@@ -162,6 +166,14 @@ Veload.prototype.loading = function(){
 	$('body').addClass('loading');
 };
 
+Veload.prototype.notLoading = function(){
+	$('body').removeClass('loading');
+};
+
+Veload.prototype.loaded = function(){
+	EE.emit('Veload.loaded');
+};
+
 //first thing loaded
 Veload.prototype.loadInterface = async function(){
 	var self = this;
@@ -170,7 +182,7 @@ Veload.prototype.loadInterface = async function(){
 
 		//wait until modules loaded before showing loaded
 		EE.once('Grid.modulesLoaded',function(){
-			$('body').removeClass('loading');
+			self.notLoading();
 		});
 
 		EE.on('Veload.loaded',function(){
@@ -200,9 +212,6 @@ Veload.prototype.loadInterface = async function(){
 		}
 	});
 	EE.emit('Veload.modulesQueued');
-};
-Veload.prototype.loaded = function(){
-	EE.emit('Veload.loaded');
 };
 
 //second thing loaded
