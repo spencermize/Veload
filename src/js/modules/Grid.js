@@ -4,6 +4,12 @@ import '../../third_party/gridster/jquery.gridster.min.js';
 import Options from './Options.js';
 
 function Grid(){
+	var self = this;
+	['Grid.moduleToggle'].forEach(function(eventName){
+		EE.on(eventName,function(el){
+			self[eventName.split('.')[1]](el);
+		});
+	});
 	this.margX = 10;
 	this.margY = 10;
 	this.cols = 6;
@@ -20,10 +26,10 @@ Grid.prototype.moduleToggle = function(ele){
 	var el = e.closest('[data-name]');
 	if (e.closest('.btn-toggle').hasClass('active')){
 		this.enableModule(el.data('name'));
-		this.saveLayout();
 	} else {
 		this.disableModule(el);
 	}
+	this.saveLayout();
 };
 Grid.prototype.disableModule = function(mod){
 	var self = this;
@@ -73,6 +79,8 @@ Grid.prototype.enableModule = function(mod,cnf){
 			}
 
 			$('.grid').data('grid').add_widget(comp,config.size_x,config.size_y,config.col,config.row);
+			EE.emit(`Grid.addedModule`,mod);
+
 			if (jcomp.data('script') === true && !window[_.upperFirst(mod)]){
 				$.getScript(`/js/_${mod}.js`,function(){
 					//call constructor if necessary
@@ -208,4 +216,7 @@ Grid.prototype.listenForFinish = function(finishedEvent){
 		}
 	});
 };
-export let grid = new Grid();
+
+let grid = new Grid();
+grid.initGrid();
+export { grid };

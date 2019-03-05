@@ -10,4 +10,4 @@ function ConnectionStatus(){
 	});
 }
 
-export { ConnectionStatus };
+export let cs = new ConnectionStatus();

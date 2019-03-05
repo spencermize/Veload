@@ -22,7 +22,6 @@ Map.prototype.init = async function(){
 	await import('../../../node_modules/leaflet-providers/leaflet-providers.js');
 	omni = await import('@mapbox/leaflet-omnivore');
 	geolib = await import('geolib');
-
 	this.create();
 	this.listen();
 	EE.emit('Map.initialized');
@@ -48,6 +47,7 @@ Map.prototype.listen = function(){
 			self[eventName.split('.')[1]](el);
 		});
 	});
+	EE.on('Veload.choosingRoute',self.pickTrackGUI);
 	EE.on('Veload.locationUpdated',function(){
 		var l = V.points[V.points.length - 1];
 		self.get().flyTo(l,14,{
@@ -225,6 +225,14 @@ Map.prototype.stravaLoader = function(){
 			});
 		});
 	});
+};
+
+//this is here specifically for List.js, which freaks out on whitespace
+$.fn.cleanWhitespace = function(){
+	this.contents().filter(
+		function(){ return (this.nodeType == 3 && !/\S/.test(this.nodeValue)); })
+		.remove();
+	return this;
 };
 
 export let map = new Map();

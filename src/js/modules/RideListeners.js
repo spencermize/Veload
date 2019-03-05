@@ -12,4 +12,4 @@ function RideListeners(){
 	});
 }
 
-export { RideListeners };
+export let rideListeners = new RideListeners();
