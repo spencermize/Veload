@@ -31,7 +31,7 @@ const session = require('express-session');
 const app = express();
 
 app.use(responseTime());
-app.use(favicon(appRoot + '/public/favicon.ico'));
+app.use(favicon(appRoot + '/public/ico/favicon.ico'));
 
 if (config.env !== 'development'){
 	//include and initialize the rollbar library with your access token
@@ -91,6 +91,7 @@ app.use(express.static('public',{ index: false }));
 app.use('/test',express.static('test',{ index: false }));
 app.use('/node_modules',express.static('node_modules',{ index: false }));
 app.use('/src',express.static('src',{ index: false }));
+app.use(express.static('public/ico',{ index: false }));
 
 //initialize express-session to allow us track the logged-in user across sessions.
 app.use(session({

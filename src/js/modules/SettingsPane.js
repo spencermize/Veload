@@ -4,6 +4,7 @@ import Options from './Options.js';
 import Templates from './Templates.js';
 import Modals from './Modals.js';
 import { grid } from './Grid.js';
+import { loading } from './Loading.js';
 
 function SettingsPane(){
 	var self = this;
@@ -18,7 +19,7 @@ function SettingsPane(){
 }
 
 SettingsPane.prototype.show = function(){
-	V.loading();
+	loading();
 	$.getJSON(Options.urls.remote.modules,function(data){
 		_.remove(data,function(el){
 			return el == 'customChart';
@@ -81,7 +82,7 @@ SettingsPane.prototype.show = function(){
 
 SettingsPane.prototype.addCustomModule = function(el){
 	Modals.unpop();
-	V.loading();
+	loading();
 	var e = $(el).closest('.custom-creator');
 	var title = e.find('.title').val();
 	var p = e.find('.parameter-type').val();

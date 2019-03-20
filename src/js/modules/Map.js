@@ -4,6 +4,7 @@ import { EE } from './EventBus.js';
 import Options from './Options.js';
 import Modals from './Modals.js';
 import { Point } from './Point.js';
+import { loading } from './Loading.js';
 
 var L,omni,geolib;
 
@@ -71,7 +72,7 @@ Map.prototype.loadGPX = function(e){
 	var self = this;
 	var url = e.closest('[data-ref]').data('ref');
 	Modals.unpop();
-	V.loading();
+	loading();
 	EE.emit('Map.trackLoading');
 	var om = omni.gpx(url);
 	V.points = [];
@@ -182,7 +183,7 @@ Map.prototype.listModalOptions = function(body){
 Map.prototype.stravaLoader = function(){
 	var self = this;
 	var options = this.listOptions();
-	V.loading();
+	loading();
 	$.getJSON(Options.urls.remote.athleteRoutes,function(routes){
 		$.getJSON(Options.urls.remote.athleteActivities,function(activities){
 			var data = routes.concat(activities);

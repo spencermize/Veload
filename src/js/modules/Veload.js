@@ -7,6 +7,7 @@ import setColors from './ColorControls.js';
 import Options from './Options.js';
 import Modals from './Modals.js';
 import Templates from './Templates.js';
+import { notLoading } from './Loading.js';
 import { EE } from './EventBus.js';
 import { grid } from './Grid.js';
 import './Utils.Trail.js';
@@ -158,13 +159,7 @@ Veload.prototype.fullscreen = function(config){
 	}
 };
 
-Veload.prototype.loading = function(){
-	$('body').addClass('loading');
-};
 
-Veload.prototype.notLoading = function(){
-	$('body').removeClass('loading');
-};
 
 Veload.prototype.loaded = function(){
 	EE.emit('Veload.loaded');
@@ -175,7 +170,7 @@ Veload.prototype.loadInterface = async function(){
 	var self = this;
 	//wait until modules loaded before showing loaded
 	EE.once('Grid.modulesLoaded',function(){
-		self.notLoading();
+		notLoading();
 	});
 
 	EE.on('Veload.loaded',function(){

@@ -5,6 +5,7 @@ import Muuri from 'muuri';
 import Options from './Options.js';
 import Templates from './Templates.js';
 import Modals from './Modals.js';
+import { loading } from './Loading.js';
 import * as Trail from './Utils.Trail.js';
 
 function Goals(){
@@ -60,7 +61,7 @@ Goals.prototype.getCurrent = function(){
 	return 0;
 };
 Goals.prototype.show = function(){
-	V.loading();
+	loading();
 	var self = this;
 	var comp = Templates.get('workoutBuilder')(V.user);
 	var popts = {
@@ -98,7 +99,7 @@ Goals.prototype.show = function(){
 	});
 };
 Goals.prototype.select = function(){
-	V.loading();
+	loading();
 	var self = this;
 	$.getJSON(Options.urls.remote.userWorkoutTemplates,function(data){
 		self.workoutTemplates = data;
@@ -259,7 +260,7 @@ Goals.prototype.deleteWorkoutTemplate = function(e){
 Goals.prototype.save = function(){
 	var title = $('.workout-title');
 	if (title.val().length){
-		V.loading();
+		loading();
 		var ser = this.serialize();
 		this.workout = ser;
 		$.post(Options.urls.remote.workoutTemplate,ser,function(){

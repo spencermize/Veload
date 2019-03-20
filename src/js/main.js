@@ -20,12 +20,14 @@ $(async function(){
 		await import('./modules/Charts.js');
 		await import('./modules/Voice.js');
 		await import('./modules/Map.js');
+		await import('./modules/Loading.js');
 
 		V.loadInterface();
 		V.loadProfile();
 	} else {
 		import('./modules/DownloadLink.js');
 		import('./modules/Weather.js');
-		V.notLoading();
+		var Load = await import('./modules/Loading.js');
+		Load.notLoading();
 	}
 });
