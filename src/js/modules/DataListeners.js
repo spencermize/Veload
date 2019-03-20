@@ -77,9 +77,9 @@ const DataListeners = {
 					return point[variable];
 				});
 				el.attr('src',src);
-			});	
+			});
 		});
-	
+
 		EE.on('Veload.localInfo',function(){
 			_.forEach(V.status.sensors,function(value,key){
 				$(`[data-sensor="${key}"]`).toggleClass('btn-primary',value).toggleClass('btn-outline-secondary',!value);

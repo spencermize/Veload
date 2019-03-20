@@ -43,7 +43,6 @@ export function getElapsed(){
 	} else {
 		return moment(last.time).diff(moment(first.time)) / 1000; //return time in seconds
 	}
-
 };
 export function getElapsedClock(){
 	return new Date(getElapsed() * 1000).toISOString().substr(11,8); //clock time
