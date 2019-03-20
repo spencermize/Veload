@@ -37,7 +37,7 @@ const DataListeners = {
 			}
 		});
 		//TODO: bind to anywhere in document on location update
-		$(document).on('locationUpdated.veload',function(){
+		EE.on('Veload.locationUpdated',function(){
 			_.forEach(_.last(V.points),function(value,key){
 				var el = $(`[data-param="${key}"]:not(:focus)`);
 				if (el.is('button')){
@@ -69,14 +69,24 @@ const DataListeners = {
 					}
 				}
 			});
+			$(`[data-src]`).each(function(_i,el){
+				el = $(el);
+				var template = el.data('src');
+				var point = _.last(V.points);
+				var src = template.replace(/%%(\w+)%%/gi,function(_str,variable){
+					return point[variable];
+				});
+				el.attr('src',src);
+			});	
 		});
-		EE.on('localInfo.veload',function(){
+	
+		EE.on('Veload.localInfo',function(){
 			_.forEach(V.status.sensors,function(value,key){
 				$(`[data-sensor="${key}"]`).toggleClass('btn-primary',value).toggleClass('btn-outline-secondary',!value);
 			});
 		});
 
-		EE.on('urlsUpdated.veload',function(){
+		EE.on('Veload.urlsUpdated',function(){
 			$.post(`${Options.urls.remote.userUrl}?value=${Options.urlComponents.local.url}`,function(){
 
 			}).fail(function(){

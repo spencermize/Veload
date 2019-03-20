@@ -13,9 +13,7 @@ function SettingsPane(){
 SettingsPane.prototype.show = function(){
 	loading();
 	$.getJSON(Options.urls.remote.modules,function(data){
-		_.remove(data,function(el){
-			return el == 'customChart';
-		});
+		_.pull(data,'customChart','customElement');
 		var opts = {
 			enabledMods: _.map(V.enabledMods,function(e){ return [e,_.startCase(e)]; }),
 			allMods: _.map(data,function(e){ return [e,_.startCase(e)]; }),
@@ -64,9 +62,19 @@ SettingsPane.prototype.show = function(){
 					el.val(value);
 				}
 			});
-			$('.custom-creator .chart-type').on('change',function(e){
+			$('.custom-creator .module-type').on('change',function(e){
 				var el = $(e.target).find(':selected');
-				$('.custom-creator .parameter-type').prop('multiple',el.data('multiple-capable'));
+				var type = el.data('type');
+
+				$('.module-options').children().addClass('d-none');
+				switch (type){
+				case 'param':
+					$('.custom-creator .option-param').removeClass('d-none').prop('multiple',el.data('multiple-capable'));
+					break;
+				case 'custom':
+					$('.custom-creator .option-custom').removeClass('d-none');
+					break;
+				}
 			});
 		});
 	});
@@ -76,22 +84,37 @@ SettingsPane.prototype.addCustomModule = function(el){
 	Modals.unpop();
 	loading();
 	var e = $(el).closest('.custom-creator');
-	var title = e.find('.title').val();
-	var p = e.find('.parameter-type').val();
-	var param = Array.isArray(p) ? p.join(',') : p;
-	var listen = Array.isArray(p) ? p.join('Updated,') : p;
-	listen += 'Updated';
+	var title = _.startCase(e.find('.title').val());
+	var type = $('.custom-creator .module-type :selected').data('type');
+	var mod;
+	var p = e.find(`.option-${type}`).val();
 	var config = {
-		param: param,
-		type: e.find('.chart-type :selected').val(),
-		listen: listen,
-		title: _.startCase(title)
+		title,
+		type: e.find('.module-type :selected').val()
 	};
-	EE.once('CustomChart.initialized',function(){
+	switch (type){
+	case 'param':
+		mod = 'customChart';
+		var listen = Array.isArray(p) ? p.join('Updated,') : p;
+		listen += 'Updated';
+		Object.assign(config,{
+			param: Array.isArray(p) ? p.join(',') : p,
+			listen
+		});
+		break;
+	case 'custom':
+		mod = 'customElement';
+		p = e.find('.option-custom').val();
+		Object.assign(config,{
+			srcUrl: p
+		});
+		break;
+	}
+	EE.once(`${_.capitalize(mod)}.initialized`,function(){
 		grid.saveLayout();
 		Modals.unpop();
 	});
-	grid.enableModule('customChart',config);
+	grid.enableModule(mod,config);
 };
 
 export let settings = new SettingsPane();

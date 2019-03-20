@@ -36,7 +36,14 @@ export function inUnits(num,unit){
 	}
 }
 export function getElapsed(){
-	return moment(_.last(V.points).time).diff(moment(V.points[0].time)) / 1000; //return time in seconds
+	var last = _.last(V.points);
+	var first = V.points[0];
+	if (!last){
+		return 0;
+	} else {
+		return moment(last.time).diff(moment(first.time)) / 1000; //return time in seconds
+	}
+
 };
 export function getElapsedClock(){
 	return new Date(getElapsed() * 1000).toISOString().substr(11,8); //clock time

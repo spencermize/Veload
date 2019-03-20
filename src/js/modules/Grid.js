@@ -93,6 +93,9 @@ Grid.prototype.enableModule = function(mod,cnf){
 				window[_.upperFirst(mod)]();
 			}
 			EE.emit(`${_.capitalize(mod)}.enabling`);
+			if (jcomp.data('script').trim() === 'ignore'){
+				EE.emit(`${_.capitalize(mod)}.initialized`);
+			}
 		} else {
 			throw Error(`Unable to load module: ${mod}`);
 		}
@@ -107,7 +110,8 @@ Grid.prototype.saveLayout = function(){
 		var dom = $(`.grid-item:nth-of-type(${index + 1})`);
 		e[index]['name'] = dom.data('name');
 		e[index]['title'] = _.trim(dom.data('title'));
-		e[index]['type'] = dom.find('[data-chart]').data('chart');
+		e[index]['type'] = dom.find('[data-chart]').data('chart') || dom.find('.customElement').prop('nodeName');
+		e[index]['srcUrl'] = dom.find('.customElement').attr('src');
 		e[index]['param'] = dom.find('[data-param]').data('param');
 		e[index]['listen'] = dom.find('[data-listen]').data('listen');
 	});

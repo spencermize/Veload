@@ -15,7 +15,7 @@ const Options = {
 	updateLocal: function(server){
 		this.urlComponents.local.url = server;
 		this.generateUrls();
-		EE.emit('urlsUpdated.veload');
+		EE.emit('Veload.urlsUpdated');
 	},
 	urlComponents: {
 		local: {

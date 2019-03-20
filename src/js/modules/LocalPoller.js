@@ -3,6 +3,7 @@ import moment from 'moment';
 import { Point } from './Point.js';
 import Options from './Options.js';
 import { EE } from './EventBus.js';
+import { goals } from './Goals.js';
 
 function Poller(){
 	this.pollReference = null;
@@ -63,7 +64,8 @@ Poller.prototype.startUpdating = async function(frequency){
 						//set the distance remaining after we get to the new waypoint
 						distance = distance - V.rTrail[0].distance;
 						tempLoc = V.rTrail.shift();
-						V.rTrailPopped.push(new Point(tempLoc.latlng.lat,tempLoc.latlng.lng,moment(),hr,cad,speed,false,V.Goals.getCurrent())); //this is the real trail
+						V.rTrailPopped.push(new Point(tempLoc.latlng.lat,tempLoc.latlng.lng,moment(),hr,cad,speed,false,goals.getCurrent())); //this is the real trail
+						EE.emit('Veload.trueLocationUpdated');
 					}
 					if (V.rTrail.length == 0){
 						//nothing left, we're done!
@@ -76,7 +78,7 @@ Poller.prototype.startUpdating = async function(frequency){
 							point = _.last(V.rTrailPopped);
 						} else { //we didn't pass a real point so just estimate for the map
 							newLoc = geolib.computeDestinationPoint(_.last(V.points),distance,V.rTrail[0].bearing);
-							point = new Point(newLoc.latitude,newLoc.longitude,moment(),hr,cad,speed,true,V.Goals.getCurrent());
+							point = new Point(newLoc.latitude,newLoc.longitude,moment(),hr,cad,speed,true,goals.getCurrent(),V.rTrail[0].bearing);
 						}
 						V.points.push(point);
 						EE.emit('Veload.locationUpdated');

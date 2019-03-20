@@ -217,6 +217,12 @@ nav .pause,.stop{
   }
 }
 
+[data-name=customElement]{
+  img{
+    @extend .img-fluid;
+  }
+}
+
 [data-name=map]{
   .card-body{
     background-color: transparent !important;

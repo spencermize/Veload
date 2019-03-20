@@ -1,5 +1,6 @@
 import Options from './Options.js';
 import { TinyColor,mostReadable } from '@ctrl/tinycolor';
+import { EE } from './EventBus.js';
 import setColors from './ColorControls.js';
 import _ from 'lodash';
 
@@ -8,17 +9,17 @@ var refreshReference = null;
 const PhotoRefresher = {
 	handleEvents: function(){
 		var self = this;
-		$(document).on('pause.veload',function(){
+		EE.on('Veload.pause',function(){
 			clearInterval(refreshReference);
 		});
 
-		$(document).on('start.veload',function(){
+		EE.on('Veload.start',function(){
 			var radius = 1;
 			refreshReference = setInterval(function(){
 				radius = self.updatePhoto(radius);
 			},15000);
 		});
-		$(document).on('backgroundUpdated.veload',function(){
+		EE.on('Photos.backgroundUpdated',function(){
 			var el = $('.bg.blurrer');
 			var c = el.data('color');
 			var col = { r: c[0],g: c[1],b: c[2] };
@@ -56,7 +57,7 @@ const PhotoRefresher = {
 					el.before(el2);
 					el2.css({ 'background-image': `url(${url})` }).data('color',data.color);
 					el.removeClass('in');
-					$(document).trigger('backgroundUpdated.veload');
+					EE.emit('Photos.backgroundUpdated');
 					setTimeout(function(){
 						el.remove();
 					},500);

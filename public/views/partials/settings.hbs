@@ -51,20 +51,22 @@
 				\{{/each}}
 				<form class="row mt-3 pt-3 border-top custom-creator">
 					<div class="col-6">
-						<select class="form-control chart-type">
+						<select class="form-control module-type">
 							<option selected>Add module...</option>
-							<option data-multiple-capable="true" value="line">Line Chart</option>
-							<option data-multiple-capable="false" value="gauge">Gauge Chart</option>
-							<option data-multiple-capable="false" value="iframe">iFrame</option>
+							<option data-multiple-capable="true" data-type="param" value="line">Line Chart</option>
+							<option data-multiple-capable="false" data-type="param" value="gauge">Gauge Chart</option>
+							<option data-multiple-capable="false" data-type="custom" value="iframe">iFrame</option>
+							<option data-multiple-capable="false" data-type="custom" value="image">Image</option>
 						</select>						
 					</div>
-					<div class="col-6">
-						<select class="form-control parameter-type">
+					<div class="col-6 module-options">
+						<select class="form-control option-param">
 							<option selected>Select parameter</option>
 							<option value="hr">Heartrate</option>
 							<option value="cadence">Cadence</option>
 							<option value="speed">Speed</option>
-						</select>						
+						</select>
+						<input type="text" class="form-control option-custom d-none" placeholder="URL Pattern">				
 					</div>
 					<div class="col-6 mt-3">
 						<input type="text" class="form-control title" placeholder="Name">
