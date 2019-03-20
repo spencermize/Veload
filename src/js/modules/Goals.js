@@ -10,17 +10,9 @@ import * as Trail from './Utils.Trail.js';
 
 function Goals(){
 	this.listen();
-	if (!(this instanceof Goals)){
-		return new Goals();
-	}
 }
 Goals.prototype.listen = function(){
-	var self = this;
-	['Goals.deleteWorkoutTemplate','Goals.selectWorkoutTemplate','Goals.select','Goals.show'].forEach(function(eventName){
-		EE.on(eventName,function(el){
-			self[eventName.split('.')[1]](el);
-		});
-	});
+	EE.builder(['Goals.deleteWorkoutTemplate','Goals.selectWorkoutTemplate','Goals.select','Goals.show'],this);
 };
 Goals.prototype.selectWorkoutTemplate = function(e){
 	this.workout = _.find(this.workoutTemplates,{ 'id': e.data('id') });

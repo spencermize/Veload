@@ -1,12 +1,11 @@
 'use strict';
 import _ from 'lodash';
 import 'bootstrap';
-import moment from 'moment';
 
 import setColors from './ColorControls.js';
 import Options from './Options.js';
 import Modals from './Modals.js';
-import Templates from './Templates.js';
+
 import { notLoading } from './Loading.js';
 import { EE } from './EventBus.js';
 import { grid } from './Grid.js';
@@ -28,47 +27,6 @@ function Veload(){
 	}
 }
 
-Veload.prototype.start = function(){
-	var self = this;
-	if (self.points.length){
-		var config = {
-			title: 'waiting for sensors to connect',
-			overClass: 'bigButtons',
-			content: Templates.get('buttons')()
-		};
-		var over = $(Templates.get('overlay')(config));
-		var b = $('body').append(over);
-
-		var connected = setInterval(function(){ self.sensorsConnected(self); },100);
-		EE.on('Veload.sensorsConnected',function(){
-			clearInterval(connected);
-			over.remove();
-			b.addClass('playing stoppable').removeClass('paused');
-
-			EE.emit('Veload.start');
-		});
-	} else {
-		$('body').append(Templates.get('start')());
-		EE.emit('Veload.choosingRoute');
-
-		EE.once('Map.trackLoading',function(){
-			Modals.unpop();
-			Modals.pop({
-				title: 'Select or Create a Workout?',
-				body: $('.GoalSelectOrBuild').html(),
-				accept: false
-			});
-		});
-		EE.once('Goals.workoutSaved',function(){
-			Modals.unpop();
-			self.start();
-		});
-		EE.once('Goals.workoutLoaded',function(){
-			Modals.unpop();
-			self.start();
-		});
-	}
-};
 Veload.prototype.sensorsConnected = function(self){
 	var desired = [self.user.hr,self.user.cadence,self.user.speed];
 	var connected = [self.status.sensors.hr,self.status.sensors.cadence,self.status.sensors.speed];
@@ -76,93 +34,11 @@ Veload.prototype.sensorsConnected = function(self){
 		EE.emit('Veload.sensorsConnected');
 	}
 };
-Veload.prototype.pause = function(){
-	$('body').removeClass('playing');
-	$('body').addClass('paused');
-	EE.emit('Veload.pause');
-};
-Veload.prototype.stop = function(){
-	var self = this;
-	self.pause();
-	if (self.points.length){
-		var config = {
-			title: 'End ride?',
-			body: 'Are you sure you want to end this ride and upload to Strava?',
-			accept: true,
-			close: true,
-			acceptText: 'Finish',
-			cancelText: 'Go back'
-		};
-		const events = {
-			acceptClick: function(){
-				self.upload();
-			}
-		};
-		Modals.pop(config,events);
-	}
-	EE.emit('Veload.stop');
-};
-Veload.prototype.clear = function(){
-	var self = this;
-	self.pause();
-	var config = {
-		title: 'Clear this ride?',
-		body: 'Are you sure you want to clear your ride? You will lose all data in this window.',
-		accept: true,
-		close: true,
-		acceptText: 'Clear',
-		acceptClass: 'btn-danger',
-		cancelText: 'Go back'
-	};
-	const events = {
-		acceptClick: function(){
-			self.points = [];
-			self.rTrailPopped = [];
-			$('body').removeClass('stoppable');
-			Modals.unpop();
-			EE.emit('Veload.clear');
-		}
-	};
-	Modals.pop(config,events);
-};
-
-Veload.prototype.upload = async function(){
-	var self = this;
-	$('.modal-footer').loader(36,36,true);
-	self.rTrailPopped.forEach(function(val,i){
-		self.rTrailPopped[i].time = moment(val.time).format();
-	});
-	$.post(Options.urls.remote.publish,{ points: self.rTrailPopped },function(data){
-		if (data.id){
-			var config = {
-				title: 'Congrats!',
-				body: 'Congratulations, your ride has been uploaded!',
-				accept: false,
-				close: true,
-				cancelText: 'Finish'
-			};
-			$('#modal').on('hidden.bs.modal',function(){
-				Modals.pop(config);
-			});
-			Modals.unpop();
-		} else {
-			Modals.error('Error uploading to Strava');
-		}
-	}).fail(function(err){
-		Modals.error(`<p>Error uploading. <strong>Please contact support.</strong></p><p class="text-danger font-weight-light">Diagnostic Info: Server (${self.remote.publish}) responded (${err.status} ${err.statusText})</p>`);
-	});
-};
 
 Veload.prototype.fullscreen = function(config){
 	if (config.caller != 'voice'){
 		$('body')[0].requestFullscreen();
 	}
-};
-
-
-
-Veload.prototype.loaded = function(){
-	EE.emit('Veload.loaded');
 };
 
 //first thing loaded
@@ -187,7 +63,7 @@ Veload.prototype.loadInterface = async function(){
 			});
 
 			//html is ready to play
-			self.loaded();
+			EE.emit('Veload.loaded');
 		} else { //initialize a dashboard
 			$.getJSON(Options.urls.remote.modules,function(modules){
 				_.forEach(modules,function(mod){
@@ -195,7 +71,7 @@ Veload.prototype.loadInterface = async function(){
 				});
 
 				//html is ready to play
-				self.loaded();
+				EE.emit('Veload.loaded');
 			});
 		}
 	});

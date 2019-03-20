@@ -7,15 +7,7 @@ import { grid } from './Grid.js';
 import { loading } from './Loading.js';
 
 function SettingsPane(){
-	var self = this;
-	['SettingsPane.addCustomModule','SettingsPane.show'].forEach(function(eventName){
-		EE.on(eventName,function(el){
-			self[eventName.split('.')[1]](el);
-		});
-	});
-	if (!(this instanceof SettingsPane)){
-		return new SettingsPane();
-	}
+	EE.builder(['SettingsPane.addCustomModule','SettingsPane.show'],this);
 }
 
 SettingsPane.prototype.show = function(){

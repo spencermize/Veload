@@ -16,6 +16,7 @@ $(async function(){
 		await import('./modules/DataListeners.js');
 		await import('./modules/Goals.js');
 		await import('./modules/RideListeners.js');
+		await import('./modules/RideControls.js');
 		await import('./modules/ConnectionStatus.js');
 		await import('./modules/Charts.js');
 		await import('./modules/Voice.js');
