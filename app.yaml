@@ -1,6 +1,6 @@
 runtime: nodejs10
 
-instance_class: F1
+instance_class: B2
 
 handlers:
 - url: /.*
