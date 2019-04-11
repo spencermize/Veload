@@ -4,6 +4,8 @@
 `npm run watch`
 
 
-data-sensor: sensor connectivity function. (ex: "hr")
-data-param: value indicating which Veload.status or Veload.user item to reflect. (ex: "hr")
-data-update: comma separated value indicating which Veload.OPTIONS.urls location to send data to. (ex: "remote.userHr" to update the user's HR Monitor settings)
+- data-sensor: sensor connectivity function. (ex: "hr")
+- data-param: value indicating which Veload.status or Veload.user item to reflect. (ex: "hr")
+- data-update: comma separated value indicating which Veload.OPTIONS.urls location to send data to. (ex: "remote.userHr" to update the user's HR Monitor settings)
+
+![Screenshot](http://imagehost.cc/images/2019/04/11/Capture74227.png)
