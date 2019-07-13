@@ -98,7 +98,7 @@
     "leaflet": "*",
     "leaflet-providers": "1.5.0",
     "list.js": "1.5.0",
-    "lodash": "4.17.11",
+    "lodash": "4.17.13",
     "mem": "4.1.0",
     "mocha": "6.0.2",
     "moment": "2.24.0",
