@@ -19,7 +19,6 @@ SettingsPane.prototype.show = function(){
 			allMods: _.map(data,function(e){ return [e,_.startCase(e)]; }),
 			links: ['bike','connection','modules']
 		};
-		//console.log(opts);
 		var comp = Templates.get('settings')(opts);
 		var popts = {
 			title: 'Veload Settings',

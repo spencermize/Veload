@@ -1,4 +1,4 @@
-export interface StatsService {
+export interface Stat {
     speed: number,
     cadence: number,
     hr: number,
@@ -9,5 +9,7 @@ export interface StatsService {
       cadence: boolean
     },
     stick: any,
-    circ: 2.120
+    circ: number
 }
+
+//  = 2.120

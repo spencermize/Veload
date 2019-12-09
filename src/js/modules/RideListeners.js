@@ -3,7 +3,7 @@ import Modals from './Modals.js';
 
 function RideListeners(){
 	EE.on('Veload.routeCompleted',function(){
-		V.pause();
+		EE.emit('Ride.pause');
 		var config = {
 			title: 'ride completed!'
 		};
