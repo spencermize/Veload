@@ -106,7 +106,7 @@
     "mysql2": "1.6.5",
     "node-downloader-helper": "1.0.10",
     "npm": "6.8.0",
-    "popper.js": "1.14.7",
+    "popper.js": "1.16.1",
     "redirect-https": "1.3.0",
     "response-time": "2.3.2",
     "rollbar": "2.5.3",
