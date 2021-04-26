@@ -67,7 +67,7 @@
     "@ansur/leaflet-pulse-icon": "0.1.1",
     "@babel/plugin-syntax-dynamic-import": "7.2.0",
     "@ctrl/tinycolor": "2.3.0",
-    "@google-cloud/storage": "2.4.2",
+    "@google-cloud/storage": "5.0.0",
     "@mapbox/leaflet-omnivore": "0.3.4",
     "annyang": "2.6.1",
     "axios": "*",
