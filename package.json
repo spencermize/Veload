@@ -84,7 +84,7 @@
     "connect-session-sequelize": "*",
     "eventemitter3": "^3.1.0",
     "express": "4.16.4",
-    "express-hbs": "2.0.2",
+    "express-hbs": "2.4.0",
     "express-session": "*",
     "font-awesome-assets": "0.0.8",
     "geolib": "*",
