@@ -103,7 +103,7 @@
     "mocha": "6.0.2",
     "moment": "2.24.0",
     "muuri": "0.7.1",
-    "mysql2": "1.6.5",
+    "mysql2": "3.9.8",
     "node-downloader-helper": "1.0.10",
     "npm": "6.8.0",
     "popper.js": "1.14.7",
