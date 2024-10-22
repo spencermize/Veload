@@ -10,9 +10,9 @@
     "npm": "6.8.0"
   },
   "devDependencies": {
-    "@babel/cli": "7.2.3",
-    "@babel/core": "7.3.4",
-    "@babel/preset-env": "7.3.4",
+    "@babel/cli": "7.25.9",
+    "@babel/core": "7.25.9",
+    "@babel/preset-env": "7.25.9",
     "babel-loader": "8.0.5",
     "babel-plugin-lodash": "3.3.4",
     "eslint": "5.15.0",
@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "@ansur/leaflet-pulse-icon": "0.1.1",
-    "@babel/plugin-syntax-dynamic-import": "7.2.0",
+    "@babel/plugin-syntax-dynamic-import": "7.8.3",
     "@ctrl/tinycolor": "2.3.0",
     "@google-cloud/storage": "2.4.2",
     "@mapbox/leaflet-omnivore": "0.3.4",
