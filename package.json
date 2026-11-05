@@ -101,7 +101,7 @@
     "lodash": "4.17.11",
     "mem": "4.1.0",
     "mocha": "6.0.2",
-    "moment": "2.24.0",
+    "moment": "2.29.4",
     "muuri": "0.7.1",
     "mysql2": "1.6.5",
     "node-downloader-helper": "1.0.10",
